@@ -1,0 +1,13 @@
+{
+  "name": "eduguide-ai",
+  "version": "1.0.0",
+  "description": "EduGuide AI – dual-environment monorepo (localhost + Vercel)",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix server & npm run dev --prefix client",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "install:all": "npm install && npm install --prefix client && npm install --prefix server"
+  }
+}
+
