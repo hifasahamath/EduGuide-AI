@@ -25,7 +25,17 @@ import Register from './pages/Register';
 
 const ProtectedRoute = ({ children, allowedRole }) => {
   const { user, profile } = useAuth();
+  
   if (!user) return <Navigate to="/login" replace />;
+  
+  // Wait for profile to load before making routing decisions to prevent race conditions
+  if (user && !profile) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#f4f4f8]">
+        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
   
   const role = profile?.role || user.user_metadata?.role || 'student';
   const isClient = role === 'client' || role === 'student' || role === 'user';
