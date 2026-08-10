@@ -36,9 +36,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const fetchProfile = async (userId) => {
+    setLoading(true);
     try {
-      // In a real app we might fetch from our backend API to get the enriched profile,
-      // but we can also fetch directly from Supabase since we have RLS setup.
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
