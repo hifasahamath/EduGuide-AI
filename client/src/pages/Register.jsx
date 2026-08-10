@@ -49,8 +49,12 @@ const Register = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (profile?.role === 'admin') navigate('/admin', { replace: true });
-    if (profile?.role === 'client' || profile?.role === 'student' || profile?.role === 'user') navigate('/chat', { replace: true });
+    if (!profile) return;
+    if (profile.role === 'admin') {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate('/chat', { replace: true });
+    }
   }, [profile, navigate]);
 
   const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));

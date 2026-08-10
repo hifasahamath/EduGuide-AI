@@ -23,35 +23,49 @@ import AdminProfile from './pages/admin/Profile';
 import Login from './pages/Login';
 import Register from './pages/Register';
 
+/**
+ * ProtectedRoute guards pages by authentication and role.
+ * 
+ * Key design decisions:
+ * - Uses profile.role from the database as the authoritative source
+ * - Falls back to user_metadata.role (set during registration) if profile hasn't loaded
+ * - Final fallback is 'user' which matches the DB CHECK constraint ('user' | 'admin')
+ * - If user has no profile yet (e.g., profile fetch failed), they are treated as 'user'
+ */
 const ProtectedRoute = ({ children, allowedRole }) => {
-  const { user, profile } = useAuth();
+  const { user, profile, loading } = useAuth();
   
+  // Not authenticated — redirect to login
   if (!user) return <Navigate to="/login" replace />;
   
-  // Wait for profile to load before making routing decisions to prevent race conditions
-  if (user && !profile) {
+  // Profile is still loading — show a spinner to prevent premature redirect
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#f4f4f8]">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f4f4f8' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid #6366f1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
   
-  const role = profile?.role || user.user_metadata?.role || 'student';
-  const isClient = role === 'client' || role === 'student' || role === 'user';
+  // Determine role: DB profile is authoritative, user_metadata is fallback, 'user' is default
+  const role = profile?.role || user.user_metadata?.role || 'user';
+  const isClient = role === 'user' || role === 'client' || role === 'student';
   
+  // Role mismatch — redirect to correct area
   if (allowedRole === 'client' && !isClient) {
     return <Navigate to="/admin" replace />;
   }
   if (allowedRole === 'admin' && role !== 'admin') {
     return <Navigate to="/chat" replace />;
   }
+  
   return children;
 };
 
 const AdminLayout = ({ children }) => {
   const { user, profile } = useAuth();
-  const name = profile?.name || user?.user_metadata?.display_name || 'Administrator';
+  const name = profile?.display_name || user?.user_metadata?.display_name || 'Administrator';
   return (
     <div className="flex h-screen bg-[#f4f4f8] font-sans text-left">
       <Sidebar />

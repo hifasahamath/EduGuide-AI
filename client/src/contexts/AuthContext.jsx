@@ -1,73 +1,87 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import api from '../services/api';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);       // true only during initial session check
 
-  useEffect(() => {
-    // Check active session on mount
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setUser(session.user);
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    // Listen for auth changes (login/logout/token refresh)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
-        setUser(session.user);
-        await fetchProfile(session.user.id);
-      } else {
-        setUser(null);
-        setProfile(null);
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchProfile = async (userId) => {
-    setLoading(true);
+  // Fetch profile from Supabase — called by onAuthStateChange only
+  const fetchProfile = useCallback(async (userId) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
-        
+
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error);
       }
-      
+
       setProfile(data || null);
     } catch (err) {
       console.error('Profile fetch failed:', err);
-    } finally {
-      setLoading(false);
+      setProfile(null);
     }
-  };
+  }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    // 1. Check existing session on mount
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!isMounted) return;
+      if (session?.user) {
+        setUser(session.user);
+        await fetchProfile(session.user.id);
+      }
+      if (isMounted) setLoading(false);
+    });
+
+    // 2. Listen for auth state changes (login, logout, token refresh)
+    //    This is the SINGLE source of truth for user/profile state.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setProfile(null);
+        return;
+      }
+
+      if (session?.user) {
+        setUser(session.user);
+        await fetchProfile(session.user.id);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile]);
+
+  /**
+   * Login: authenticates with Supabase and returns the role.
+   * Does NOT directly set user/profile state — onAuthStateChange handles that.
+   * This prevents the double-update race condition.
+   */
   const login = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return { success: false, error: error.message };
-      
-      // Get profile for role
-      const { data: prof } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
-      
-      setUser(data.user);
-      setProfile(prof || null);
-      
-      return { success: true, role: prof?.role || 'student', user: data.user };
+
+      // Fetch profile to determine role for the caller's redirect logic
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      return { success: true, role: prof?.role || 'user', user: data.user };
     } catch (err) {
       return { success: false, error: err.message };
     }
@@ -102,15 +116,28 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await supabase.auth.signOut();
+    setUser(null);
+    setProfile(null);
   };
 
   const updateSessionProfile = (updates) => {
     setProfile(prev => ({ ...prev, ...updates }));
   };
 
+  // Only block rendering during the very first session check.
+  // After that, the app is always visible and ProtectedRoute handles auth gating.
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f4f4f8' }}>
+        <div style={{ width: 32, height: 32, border: '3px solid #6366f1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider value={{ user, profile, loading, login, loginWithGoogle, register, logout, updateSessionProfile }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

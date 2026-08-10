@@ -54,10 +54,16 @@ const Login = () => {
     }
   }, []);
 
-  // Auto-redirect if already logged in
+  // Auto-redirect if already logged in.
+  // This is the SINGLE place that handles post-login navigation.
+  // It fires when onAuthStateChange updates the profile in AuthContext.
   useEffect(() => {
-    if (profile?.role === 'admin') navigate('/admin', { replace: true });
-    if (profile?.role === 'client' || profile?.role === 'student' || profile?.role === 'user') navigate('/chat', { replace: true });
+    if (!profile) return;
+    if (profile.role === 'admin') {
+      navigate('/admin', { replace: true });
+    } else {
+      navigate('/chat', { replace: true });
+    }
   }, [profile, navigate]);
 
   // Restore email from remember-me
@@ -98,9 +104,8 @@ const Login = () => {
       // Handle remember me
       if (rememberMe) localStorage.setItem('_eg_remember_email', email);
       else localStorage.removeItem('_eg_remember_email');
-      // Role-based redirect
-      if (result.role === 'admin') navigate('/admin');
-      else navigate('/chat');
+      // Navigation is handled by the useEffect above watching `profile`.
+      // onAuthStateChange will fire, update AuthContext, and the useEffect will redirect.
     } else {
       const newCount = (d.count || 0) + 1;
       const locked = newCount >= MAX_ATTEMPTS;

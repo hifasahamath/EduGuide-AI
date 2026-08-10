@@ -9,23 +9,17 @@ const authenticateUser = async (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
     
-    // Verify JWT with Supabase
+    // Verify JWT with Supabase Auth
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
       return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
 
-    // Get the user's role from the profiles table.
-    // We create a temporary scoped client with the user's JWT so RLS policies work correctly.
-    const { createClient } = require('@supabase/supabase-js');
-    const userClient = createClient(
-      process.env.VITE_SUPABASE_URL,
-      process.env.VITE_SUPABASE_ANON_KEY,
-      { global: { headers: { Authorization: `Bearer ${token}` } } }
-    );
-
-    const { data: profile, error: profileError } = await userClient
+    // Use the admin client (service role) to fetch the profile.
+    // This bypasses RLS and is the standard Supabase server-side pattern.
+    // The JWT has already been verified above, so we know the user is authentic.
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('role, display_name, ai_settings')
       .eq('id', user.id)
