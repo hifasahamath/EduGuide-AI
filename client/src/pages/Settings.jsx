@@ -60,6 +60,7 @@ const SettingsPage = ({ isDark }) => {
   const [showPw, setShowPw] = useState(false);
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
   const [nameEdit, setNameEdit] = useState(user?.name || '');
+  const [activityLog, setActivityLog] = useState([]);
 
   const showToast = (msg, err) => { setToast({ msg, err }); setTimeout(() => setToast(''), 2500); };
 
@@ -67,6 +68,7 @@ const SettingsPage = ({ isDark }) => {
   useEffect(() => {
     if (!user?.id) return;
     api.get(`/settings/${user.id}`).then(r => setSettings(r.data || {})).catch(() => {});
+    api.get(`/auth/${user.id}/activity`).then(r => setActivityLog(r.data || [])).catch(() => {});
   }, [user?.id]);
 
   const save = useCallback(async (patch) => {
@@ -98,6 +100,23 @@ const SettingsPage = ({ isDark }) => {
       setPwForm({ current: '', next: '', confirm: '' });
       showToast('Password changed!');
     } catch { showToast('Failed. Check current password.', true); }
+  };
+
+  const exportData = async () => {
+    try {
+      showToast('Preparing your data export...');
+      const response = await api.get(`/settings/${user.id}/export`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `eduguide_export_${user.id}.json`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      showToast('Export successful!');
+    } catch (err) {
+      showToast('Failed to export data', true);
+    }
   };
 
   // Theme helpers
@@ -297,7 +316,7 @@ const SettingsPage = ({ isDark }) => {
               </Section>
               <Section title="Data" isDark={isDark}>
                 <Row label="Export all chats" desc="Download as JSON file" isDark={isDark}>
-                  <button onClick={() => showToast('Export coming soon')}
+                  <button onClick={exportData}
                     className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors
                       ${isDark ? 'border-white/10 text-gray-300 hover:bg-white/5' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
                     <Download size={12}/> Export
@@ -341,7 +360,7 @@ const SettingsPage = ({ isDark }) => {
               </Section>
               <Section title="Your Data" isDark={isDark}>
                 <Row label="Download my data" desc="Get a copy of all your data" isDark={isDark}>
-                  <button onClick={() => showToast('Data export coming soon')}
+                  <button onClick={exportData}
                     className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors
                       ${isDark ? 'border-white/10 text-gray-300 hover:bg-white/5' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
                     <Download size={12}/> Download
@@ -382,9 +401,27 @@ const SettingsPage = ({ isDark }) => {
                 </div>
               </Section>
               <Section title="Login Activity" isDark={isDark}>
-                <div className={`text-xs ${textMuted} text-center py-6`}>
-                  Login history tracking coming soon.
-                </div>
+                {activityLog.length === 0 ? (
+                  <div className={`text-xs ${textMuted} text-center py-6`}>
+                    No activity recorded yet.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {activityLog.map((log, i) => (
+                      <div key={i} className={`flex items-center justify-between gap-4 py-2 ${isDark ? 'border-white/5 border-b last:border-0' : 'border-gray-50 border-b last:border-0'}`}>
+                        <div>
+                          <p className={`text-sm font-medium ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>{log.description || log.type}</p>
+                          <p className={`text-xs mt-0.5 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                            {log.device || 'Unknown device'} • {log.ip || 'Unknown IP'}
+                          </p>
+                        </div>
+                        <div className={`text-[10px] ${textMuted}`}>
+                          {new Date(log.created_at).toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </Section>
             </>
           )}

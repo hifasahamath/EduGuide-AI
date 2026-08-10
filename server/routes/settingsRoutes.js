@@ -8,5 +8,6 @@ router.use(authenticateUser);
 router.get('/:userId', settingsController.getSettings);
 router.put('/:userId', settingsController.saveSettings);
 router.delete('/:userId/chats', settingsController.clearAllChats);
+router.get('/:userId/export', settingsController.exportData);
 
 module.exports = router;

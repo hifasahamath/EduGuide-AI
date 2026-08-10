@@ -8,7 +8,7 @@ const config = {
   gemini: {
     client: process.env.GEMINI_API_KEY ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }) : null,
     model: 'gemini-2.5-flash',
-    embeddingModel: 'text-embedding-004'
+    embeddingModel: 'gemini-embedding-2'
   },
   openai: {
     client: process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null,

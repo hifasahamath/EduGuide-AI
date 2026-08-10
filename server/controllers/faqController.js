@@ -67,12 +67,35 @@ exports.suggestFaq = async (req, res) => {
 
 exports.getAnalytics = async (req, res) => {
   try {
-    // In a real app this would aggregate metrics.
-    // We just return dummy metrics for now to satisfy the frontend component.
+    const faqs = await FaqModel.getAll();
+    const totalFaqs = faqs.length;
+    let totalAsks = 0;
+    
+    // Calculate total asks and find the most asked category
+    const categoryCounts = {};
+    
+    faqs.forEach(faq => {
+      totalAsks += (faq.ask_count || 0);
+      
+      const cat = faq.category || 'General';
+      categoryCounts[cat] = (categoryCounts[cat] || 0) + (faq.ask_count || 0);
+    });
+    
+    let mostAskedCategory = 'None';
+    let maxCount = -1;
+    for (const cat in categoryCounts) {
+      if (categoryCounts[cat] > maxCount) {
+        maxCount = categoryCounts[cat];
+        mostAskedCategory = cat;
+      }
+    }
+    
+    if (totalAsks === 0) mostAskedCategory = 'None';
+
     res.json({
-      totalFaqs: 25,
-      totalAsks: 150,
-      mostAskedCategory: 'Fees'
+      totalFaqs,
+      totalAsks,
+      mostAskedCategory
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch FAQ analytics' });

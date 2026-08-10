@@ -1,4 +1,4 @@
-const { supabase } = require('../config/supabase');
+const { supabaseAdmin: supabase } = require('../config/supabase');
 
 
 exports.getSettings = async (req, res) => {
@@ -46,5 +46,32 @@ exports.clearAllChats = async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Failed to clear chats' });
+  }
+};
+
+exports.exportData = async (req, res) => {
+  try {
+    if (req.user.id !== req.params.userId && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    const [profileData, settingsData, chatSessions] = await Promise.all([
+      supabase.from('profiles').select('*').eq('id', req.params.userId).single(),
+      supabase.from('settings').select('*').eq('user_id', req.params.userId).single(),
+      supabase.from('chat_sessions').select('*, chat_messages(*)').eq('user_id', req.params.userId)
+    ]);
+    
+    const exportPayload = {
+      exported_at: new Date().toISOString(),
+      profile: profileData.data,
+      settings: settingsData.data,
+      chat_history: chatSessions.data
+    };
+    
+    res.setHeader('Content-disposition', `attachment; filename=eduguide_export_${req.params.userId}.json`);
+    res.setHeader('Content-type', 'application/json');
+    res.send(JSON.stringify(exportPayload, null, 2));
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to export data' });
   }
 };

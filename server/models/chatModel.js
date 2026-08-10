@@ -1,4 +1,4 @@
-const { supabase } = require('../config/supabase');
+const { supabaseAdmin: supabase } = require('../config/supabase');
 
 class ChatModel {
   static async createSession(userId, title = 'New Chat') {

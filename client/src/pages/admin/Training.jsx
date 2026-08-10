@@ -190,25 +190,40 @@ const Training = () => {
   };
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('title', file.name);
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
 
     setUploading(true);
-    try {
-      await apiClient.uploadDocument(formData);
-      setSuccessMsg('✅ Document uploaded, parsed, and embedded successfully!');
-      setTimeout(() => setSuccessMsg(''), 3000);
-      await fetchData(); // Refresh documents
-    } catch (err) {
-      alert('Upload failed: ' + (err.response?.data?.error || err.message));
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const file of files) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('title', file.name);
+
+      try {
+        await apiClient.uploadDocument(formData);
+        successCount++;
+      } catch (err) {
+        console.error('Upload failed for', file.name, err);
+        failCount++;
+      }
     }
+
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    if (successCount > 0 && failCount === 0) {
+      setSuccessMsg(`✅ ${successCount} document(s) uploaded and embedded successfully!`);
+    } else if (successCount > 0 && failCount > 0) {
+      setSuccessMsg(`⚠️ ${successCount} uploaded, ${failCount} failed.`);
+    } else {
+      alert(`Upload failed for all ${failCount} documents.`);
+    }
+    
+    setTimeout(() => setSuccessMsg(''), 4000);
+    await fetchData(); // Refresh documents
   };
 
   const handleDeleteDocument = async (id) => {
@@ -291,14 +306,14 @@ const Training = () => {
             <h3 className="text-lg font-bold text-gray-800 mb-2">Upload Knowledge Document</h3>
             <p className="text-sm text-gray-500 mb-4">Supported formats: PDF, DOCX, XLSX, CSV, TXT (Max 10MB)</p>
             <div className="flex items-center gap-4">
-              <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf,.docx,.xlsx,.csv,.txt" className="hidden" />
+              <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept=".pdf,.docx,.xlsx,.csv,.txt" className="hidden" multiple />
               <button 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
                 className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-xl font-semibold transition-all shadow-md"
               >
                 {uploading ? <RefreshCw size={18} className="animate-spin" /> : <Upload size={18} />}
-                {uploading ? 'Processing & Embedding...' : 'Select & Upload File'}
+                {uploading ? 'Processing & Embedding...' : 'Select & Upload Files'}
               </button>
             </div>
           </div>
