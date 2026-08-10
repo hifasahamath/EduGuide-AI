@@ -260,7 +260,35 @@ BEGIN
   FROM courses c
   WHERE c.embedding IS NOT NULL
     AND 1 - (c.embedding <=> query_embedding) > similarity_threshold
-  ORDER BY c.embedding <=> query_embedding
   LIMIT match_count;
 END;
 $$;
+
+-- ========================================================
+-- AUTOMATIC PROFILE CREATION TRIGGER
+-- ========================================================
+-- Automatically creates a profile when a new user signs up
+
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, display_name, role)
+  VALUES (
+    NEW.id, 
+    NEW.email, 
+    NEW.raw_user_meta_data->>'display_name', 
+    COALESCE(NEW.raw_user_meta_data->>'role', 'user')
+  );
+  RETURN NEW;
+END;
+$$;
+
+-- Drop trigger if exists to prevent errors on multiple runs
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();

@@ -28,7 +28,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
   if (!user) return <Navigate to="/login" replace />;
   
   const role = profile?.role || user.user_metadata?.role || 'student';
-  const isClient = role === 'client' || role === 'student';
+  const isClient = role === 'client' || role === 'student' || role === 'user';
   
   if (allowedRole === 'client' && !isClient) {
     return <Navigate to="/admin" replace />;

@@ -17,7 +17,7 @@ const FEATURES = [
 ];
 
 const Login = () => {
-  const { user, login } = useAuth();
+  const { user, profile, login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -56,9 +56,9 @@ const Login = () => {
 
   // Auto-redirect if already logged in
   useEffect(() => {
-    if (user?.role === 'admin') navigate('/admin', { replace: true });
-    if (user?.role === 'client' || user?.role === 'student') navigate('/chat', { replace: true });
-  }, [user, navigate]);
+    if (profile?.role === 'admin') navigate('/admin', { replace: true });
+    if (profile?.role === 'client' || profile?.role === 'student' || profile?.role === 'user') navigate('/chat', { replace: true });
+  }, [profile, navigate]);
 
   // Restore email from remember-me
   useEffect(() => {

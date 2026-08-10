@@ -63,7 +63,11 @@ export const AuthProvider = ({ children }) => {
       if (error) return { success: false, error: error.message };
       
       // Get profile for role
-      const { data: prof } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+      const { data: prof } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+      
+      setUser(data.user);
+      setProfile(prof || null);
+      
       return { success: true, role: prof?.role || 'student', user: data.user };
     } catch (err) {
       return { success: false, error: err.message };
@@ -88,7 +92,7 @@ export const AuthProvider = ({ children }) => {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { display_name: name, role: 'student' } }
+        options: { data: { display_name: name, role: 'user' } }
       });
       if (error) return { success: false, error: error.message };
       return { success: true, data };

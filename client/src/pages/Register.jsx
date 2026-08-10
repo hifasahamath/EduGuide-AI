@@ -36,7 +36,7 @@ const AuthInput = ({ label, icon, error, ...props }) => (
 
 // ── Register page ──────────────────────────────────────────────────────────────
 const Register = () => {
-  const { user, register } = useAuth();
+  const { user, profile, register } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', phone: '' });
@@ -49,9 +49,9 @@ const Register = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user?.role === 'admin') navigate('/admin', { replace: true });
-    if (user?.role === 'client' || user?.role === 'student') navigate('/chat', { replace: true });
-  }, [user, navigate]);
+    if (profile?.role === 'admin') navigate('/admin', { replace: true });
+    if (profile?.role === 'client' || profile?.role === 'student' || profile?.role === 'user') navigate('/chat', { replace: true });
+  }, [profile, navigate]);
 
   const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
 
