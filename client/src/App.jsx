@@ -24,21 +24,24 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 const ProtectedRoute = ({ children, allowedRole }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  // Support both 'client' and 'student' roles for the chat interface
-  const isClient = user.role === 'client' || user.role === 'student';
+  
+  const role = profile?.role || user.user_metadata?.role || 'student';
+  const isClient = role === 'client' || role === 'student';
+  
   if (allowedRole === 'client' && !isClient) {
-    return <Navigate to={user.role === 'admin' ? '/admin' : '/chat'} replace />;
+    return <Navigate to="/admin" replace />;
   }
-  if (allowedRole === 'admin' && user.role !== 'admin') {
+  if (allowedRole === 'admin' && role !== 'admin') {
     return <Navigate to="/chat" replace />;
   }
   return children;
 };
 
 const AdminLayout = ({ children }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const name = profile?.name || user?.user_metadata?.display_name || 'Administrator';
   return (
     <div className="flex h-screen bg-[#f4f4f8] font-sans text-left">
       <Sidebar />
@@ -50,11 +53,11 @@ const AdminLayout = ({ children }) => {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-sm font-semibold text-gray-800">{user?.name || 'Administrator'}</p>
+              <p className="text-sm font-semibold text-gray-800">{name}</p>
               <p className="text-[11px] text-gray-400">{user?.email}</p>
             </div>
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md shadow-violet-200">
-              <span className="text-white text-sm font-bold">{user?.name?.[0]?.toUpperCase() || 'A'}</span>
+              <span className="text-white text-sm font-bold">{name[0]?.toUpperCase()}</span>
             </div>
           </div>
         </header>

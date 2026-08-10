@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
-import API_BASE from '../../config/env';
+import api from '../../services/api';
 import {
   Users, BookOpen, MessageSquare, BrainCircuit, TrendingUp,
   ArrowRight, Zap, Clock, Activity, ChevronRight, RefreshCw,
   Target, Flame, CheckCircle2, AlertTriangle, MessageCircle
 } from 'lucide-react';
 
-const API = API_BASE;
 
 // ── StatCard ──────────────────────────────────────────────────────────────────
 const StatCard = ({ title, value, icon, gradient, sub }) => (
@@ -41,10 +39,10 @@ const MetricBar = ({ label, value, color, note }) => (
 
 // ── Recent Session Row ────────────────────────────────────────────────────────
 const SessionRow = ({ session }) => {
-  const ts = session.updatedAt?._seconds
-    ? new Date(session.updatedAt._seconds * 1000)
-    : session.createdAt?._seconds
-    ? new Date(session.createdAt._seconds * 1000)
+  const ts = session.updated_at
+    ? new Date(session.updated_at)
+    : session.created_at
+    ? new Date(session.created_at)
     : new Date();
 
   const relTime = (() => {
@@ -84,7 +82,7 @@ const Dashboard = () => {
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const res = await axios.get(`${API}/analytics/dashboard`);
+      const res = await api.get(`/analytics/dashboard`);
       setData(res.data);
       setLastRefresh(new Date());
     } catch (err) {
@@ -250,3 +248,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

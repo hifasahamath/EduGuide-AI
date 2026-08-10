@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import axios from 'axios';
-import { API_CHAT } from '../../config/env';
+import api from '../../services/api';
 import {
   MessageSquare, Search, User, Clock, RefreshCw, ChevronDown, ChevronUp,
   AlertTriangle, CheckCircle2, XCircle, Filter, Download, BrainCircuit,
   Trash2, BookOpen, Tag, MessageCircle, Activity, Users, Flame, Eye
 } from 'lucide-react';
 
-const API = API_CHAT;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const relTime = (ts) => {
@@ -144,12 +142,12 @@ const ChatDetail = ({ session, onClose, onResolve, onDelete, onTraining }) => {
               <BrainCircuit size={13} /> Send to Training
             </button>
             {session.status !== 'resolved' && (
-              <button onClick={() => { onResolve(session.chatId); showToast('Marked as resolved!'); }}
+              <button onClick={() => { onResolve(session.id); showToast('Marked as resolved!'); }}
                 className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors">
                 <CheckCircle2 size={13} /> Mark Resolved
               </button>
             )}
-            <button onClick={() => { if (window.confirm('Delete this chat?')) { onDelete(session.chatId); onClose(); } }}
+            <button onClick={() => { if (window.confirm('Delete this chat?')) { onDelete(session.id); onClose(); } }}
               className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
               <Trash2 size={13} /> Delete
             </button>
@@ -183,7 +181,7 @@ const ChatHistory = () => {
       const params = new URLSearchParams();
       if (dateFilter !== 'all') params.set('dateFilter', dateFilter);
       if (statusFilter !== 'all') params.set('statusFilter', statusFilter);
-      const res = await axios.get(`${API}/admin/sessions?${params.toString()}`);
+      const res = await api.get(`/admin/sessions?${params.toString()}`);
       setSessions(res.data.sessions || []);
       setStats(res.data.stats || null);
     } catch (err) {
@@ -219,7 +217,7 @@ const ChatHistory = () => {
     const rows = [
       ['Session ID', 'User ID', 'Title', 'Status', 'Field', 'Course', 'Messages', 'Last Message', 'Created At'],
       ...filtered.map(s => [
-        s.chatId, s.userId, s.title, s.status,
+        s.id, s.user_id, s.title, s.status,
         s.detectedField || '', s.detectedCourse || '',
         s.messageCount, `"${(s.lastMessage || '').replace(/"/g, "''")}"`,
         fullDate(s.createdAt)
@@ -235,9 +233,9 @@ const ChatHistory = () => {
 
   const handleResolve = async (chatId) => {
     try {
-      await axios.patch(`${API}/admin/sessions/${chatId}/resolve`);
-      setSessions(prev => prev.map(s => s.chatId === chatId ? { ...s, status: 'resolved' } : s));
-      if (selected?.chatId === chatId) setSelected(s => ({ ...s, status: 'resolved' }));
+      await api.patch(`/chat/admin/sessions/${chatId}/resolve`);
+      setSessions(prev => prev.map(s => s.id === chatId ? { ...s, status: 'resolved' } : s));
+      if (selected?.id === chatId) setSelected(s => ({ ...s, status: 'resolved' }));
       toast('Marked as resolved!');
     } catch { toast('Failed to resolve.'); }
   };
@@ -245,9 +243,9 @@ const ChatHistory = () => {
   const handleDelete = async (chatId) => {
     if (!window.confirm('Delete this chat session?')) return;
     try {
-      await axios.delete(`${API}/sessions/${chatId}`);
-      setSessions(prev => prev.filter(s => s.chatId !== chatId));
-      if (selected?.chatId === chatId) setSelected(null);
+      await api.delete(`/chat/sessions/${chatId}`);
+      setSessions(prev => prev.filter(s => s.id !== chatId));
+      if (selected?.id === chatId) setSelected(null);
       toast('Chat deleted.');
     } catch { toast('Failed to delete.'); }
   };
@@ -257,7 +255,7 @@ const ChatHistory = () => {
     const question = userMsgs[userMsgs.length - 1]?.text || session.title;
     if (!question) return;
     try {
-      await axios.post(`${API}/admin/train`, { question, intent: null });
+      await api.post(`/admin/train`, { question, intent: null });
       toast('Sent to training queue!');
     } catch { toast('Failed to send.'); }
   };
@@ -365,7 +363,7 @@ const ChatHistory = () => {
           {/* Rows */}
           <div className="divide-y divide-gray-50">
             {filtered.map(session => (
-              <div key={session.chatId}
+              <div key={session.id}
                 className={`grid grid-cols-12 items-center px-4 py-3.5 hover:bg-gray-50 transition-colors ${session.isSpam ? 'bg-red-50/40' : ''}`}>
                 {/* Title + last message */}
                 <div className="col-span-4 min-w-0">
@@ -417,12 +415,12 @@ const ChatHistory = () => {
                     <Eye size={13} />
                   </button>
                   {session.status !== 'resolved' && (
-                    <button onClick={() => handleResolve(session.chatId)} title="Mark resolved"
+                    <button onClick={() => handleResolve(session.id)} title="Mark resolved"
                       className="p-1.5 rounded-lg hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-colors">
                       <CheckCircle2 size={13} />
                     </button>
                   )}
-                  <button onClick={() => handleDelete(session.chatId)} title="Delete"
+                  <button onClick={() => handleDelete(session.id)} title="Delete"
                     className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
                     <Trash2 size={13} />
                   </button>
@@ -454,3 +452,4 @@ const ChatHistory = () => {
 };
 
 export default ChatHistory;
+

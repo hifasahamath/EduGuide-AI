@@ -192,4 +192,4 @@ const nlpService = {
   }
 };
 
-module.exports = { nlpService };
+module.exports = nlpService;

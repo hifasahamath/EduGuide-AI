@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import axios from 'axios';
+import api from '../services/api';
 import {
   User, Brain, MessageSquare, Bell, Shield, Lock, CreditCard,
   Sun, Moon, Save, Trash2, Download, Eye, EyeOff, CheckCircle,
   AlertTriangle, ChevronRight, Sparkles, Star, Crown, Zap
 } from 'lucide-react';
 
-const API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+
 
 // ── Toggle Switch ──────────────────────────────────────────────────────────────
 const Toggle = ({ value, onChange, disabled }) => (
@@ -66,7 +66,7 @@ const SettingsPage = ({ isDark }) => {
   // Load settings
   useEffect(() => {
     if (!user?.id) return;
-    axios.get(`${API}/settings/${user.id}`).then(r => setSettings(r.data || {})).catch(() => {});
+    api.get(`/settings/${user.id}`).then(r => setSettings(r.data || {})).catch(() => {});
   }, [user?.id]);
 
   const save = useCallback(async (patch) => {
@@ -74,7 +74,7 @@ const SettingsPage = ({ isDark }) => {
     setSettings(merged);
     setSaving(true);
     try {
-      await axios.put(`${API}/settings/${user.id}`, merged);
+      await api.put(`/settings/${user.id}`, merged);
       showToast('Saved!');
     } catch { showToast('Save failed', true); }
     setSaving(false);
@@ -85,7 +85,7 @@ const SettingsPage = ({ isDark }) => {
   const clearChats = async () => {
     if (!window.confirm('Delete ALL chat history permanently?')) return;
     try {
-      const r = await axios.delete(`${API}/settings/${user.id}/chats`);
+      const r = await api.delete(`/settings/${user.id}/chats`);
       showToast(`Cleared ${r.data.deleted} chats.`);
     } catch { showToast('Failed to clear chats', true); }
   };
@@ -94,7 +94,7 @@ const SettingsPage = ({ isDark }) => {
     if (pwForm.next !== pwForm.confirm) return showToast('Passwords do not match', true);
     if (pwForm.next.length < 6) return showToast('Password must be at least 6 characters', true);
     try {
-      await axios.post(`${API}/auth/change-password`, { userId: user.id, currentPassword: pwForm.current, newPassword: pwForm.next });
+      await api.post('/auth/change-password', { userId: user.id, currentPassword: pwForm.current, newPassword: pwForm.next });
       setPwForm({ current: '', next: '', confirm: '' });
       showToast('Password changed!');
     } catch { showToast('Failed. Check current password.', true); }

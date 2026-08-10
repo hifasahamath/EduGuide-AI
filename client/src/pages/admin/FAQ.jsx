@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import axios from 'axios';
-import { API_FAQ } from '../../config/env';
+import api from '../../services/api';
 import {
   Plus, Edit2, Trash2, Search, BrainCircuit, Tag, Zap, BarChart2,
   CheckCircle2, AlertTriangle, X, Save, RefreshCw, ChevronDown, ChevronUp,
   MessageSquare, TrendingUp, HelpCircle, BookOpen
 } from 'lucide-react';
 
-const API = API_FAQ;
 
 // ── Intents list ───────────────────────────────────────────────────────────────
 const INTENTS = [
@@ -91,7 +89,7 @@ const FAQModal = ({ editingFaq, onClose, onSaved }) => {
     if (form.question.length < 4) { setSuggests([]); return; }
     suggestTimer.current = setTimeout(async () => {
       try {
-        const r = await axios.get(`${API}/suggest`, { params: { q: form.question } });
+        const r = await api.get(`/faq/suggest`, { params: { q: form.question } });
         setSuggests(r.data || []);
       } catch { setSuggests([]); }
     }, 350);
@@ -103,9 +101,9 @@ const FAQModal = ({ editingFaq, onClose, onSaved }) => {
     setSaving(true); setDupeWarning('');
     try {
       if (editingFaq) {
-        await axios.put(`${API}/${editingFaq.id}`, form);
+        await api.put(`/faq/${editingFaq.id}`, form);
       } else {
-        await axios.post(API, form);
+        await api.post('/faq', form);
       }
       onSaved();
     } catch (err) {
@@ -263,8 +261,8 @@ const FAQ = () => {
     setLoading(true);
     try {
       const [faqRes, analyticsRes] = await Promise.all([
-        axios.get(API),
-        axios.get(`${API}/analytics`)
+        api.get('/faq'),
+        api.get(`/faq/analytics`)
       ]);
       setFaqs(faqRes.data || []);
       setAnalytics(analyticsRes.data || null);
@@ -276,7 +274,7 @@ const FAQ = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this FAQ?')) return;
-    try { await axios.delete(`${API}/${id}`); setFaqs(f => f.filter(x => x.id !== id)); showToast('FAQ deleted.'); }
+    try { await api.delete(`/faq/${id}`); setFaqs(f => f.filter(x => x.id !== id)); showToast('FAQ deleted.'); }
     catch { showToast('Delete failed.'); }
   };
 
@@ -409,3 +407,4 @@ const FAQ = () => {
 };
 
 export default FAQ;
+

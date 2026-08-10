@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
-import { API_USERS } from '../../config/env';
+import api from '../../services/api';
 import {
   Users as UsersIcon, Search, Shield, GraduationCap, RefreshCw,
   Mail, Phone, Calendar, MapPin, Activity, MessageSquare, BrainCircuit,
@@ -8,7 +7,6 @@ import {
   Clock, Zap, BookOpen, Save, XCircle
 } from 'lucide-react';
 
-const API = API_USERS;
 
 // ── Shared helpers ─────────────────────────────────────────────────────────────
 const relTime = (ts) => {
@@ -77,7 +75,7 @@ const EditModal = ({ user, onClose, onSave }) => {
 
   const save = async () => {
     setSaving(true);
-    try { await axios.put(`${API}/${user.id}`, form); onSave({ ...user, ...form }); onClose(); }
+    try { await api.put(`/users/${user.id}`, form); onSave({ ...user, ...form }); onClose(); }
     catch { alert('Failed to save changes.'); }
     setSaving(false);
   };
@@ -295,7 +293,7 @@ const Users = () => {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    try { const r = await axios.get(API); setUsers(r.data || []); }
+    try { const r = await api.get('/users'); setUsers(r.data || []); }
     catch { console.error('Failed to fetch users'); }
     setLoading(false);
   }, []);
@@ -314,7 +312,7 @@ const Users = () => {
   const handleBlock = async (user) => {
     const newBlocked = !user.blocked;
     try {
-      await axios.patch(`${API}/${user.id}/block`, { blocked: newBlocked });
+      await api.patch(`/users/${user.id}/block`, { blocked: newBlocked });
       setUsers(prev => prev.map(u => u.id === user.id ? { ...u, blocked: newBlocked } : u));
       if (selected?.id === user.id) setSelected(s => ({ ...s, blocked: newBlocked }));
       showToast(newBlocked ? 'User blocked.' : 'User unblocked.');
@@ -324,7 +322,7 @@ const Users = () => {
   const handleDelete = async (user) => {
     if (!window.confirm(`Delete user "${user.name}"? This cannot be undone.`)) return;
     try {
-      await axios.delete(`${API}/${user.id}`);
+      await api.delete(`/users/${user.id}`);
       setUsers(prev => prev.filter(u => u.id !== user.id));
       setSelected(null);
       showToast('User deleted.');
@@ -442,3 +440,4 @@ const Users = () => {
 };
 
 export default Users;
+

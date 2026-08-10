@@ -1,41 +1,56 @@
-/**
- * Enhanced Context Service
- * Stores per-user session with full conversation memory:
- *   lastIntent, lastCourse, lastCourses[], lastField, history[]
- */
+const { supabase } = require('../config/supabase');
+const ChatModel = require('../models/chatModel');
 
-const sessions = {};
+class ContextService {
+  /**
+   * Load context from Supabase chat_sessions table
+   * @param {string} sessionId 
+   */
+  static async getContext(sessionId) {
+    if (!sessionId) return {};
+    
+    try {
+      const { data, error } = await supabase
+        .from('chat_sessions')
+        .select('context')
+        .eq('id', sessionId)
+        .single();
+        
+      if (error) throw error;
+      return data?.context || {};
+    } catch (err) {
+      console.error("Context Load Error:", err);
+      return {};
+    }
+  }
 
-const DEFAULT_SESSION = () => ({
-  lastIntent: null,
-  lastCourse: null,       // Single course in focus, e.g. "BSc Software Engineering"
-  lastCourses: [],        // List of courses returned in last course_search
-  lastField: null,        // e.g. "IT", "Business"
-  lastEntities: {},
-  history: [],
-  turnCount: 0
-});
+  /**
+   * Update and persist context back to Supabase
+   * @param {string} sessionId 
+   * @param {object} newContext 
+   */
+  static async updateContext(sessionId, newContext) {
+    if (!sessionId) return;
+    
+    try {
+      const current = await this.getContext(sessionId);
+      const merged = { ...current, ...newContext };
+      
+      await ChatModel.updateSessionContext(sessionId, merged);
+      return merged;
+    } catch (err) {
+      console.error("Context Update Error:", err);
+    }
+  }
 
-const getContext = (userId) => {
-  if (!sessions[userId]) sessions[userId] = DEFAULT_SESSION();
-  return sessions[userId];
-};
+  static async clearContext(sessionId) {
+    if (!sessionId) return;
+    try {
+      await ChatModel.updateSessionContext(sessionId, {});
+    } catch (err) {
+      console.error("Context Clear Error:", err);
+    }
+  }
+}
 
-const updateContext = (userId, updates) => {
-  if (!sessions[userId]) sessions[userId] = DEFAULT_SESSION();
-  const s = sessions[userId];
-
-  if (updates.message) s.history.push(updates.message);
-  if (updates.intent && updates.intent !== 'unknown') s.lastIntent = updates.intent;
-  if (updates.lastCourse !== undefined) s.lastCourse = updates.lastCourse;
-  if (updates.lastCourses !== undefined) s.lastCourses = updates.lastCourses;
-  if (updates.lastField !== undefined) s.lastField = updates.lastField;
-  if (updates.entities) s.lastEntities = { ...s.lastEntities, ...updates.entities };
-  s.turnCount++;
-};
-
-const clearContext = (userId) => {
-  sessions[userId] = DEFAULT_SESSION();
-};
-
-module.exports = { contextService: { getContext, updateContext, clearContext } };
+module.exports = ContextService;

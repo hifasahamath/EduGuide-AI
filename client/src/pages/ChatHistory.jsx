@@ -5,14 +5,13 @@ import {
   MessageSquare, Clock, Search, ChevronRight, Pin, PinOff,
   Trash2, Edit3, Check, X, Sparkles, RefreshCw, MessageCircle
 } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 
-const API = `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/$/, '')}/chat`;
 const PAGE_SIZE = 10;
 
 const relTime = (ts) => {
   if (!ts) return '';
-  const ms = ts._seconds ? ts._seconds * 1000 : new Date(ts).getTime();
+  const ms = new Date(ts).getTime();
   const diff = Date.now() - ms;
   if (diff < 60000) return 'Just now';
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
@@ -28,11 +27,11 @@ const ConversationModal = ({ chat, onClose, isDark }) => {
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    axios.get(`${API}/sessions/${chat.chatId}`)
+    api.get(`/chat/sessions/${chat.id}`)
       .then(r => setMessages(r.data.messages || []))
       .catch(() => setMessages([]))
       .finally(() => setLoading(false));
-  }, [chat.chatId]);
+  }, [chat.id]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
@@ -52,7 +51,7 @@ const ConversationModal = ({ chat, onClose, isDark }) => {
             </div>
             <div className="min-w-0">
               <p className={`font-semibold text-sm truncate ${textMain}`}>{chat.title || 'Chat'}</p>
-              <p className={`text-[10px] ${textMuted}`}>{chat.messageCount} messages · {relTime(chat.updatedAt)}</p>
+              <p className={`text-[10px] ${textMuted}`}>{chat.messageCount} messages · {relTime(chat.updated_at)}</p>
             </div>
           </div>
           <button onClick={onClose} className={`p-1.5 rounded-lg ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'} ${textMuted} transition-colors`}>
@@ -83,7 +82,7 @@ const ConversationModal = ({ chat, onClose, isDark }) => {
                       ? isDark ? 'bg-[#3f3f3f] text-gray-100 rounded-tr-sm' : 'bg-white text-gray-800 shadow-sm border border-gray-100 rounded-tr-sm'
                       : isDark ? 'bg-[#2a2a2a] text-gray-100 rounded-tl-sm' : 'bg-violet-50 text-gray-800 border border-violet-100 rounded-tl-sm'
                     }`}>
-                    {m.text}
+                    {m.content || m.text}
                   </div>
                   {isUser && (
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -110,7 +109,7 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
   useEffect(() => { if (renamingMode) inputRef.current?.focus(); }, [renamingMode]);
 
   const submitRename = () => {
-    if (renameVal.trim() && renameVal !== chat.title) onRename(chat.chatId, renameVal.trim());
+    if (renameVal.trim() && renameVal !== chat.title) onRename(chat.id, renameVal.trim());
     setRenamingMode(false);
   };
 
@@ -153,7 +152,7 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
 
         {/* Meta + actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className={`text-[10px] ${textMuted} mr-1`}>{relTime(chat.updatedAt)}</span>
+          <span className={`text-[10px] ${textMuted} mr-1`}>{relTime(chat.updated_at)}</span>
           {/* Actions — visible on hover */}
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onClick={e => { e.stopPropagation(); onPin(chat); }}
@@ -166,7 +165,7 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
               title="Rename">
               <Edit3 size={12} />
             </button>
-            <button onClick={e => { e.stopPropagation(); onDelete(chat.chatId); }}
+            <button onClick={e => { e.stopPropagation(); onDelete(chat.id); }}
               className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
               title="Delete">
               <Trash2 size={12} />
@@ -196,7 +195,7 @@ const ChatHistory = ({ isDark }) => {
     if (!user?.id) return;
     setLoading(true);
     try {
-      const r = await axios.get(`${API}/sessions`, { params: { userId: user.id } });
+      const r = await api.get(`/chat/sessions`, { params: { userId: user.id } });
       setChats(r.data || []);
     } catch { setChats([]); }
     setLoading(false);
@@ -207,8 +206,8 @@ const ChatHistory = ({ isDark }) => {
   const handleDelete = async (chatId) => {
     if (!window.confirm('Delete this conversation?')) return;
     try {
-      await axios.delete(`${API}/sessions/${chatId}`);
-      setChats(p => p.filter(c => c.chatId !== chatId));
+      await api.delete(`/chat/sessions/${chatId}`);
+      setChats(p => p.filter(c => c.id !== chatId));
       showToast('Conversation deleted.');
     } catch { showToast('Failed to delete.'); }
   };
@@ -216,13 +215,13 @@ const ChatHistory = ({ isDark }) => {
   const handlePin = async (chat) => {
     const newPin = !chat.pinned;
     try {
-      await axios.patch(`${API}/sessions/${chat.chatId}/pin`, { pinned: newPin });
-      setChats(p => p.map(c => c.chatId === chat.chatId ? { ...c, pinned: newPin } : c)
+      await api.patch(`/chat/sessions/${chat.id}/pin`, { pinned: newPin });
+      setChats(p => p.map(c => c.id === chat.id ? { ...c, pinned: newPin } : c)
         .sort((a, b) => {
           if (a.pinned && !b.pinned) return -1;
           if (!a.pinned && b.pinned) return 1;
-          const ta = a.updatedAt?._seconds || 0;
-          const tb = b.updatedAt?._seconds || 0;
+          const ta = new Date(a.updated_at || 0).getTime();
+          const tb = new Date(b.updated_at || 0).getTime();
           return tb - ta;
         }));
       showToast(newPin ? 'Chat pinned.' : 'Chat unpinned.');
@@ -231,8 +230,8 @@ const ChatHistory = ({ isDark }) => {
 
   const handleRename = async (chatId, title) => {
     try {
-      await axios.patch(`${API}/sessions/${chatId}/rename`, { title });
-      setChats(p => p.map(c => c.chatId === chatId ? { ...c, title } : c));
+      await api.patch(`/chat/sessions/${chatId}/rename`, { title });
+      setChats(p => p.map(c => c.id === chatId ? { ...c, title } : c));
       showToast('Renamed!');
     } catch { showToast('Rename failed.'); }
   };
@@ -304,7 +303,7 @@ const ChatHistory = ({ isDark }) => {
               </p>
               <div className="space-y-2">
                 {pinned.map(chat => (
-                  <ChatRow key={chat.chatId} chat={chat} isDark={isDark}
+                  <ChatRow key={chat.id} chat={chat} isDark={isDark}
                     onOpen={setOpenChat} onDelete={handleDelete} onPin={handlePin} onRename={handleRename} />
                 ))}
               </div>
@@ -321,7 +320,7 @@ const ChatHistory = ({ isDark }) => {
               )}
               <div className="space-y-2">
                 {recent.slice(0, page * PAGE_SIZE).map(chat => (
-                  <ChatRow key={chat.chatId} chat={chat} isDark={isDark}
+                  <ChatRow key={chat.id} chat={chat} isDark={isDark}
                     onOpen={setOpenChat} onDelete={handleDelete} onPin={handlePin} onRename={handleRename} />
                 ))}
               </div>

@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import axios from 'axios';
-import { API_AUTH } from '../../config/env';
+import api from '../../services/api';
 import {
   User, Mail, Phone, Shield, Key, BrainCircuit, Bell, MessageSquare,
   Save, CheckCircle2, AlertTriangle, Clock, Activity, Settings,
   Eye, EyeOff, Download, Database, Zap, RefreshCw, Lock
 } from 'lucide-react';
 
-const API = API_AUTH;
 
 // ── Reusable components ────────────────────────────────────────────────────────
 const Section = ({ title, icon, children }) => (
@@ -109,10 +107,11 @@ const Profile = () => {
 
   // AI settings
   const [aiMode, setAiMode] = useState(user?.aiSettings?.mode || 'Smart');
+  const [llmProvider, setLlmProvider] = useState(user?.aiSettings?.llmProvider || 'gemini');
   const [fallbackEnabled, setFallbackEnabled] = useState(user?.aiSettings?.fallbackEnabled ?? true);
   const [fallbackMsg, setFallbackMsg] = useState(
     user?.aiSettings?.fallbackMessage ||
-    "Sorry, I couldn't clearly understand your question. Please contact our customer care agent at 0754864688 for further assistance."
+    "Sorry, I couldn't clearly understand your question. Please contact our customer care agent at +94775605161 for further assistance."
   );
 
   // Notifications
@@ -131,7 +130,7 @@ const Profile = () => {
   const fetchActivity = useCallback(async () => {
     if (!user?.id) return;
     try {
-      const res = await axios.get(`${API}/profile/${user.id}/activity`);
+      const res = await api.get(`/profile/${user.id}/activity`);
       setActivityLogs(res.data || []);
     } catch { setActivityLogs([]); }
   }, [user?.id]);
@@ -145,7 +144,7 @@ const Profile = () => {
   const saveProfile = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/profile/${user.id}`, { name, email, phone });
+      await api.put(`/profile/${user.id}`, { name, email, phone });
       updateSessionProfile({ name, email, phone });
       showToast('Profile updated successfully!');
     } catch { showToast('Failed to update profile.', 'error'); }
@@ -158,7 +157,7 @@ const Profile = () => {
     if (newPw.length < 6) return showToast('Password must be at least 6 characters.', 'error');
     setSaving(true);
     try {
-      await axios.put(`${API}/profile/${user.id}/password`, { currentPassword: currentPw, newPassword: newPw });
+      await api.put(`/profile/${user.id}/password`, { currentPassword: currentPw, newPassword: newPw });
       setCurrentPw(''); setNewPw(''); setConfirmPw('');
       showToast('Password changed successfully!');
     } catch (err) {
@@ -170,8 +169,8 @@ const Profile = () => {
   const saveAiSettings = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/profile/${user.id}/ai-settings`, { mode: aiMode, fallbackEnabled, fallbackMessage: fallbackMsg });
-      updateSessionProfile({ aiSettings: { mode: aiMode, fallbackEnabled, fallbackMessage: fallbackMsg } });
+      await api.put(`/profile/${user.id}/ai-settings`, { mode: aiMode, llmProvider, fallbackEnabled, fallbackMessage: fallbackMsg });
+      updateSessionProfile({ aiSettings: { mode: aiMode, llmProvider, fallbackEnabled, fallbackMessage: fallbackMsg } });
       showToast('AI settings saved!');
     } catch { showToast('Failed to save AI settings.', 'error'); }
     setSaving(false);
@@ -180,7 +179,7 @@ const Profile = () => {
   const saveNotifications = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/profile/${user.id}/notifications`, { failedQueries: notifFailed, newUsers: notifNewUsers });
+      await api.put(`/profile/${user.id}/notifications`, { failedQueries: notifFailed, newUsers: notifNewUsers });
       showToast('Notification preferences saved!');
     } catch { showToast('Failed to save.', 'error'); }
     setSaving(false);
@@ -189,7 +188,7 @@ const Profile = () => {
   const saveContact = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/profile/${user.id}/contact`, { whatsapp, supportEmail });
+      await api.put(`/profile/${user.id}/contact`, { whatsapp, supportEmail });
       updateSessionProfile({ contact: { whatsapp, supportEmail } });
       showToast('Contact settings saved!');
     } catch { showToast('Failed to save.', 'error'); }
@@ -267,7 +266,7 @@ const Profile = () => {
             {/* Contact settings inline */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="WhatsApp Number">
-                <Input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="0754864688" />
+                <Input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+94775605161" />
               </Field>
               <Field label="Support Email">
                 <Input type="email" value={supportEmail} onChange={e => setSupportEmail(e.target.value)} placeholder="support@eduguide.lk" />
@@ -353,6 +352,24 @@ const Profile = () => {
                     <p className="text-xs text-gray-500 mt-1">
                       {mode === 'Smart' ? 'Context-aware, flexible NLP. Recommended.' : 'Exact keyword matching only. Fewer hallucinations.'}
                     </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* LLM Provider Selector */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">LLM Provider</label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { id: 'gemini', name: 'Google Gemini' },
+                  { id: 'openai', name: 'OpenAI (GPT)' },
+                  { id: 'anthropic', name: 'Anthropic (Claude)' },
+                  { id: 'xai', name: 'xAI (Grok)' },
+                ].map(provider => (
+                  <button key={provider.id} onClick={() => setLlmProvider(provider.id)}
+                    className={`p-3 rounded-xl border-2 text-center transition-all ${llmProvider === provider.id ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 hover:border-gray-300 text-gray-700'}`}>
+                    <p className="font-bold text-sm">{provider.name}</p>
                   </button>
                 ))}
               </div>
@@ -468,7 +485,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className="font-semibold text-sm text-gray-700">Backup Database</p>
-                  <p className="text-xs text-gray-400">Available in Firebase Console</p>
+                  <p className="text-xs text-gray-400">Available in Supabase Console</p>
                 </div>
               </div>
             </div>
@@ -477,10 +494,10 @@ const Profile = () => {
           <Section title="System Status" icon={<Activity size={16} />}>
             <div className="space-y-3">
               {[
-                { label: 'Firebase Firestore', status: 'Connected', color: 'bg-emerald-100 text-emerald-700' },
-                { label: 'Gemini AI API', status: 'Active', color: 'bg-emerald-100 text-emerald-700' },
-                { label: 'NLP Service', status: 'Running', color: 'bg-emerald-100 text-emerald-700' },
-                { label: 'Training System', status: 'Ready', color: 'bg-blue-100 text-blue-700' },
+                { label: 'Supabase PostgreSQL', status: 'Connected', color: 'bg-emerald-100 text-emerald-700' },
+                { label: 'pgvector Service', status: 'Active', color: 'bg-emerald-100 text-emerald-700' },
+                { label: 'Multi-LLM Service', status: 'Running', color: 'bg-emerald-100 text-emerald-700' },
+                { label: 'Training System (RAG)', status: 'Ready', color: 'bg-blue-100 text-blue-700' },
               ].map((s, i) => (
                 <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                   <span className="text-sm font-medium text-gray-700">{s.label}</span>
@@ -496,3 +513,4 @@ const Profile = () => {
 };
 
 export default Profile;
+

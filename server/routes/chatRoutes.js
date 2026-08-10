@@ -1,25 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { handleChat, getChatHistory } = require('../controllers/chatController');
-const sessionController = require('../controllers/sessionController');
+const chatController = require('../controllers/chatController');
+const authenticateUser = require('../middleware/auth');
+const adminAuth = require('../middleware/adminAuth');
 
-// Main chat endpoint
-router.post('/', handleChat);
+router.use(authenticateUser);
 
-// Chat history (legacy)
-router.get('/history', getChatHistory);
+router.post('/', chatController.handleChat);
+router.get('/history', chatController.getChatHistory);
+router.post('/sessions', chatController.createSession);
+router.get('/sessions', chatController.getChatHistory); // Same as history
+router.get('/sessions/:chatId', chatController.getSession);
+router.delete('/sessions/:chatId', chatController.deleteSession);
+router.patch('/sessions/:chatId/rename', chatController.renameSession);
+router.patch('/sessions/:chatId/pin', chatController.pinSession);
 
-// Chat session management (user-facing)
-router.post('/sessions', sessionController.createSession);
-router.get('/sessions', sessionController.getSessions);
-router.get('/sessions/:chatId', sessionController.getSession);
-router.delete('/sessions/:chatId', sessionController.deleteSession);
-router.patch('/sessions/:chatId/rename', sessionController.renameSession);
-router.patch('/sessions/:chatId/pin', sessionController.pinSession);
-
-// Admin-only session management
-router.get('/admin/sessions', sessionController.getAllSessions);
-router.patch('/admin/sessions/:chatId/resolve', sessionController.markResolved);
-router.post('/admin/train', sessionController.sendToTraining);
+// Admin Routes
+router.get('/admin/sessions', adminAuth, chatController.getAllSessions);
+router.patch('/admin/sessions/:chatId/resolve', adminAuth, chatController.markResolved);
 
 module.exports = router;

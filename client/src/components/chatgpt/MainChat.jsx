@@ -6,12 +6,10 @@ import {
   MessageCircle, Copy, ThumbsUp, ThumbsDown, X, Zap
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import axios from 'axios';
-import { API_CHAT } from '../../config/env';
+import api from '../../services/api';
 import ReactMarkdown from 'react-markdown';
 
-const API = API_CHAT;
-const WHATSAPP_NUMBER = '94754864688';
+const WHATSAPP_NUMBER = '94775605161';
 
 // ── Starter prompts ────────────────────────────────────────────────────────────
 const STARTERS = [
@@ -188,13 +186,13 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
   useEffect(() => {
     setMessages([]);
     if (currentChatId) {
-      axios.get(`${API}/sessions/${currentChatId}`)
+      api.get(`/chat/sessions/${currentChatId}`)
         .then(r => {
           const msgs = (r.data.messages || []).map((m, i) => ({
             id: `${currentChatId}_${i}`,
-            sender: m.sender,
-            text: m.text,
-            timestamp: m.timestamp?._seconds ? new Date(m.timestamp._seconds * 1000) : new Date(),
+            sender: m.role === 'assistant' ? 'bot' : 'user',
+            text: m.content,
+            timestamp: m.created_at ? new Date(m.created_at) : new Date(),
             suggestions: [],
           }));
           setMessages(msgs);
@@ -266,8 +264,8 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
     let activeChatId = currentChatId;
     if (!activeChatId) {
       try {
-        const r = await axios.post(`${API}/sessions`, { userId: user?.id });
-        activeChatId = r.data.chatId;
+        const r = await api.post(`/chat/sessions`, { userId: user?.id });
+        activeChatId = r.data.id;
         setCurrentChatId(activeChatId);
         onChatCreated?.(activeChatId);
       } catch { /* stateless fallback */ }
@@ -281,10 +279,10 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
     setIsTyping(true);
 
     try {
-      const res = await axios.post(API, {
+      const res = await api.post('/chat', {
         message: trimmed,
         userId: user?.id,
-        chatId: activeChatId,
+        sessionId: activeChatId,
         preferences: user?.preferences || {},
       });
 
@@ -306,7 +304,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         sender: 'bot',
-        text: "I'm unable to connect right now. Please call us at **0754 864 688** or chat with an advisor.",
+        text: "I'm unable to connect right now. Please call us at **+94 77 560 5161** or chat with an advisor.",
         timestamp: new Date(),
         isError: false,
         suggestions: [],
@@ -480,3 +478,4 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
 };
 
 export default MainChat;
+

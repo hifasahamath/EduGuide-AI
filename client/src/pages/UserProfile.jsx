@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { API_AUTH } from '../config/env';
 import { useTheme } from '../contexts/ThemeContext';
+import api from '../services/api';
 import { motion } from 'framer-motion';
 import {
   User, Mail, School, MapPin, Calendar, Globe, Lock,
@@ -23,17 +23,19 @@ const UserProfile = ({ isDark }) => {
 
   useEffect(() => {
     if (!user?.id) return;
-    fetch(`${API_AUTH}/profile/${user.id}`)
-      .then(r => r.json())
-      .then(data => setForm({
-        name: data.name || '',
-        email: data.email || '',
+    api.get(`/profile/${user.id}`)
+      .then(res => {
+        const data = res.data;
+        setForm({
+          name: data.name || '',
+          email: data.email || '',
         schoolName: data.schoolName || '',
         address: data.address || '',
         age: data.age || '',
         language: data.language || 'English',
         profilePic: data.profilePic || ''
-      }))
+        });
+      })
       .catch(() => setForm(f => ({ ...f, name: user.name || '', email: user.email || '' })));
   }, [user]);
 
@@ -46,17 +48,9 @@ const UserProfile = ({ isDark }) => {
     if (!user?.id) return;
     setSaving(true);
     try {
-      const res = await fetch(`${API_AUTH}/profile/${user.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, schoolName: form.schoolName, address: form.address, age: form.age, language: form.language, profilePic: form.profilePic })
-      });
-      if (res.ok) {
-        updateSessionProfile({ name: form.name, schoolName: form.schoolName, address: form.address, age: form.age, language: form.language, profilePic: form.profilePic });
-        showToast('Profile saved successfully!');
-      } else {
-        showToast('Failed to save profile.', 'error');
-      }
+      await api.put(`/profile/${user.id}`, { name: form.name, schoolName: form.schoolName, address: form.address, age: form.age, language: form.language, profilePic: form.profilePic });
+      updateSessionProfile({ name: form.name, schoolName: form.schoolName, address: form.address, age: form.age, language: form.language, profilePic: form.profilePic });
+      showToast('Profile saved successfully!');
     } catch {
       showToast('Could not connect to server.', 'error');
     } finally {
@@ -71,19 +65,11 @@ const UserProfile = ({ isDark }) => {
     }
     setSavingPass(true);
     try {
-      const res = await fetch(`${API_AUTH}/profile/${user.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: passwords.newPass })
-      });
-      if (res.ok) {
-        showToast('Password changed successfully!');
-        setPasswords({ current: '', newPass: '', confirm: '' });
-      } else {
-        showToast('Failed to change password.', 'error');
-      }
-    } catch {
-      showToast('Could not connect to server.', 'error');
+      await api.put(`/profile/${user.id}`, { password: passwords.newPass });
+      showToast('Password changed successfully!');
+      setPasswords({ current: '', newPass: '', confirm: '' });
+    } catch (err) {
+      showToast(err.response?.data?.error || 'Could not connect to server.', 'error');
     } finally {
       setSavingPass(false);
     }
@@ -260,3 +246,4 @@ const UserProfile = ({ isDark }) => {
 };
 
 export default UserProfile;
+

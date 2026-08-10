@@ -1,102 +1,68 @@
-const dbService = require('../services/dbService');
+const CourseModel = require('../models/courseModel');
+const EmbeddingService = require('../services/embeddingService');
 
-const getCourses = async (req, res) => {
+exports.getCourses = async (req, res) => {
   try {
-    const courses = await dbService.getAllCourses();
-    res.json(courses);
+    const data = await CourseModel.getAll();
+    res.json(data);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch courses' });
   }
 };
 
-const addCourse = async (req, res) => {
+exports.addCourse = async (req, res) => {
   try {
-    const course = await dbService.addCourse(req.body);
-    res.status(201).json(course);
+    // Generate embedding for RAG
+    const textToEmbed = `Course Name: ${req.body.name}\nField: ${req.body.field}\nDescription: ${req.body.eligibility}\nSubjects: ${req.body.subjects?.join(', ')}`;
+    const embedding = await EmbeddingService.generateEmbedding(textToEmbed);
+    
+    const data = await CourseModel.create({ ...req.body, embedding });
+    res.json(data);
   } catch (error) {
     res.status(500).json({ error: 'Failed to add course' });
   }
 };
 
-const updateCourse = async (req, res) => {
+exports.updateCourse = async (req, res) => {
   try {
-    const course = await dbService.updateCourse(req.params.id, req.body);
-    res.json(course);
+    // Re-generate embedding
+    const textToEmbed = `Course Name: ${req.body.name}\nField: ${req.body.field}\nDescription: ${req.body.eligibility}\nSubjects: ${req.body.subjects?.join(', ')}`;
+    const embedding = await EmbeddingService.generateEmbedding(textToEmbed);
+    
+    const data = await CourseModel.update(req.params.id, { ...req.body, embedding });
+    res.json(data);
   } catch (error) {
     res.status(500).json({ error: 'Failed to update course' });
   }
 };
 
-const deleteCourse = async (req, res) => {
+exports.deleteCourse = async (req, res) => {
   try {
-    await dbService.deleteCourse(req.params.id);
-    res.json({ message: 'Course deleted' });
+    await CourseModel.delete(req.params.id);
+    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete course' });
   }
 };
 
-const bulkImportCourses = async (req, res) => {
+exports.bulkImportCourses = async (req, res) => {
   try {
-    const { courses } = req.body;
-    if (!Array.isArray(courses) || courses.length === 0) {
-      return res.status(400).json({ error: 'No courses provided' });
+    const courses = req.body;
+    if (!Array.isArray(courses)) return res.status(400).json({ error: 'Expected an array' });
+    
+    // In a real prod environment, we would batch embeddings to avoid hitting API rate limits.
+    // For now, we do them sequentially or in small chunks.
+    const enriched = [];
+    for (const c of courses) {
+      const textToEmbed = `Course Name: ${c.name}\nField: ${c.field}\nDescription: ${c.eligibility}\nSubjects: ${c.subjects?.join(', ')}`;
+      const embedding = await EmbeddingService.generateEmbedding(textToEmbed);
+      enriched.push({ ...c, embedding });
     }
 
-    const results = { success: 0, failed: 0, errors: [] };
-
-    for (const raw of courses) {
-      try {
-        const payload = {
-          name: raw.name?.trim() || '',
-          field: raw.field?.trim() || '',
-          courseType: raw.courseType?.trim() || 'Degree',
-          university: raw.university?.trim() || '',
-          level: raw.level?.trim() || 'Undergraduate',
-          duration: raw.duration?.trim() || '',
-          studyMode: raw.studyMode?.trim() || 'Full-time',
-          totalFee: Number(raw.totalFee) || 0,
-          registrationFee: Number(raw.registrationFee) || 0,
-          installmentAvailable: raw.installmentAvailable?.trim() || 'No',
-          installmentPlan: raw.installmentPlan?.trim() || '',
-          eligibility: raw.eligibility?.trim() || '',
-          minimumRequirements: raw.minimumRequirements?.trim() || '',
-          subjects: raw.subjects ? raw.subjects.split('|').map(s => s.trim()).filter(Boolean) : [],
-          campusLocation: raw.campusLocation?.trim() || '',
-          city: raw.city?.trim() || '',
-          onlineAvailable: raw.onlineAvailable?.trim() || 'No',
-          jobOpportunities: raw.jobOpportunities ? raw.jobOpportunities.split('|').map(s => s.trim()).filter(Boolean) : [],
-          careerPath: raw.careerPath?.trim() || '',
-          internshipAvailable: raw.internshipAvailable?.trim() || 'No',
-          industryCertification: raw.industryCertification?.trim() || 'No',
-          practicalTraining: raw.practicalTraining?.trim() || 'No',
-          courseImage: raw.courseImage?.trim() || '',
-          keywords: raw.keywords ? raw.keywords.split('|').map(s => s.trim()).filter(Boolean) : [],
-          tags: raw.tags ? raw.tags.split('|').map(s => s.trim()).filter(Boolean) : [],
-        };
-
-        if (!payload.name) {
-          results.failed++;
-          results.errors.push(`Row skipped: missing course name`);
-          continue;
-        }
-
-        await dbService.addCourse(payload);
-        results.success++;
-      } catch (err) {
-        results.failed++;
-        results.errors.push(`Failed: ${raw.name || 'unknown'} — ${err.message}`);
-      }
-    }
-
-    res.json({
-      message: `Import complete. ${results.success} added, ${results.failed} failed.`,
-      ...results
-    });
+    const data = await CourseModel.bulkImport(enriched);
+    res.json({ success: true, imported: data.length });
   } catch (error) {
-    console.error('Bulk import error:', error);
-    res.status(500).json({ error: 'Bulk import failed' });
+    console.error('Bulk Import Error:', error);
+    res.status(500).json({ error: 'Failed to bulk import courses' });
   }
 };
-
-module.exports = { getCourses, addCourse, updateCourse, deleteCourse, bulkImportCourses };

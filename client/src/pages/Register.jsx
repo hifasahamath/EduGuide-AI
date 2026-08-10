@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { API_AUTH } from '../config/env';
 import {
   Sparkles, Eye, EyeOff, Loader2, AlertCircle, ArrowRight,
   CheckCircle2, BookOpen, TrendingUp, MapPin, GraduationCap,
@@ -37,7 +36,7 @@ const AuthInput = ({ label, icon, error, ...props }) => (
 
 // ── Register page ──────────────────────────────────────────────────────────────
 const Register = () => {
-  const { user } = useAuth();
+  const { user, register } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', phone: '' });
@@ -74,29 +73,15 @@ const Register = () => {
     if (Object.keys(errs).length > 0) return;
 
     setLoading(true);
-    try {
-      const res = await fetch(`${API_AUTH}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          email: form.email.trim().toLowerCase(),
-          password: form.password,
-          phone: form.phone,
-          role: 'student'
-        })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setSuccess(true);
-        setTimeout(() => navigate('/login'), 2500);
-      } else {
-        setApiError(data.error || 'Registration failed. Please try again.');
-      }
-    } catch {
-      setApiError('Could not connect to server. Is the backend running?');
-    }
+    const result = await register(form.email.trim().toLowerCase(), form.password, form.name.trim());
     setLoading(false);
+
+    if (result.success) {
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 2500);
+    } else {
+      setApiError(result.error || 'Registration failed. Please try again.');
+    }
   };
 
   if (success) return (
@@ -296,3 +281,4 @@ const Register = () => {
 };
 
 export default Register;
+

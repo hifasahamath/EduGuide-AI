@@ -1,221 +1,106 @@
-const { db } = require('../config/firebaseConfig');
-const dbService = require('../services/dbService');
+const UserModel = require('../models/userModel');
 
-const authController = {
-  login: async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const user = await dbService.authenticateUser(email, password);
-      if (!user) return res.status(401).json({ error: 'Invalid email or password' });
+// Note: Actual login/register is handled by Supabase Auth on the client side.
+// The server just handles Profile data using the JWT sent in the header.
 
-      const activityRef = db.collection('users').doc(user.id).collection('activity');
-      await activityRef.add({
-        type: 'login',
-        description: 'Admin logged in',
-        device: req.headers['user-agent']?.slice(0, 100) || 'Unknown',
-        ip: req.ip || 'Unknown',
-        timestamp: new Date()
-      });
-
-      res.status(200).json({
-        message: 'Login successful',
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          name: user.name,
-          phone: user.phone || '',
-          profilePic: user.profilePic || '',
-          schoolName: user.schoolName || '',
-          address: user.address || '',
-          age: user.age || '',
-          language: user.language || 'English',
-          twoFactorEnabled: user.twoFactorEnabled || false,
-          aiSettings: user.aiSettings || { mode: 'Smart', fallbackEnabled: true, fallbackMessage: "Sorry, I couldn't clearly understand your question. Please contact our customer care agent at 0754864688 for further assistance." },
-          notifications: user.notifications || { failedQueries: true, newUsers: true },
-          contact: user.contact || { whatsapp: '', supportEmail: '' },
-        }
-      });
-    } catch (error) {
-      console.error('LOGIN ERROR FULL:', error);
-      res.status(500).json({
-        error: error.message,
-        stack: error.stack
-      });
+exports.getProfile = async (req, res) => {
+  try {
+    const profile = await UserModel.getById(req.params.id);
+    // Ensure users can only get their own profile unless they are admin
+    if (req.user.id !== profile.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
     }
-  },  // ✅ FIXED: was missing this closing brace + comma
-
-  register: async (req, res) => {
-    try {
-      const { email, password, name, role, phone } = req.body;
-
-      if (!name || !email || !password) {
-        return res.status(400).json({ error: 'Name, email and password are required' });
-      }
-      if (password.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters' });
-      }
-
-      const assignedRole = role === 'admin' ? 'admin' : 'student';
-
-      const result = await dbService.registerUser({
-        email: email.toLowerCase().trim(),
-        password,
-        name: name.trim(),
-        phone: phone || '',
-        role: assignedRole,
-        createdAt: new Date().toISOString(),
-        lastActive: new Date().toISOString(),
-      });
-
-      if (!result.success) return res.status(400).json({ error: result.error });
-
-      if (result.id) {
-        try {
-          await db.collection('users').doc(result.id).collection('activity').add({
-            type: 'registration', description: 'Account created', timestamp: new Date()
-          });
-        } catch { /* non-critical */ }
-      }
-
-      res.status(201).json({ message: 'Registration successful', userId: result.id });
-    } catch (error) {
-      console.error('Registration error:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  },
-
-  getProfile: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const user = await dbService.getUserProfile(id);
-      if (!user) return res.status(404).json({ error: 'User not found' });
-      delete user.password;
-      res.status(200).json(user);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  },
-
-  updateProfile: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { name, email, phone, profilePic, role } = req.body;
-      const updateData = {};
-      if (name !== undefined) updateData.name = name;
-      if (email !== undefined) updateData.email = email;
-      if (phone !== undefined) updateData.phone = phone;
-      if (profilePic !== undefined) updateData.profilePic = profilePic;
-      if (role !== undefined) updateData.role = role;
-      updateData.updatedAt = new Date();
-
-      await dbService.updateUserProfile(id, updateData);
-
-      await db.collection('users').doc(id).collection('activity').add({
-        type: 'profile_update', description: 'Profile information updated', timestamp: new Date()
-      });
-
-      res.status(200).json({ message: 'Profile updated successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to update profile' });
-    }
-  },
-
-  changePassword: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { currentPassword, newPassword } = req.body;
-      if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Both passwords required' });
-      if (newPassword.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
-
-      const userDoc = await db.collection('users').doc(id).get();
-      if (!userDoc.exists) return res.status(404).json({ error: 'User not found' });
-      const userData = userDoc.data();
-      if (userData.password !== currentPassword) return res.status(401).json({ error: 'Current password is incorrect' });
-
-      await db.collection('users').doc(id).update({ password: newPassword, updatedAt: new Date() });
-
-      await db.collection('users').doc(id).collection('activity').add({
-        type: 'password_change', description: 'Password changed', timestamp: new Date()
-      });
-
-      res.status(200).json({ message: 'Password changed successfully' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to change password' });
-    }
-  },
-
-  updateAiSettings: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { mode, fallbackEnabled, fallbackMessage } = req.body;
-      const aiSettings = { mode, fallbackEnabled, fallbackMessage, updatedAt: new Date() };
-      await db.collection('users').doc(id).update({ aiSettings });
-
-      await db.collection('users').doc(id).collection('activity').add({
-        type: 'ai_settings', description: `AI mode set to ${mode}, fallback ${fallbackEnabled ? 'enabled' : 'disabled'}`, timestamp: new Date()
-      });
-
-      res.status(200).json({ message: 'AI settings saved' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to save AI settings' });
-    }
-  },
-
-  updateNotifications: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { failedQueries, newUsers } = req.body;
-      await db.collection('users').doc(id).update({ notifications: { failedQueries, newUsers } });
-      res.status(200).json({ message: 'Notification preferences saved' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to save notifications' });
-    }
-  },
-
-  updateContact: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { whatsapp, supportEmail } = req.body;
-      await db.collection('users').doc(id).update({ contact: { whatsapp, supportEmail } });
-      res.status(200).json({ message: 'Contact settings saved' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to save contact settings' });
-    }
-  },
-
-  getActivityLog: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const snapshot = await db.collection('users').doc(id).collection('activity').get();
-
-      const logs = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .sort((a, b) => {
-          const ta = a.timestamp?._seconds || 0;
-          const tb = b.timestamp?._seconds || 0;
-          return tb - ta;
-        })
-        .slice(0, 30);
-
-      res.json(logs);
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to load activity log' });
-    }
-  },
-
-  logActivity: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { type, description } = req.body;
-      await db.collection('users').doc(id).collection('activity').add({
-        type, description, timestamp: new Date()
-      });
-      res.json({ success: true });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to log activity' });
-    }
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch profile' });
   }
 };
 
-module.exports = authController;
+exports.updateProfile = async (req, res) => {
+  try {
+    if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    
+    // Allowed fields to update
+    const { display_name, phone, school_name, academic_level, interests, preferred_language, profile_pic } = req.body;
+    
+    const updates = {};
+    if (display_name !== undefined) updates.display_name = display_name;
+    if (phone !== undefined) updates.phone = phone;
+    if (school_name !== undefined) updates.school_name = school_name;
+    if (academic_level !== undefined) updates.academic_level = academic_level;
+    if (interests !== undefined) updates.interests = interests;
+    if (preferred_language !== undefined) updates.preferred_language = preferred_language;
+    if (profile_pic !== undefined) updates.profile_pic = profile_pic;
+
+    const profile = await UserModel.update(req.params.id, updates);
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+};
+
+exports.updateAiSettings = async (req, res) => {
+  try {
+    if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const profile = await UserModel.update(req.params.id, { ai_settings: req.body });
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update AI settings' });
+  }
+};
+
+exports.updateNotifications = async (req, res) => {
+  try {
+    if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const profile = await UserModel.update(req.params.id, { notification_prefs: req.body });
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update notification preferences' });
+  }
+};
+
+exports.updateContact = async (req, res) => {
+  try {
+    if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const profile = await UserModel.update(req.params.id, { contact_info: req.body });
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update contact info' });
+  }
+};
+
+exports.getActivityLog = async (req, res) => {
+  try {
+    if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { supabaseAdmin } = require('../config/supabase');
+    const { data } = await supabaseAdmin
+      .from('activity_log')
+      .select('*')
+      .eq('user_id', req.params.id)
+      .order('created_at', { ascending: false })
+      .limit(30);
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get activity log' });
+  }
+};
+
+exports.logActivity = async (req, res) => {
+  try {
+    const { type, description, device, ip } = req.body;
+    await UserModel.logActivity(req.params.id, type, description, device, ip);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to log activity' });
+  }
+};
