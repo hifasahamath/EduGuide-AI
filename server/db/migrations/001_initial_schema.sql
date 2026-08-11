@@ -266,13 +266,43 @@ INSERT INTO public.llm_providers (provider, display_name, model, enabled, is_def
 -- Note: The server uses supabaseAdmin (service_role key) which
 -- bypasses RLS entirely. These policies protect the anon/client key.
 
+-- Helper function: is_admin() bypasses RLS to check if current user is admin (prevents RLS recursion)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+$$;
+
 -- Profiles — users see/edit their own, admins see all
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Users read own profile"   ON profiles FOR SELECT USING (auth.uid() = id);
-CREATE POLICY "Users update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Users insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Admins read all profiles" ON profiles FOR SELECT
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+DROP POLICY IF EXISTS "Admins read all profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users read own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users update own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users insert own profile" ON public.profiles;
+
+CREATE POLICY "Users read own profile"   ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
+CREATE POLICY "Users update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id OR public.is_admin());
+CREATE POLICY "Users insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+-- Grant privileges to standard roles
+GRANT ALL ON TABLE public.profiles TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.courses TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.faqs TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.training_data TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.documents TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.chat_sessions TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.chat_messages TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.activity_log TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.settings TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.daily_analytics TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.llm_providers TO anon, authenticated, service_role;
 
 -- Chat Sessions — users manage their own sessions only
 ALTER TABLE public.chat_sessions ENABLE ROW LEVEL SECURITY;

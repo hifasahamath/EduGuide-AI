@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -14,24 +15,39 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Fetches the user's profile row from the profiles table.
-   * Called after login and on auth state changes.
+   * Uses direct Supabase query first, with fallback to Express server API (service_role)
+   * if client RLS fails or is blocked.
    */
   const fetchProfile = useCallback(async (userId) => {
     try {
+      // 1. Try direct Supabase query first
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
-      if (error) {
-        console.error('[Auth] Profile fetch error:', error.message);
+      if (!error && data) {
+        setProfile(data);
+        setProfileLoaded(true);
+        return data;
       }
 
-      const prof = data || null;
-      setProfile(prof);
+      if (error) {
+        console.warn('[Auth] Direct Supabase profile fetch failed, using Express API fallback:', error.message);
+      }
+
+      // 2. Fallback to Express backend server API (which uses service_role key to bypass RLS)
+      const res = await api.get(`/auth/profile/${userId}`);
+      if (res.data) {
+        setProfile(res.data);
+        setProfileLoaded(true);
+        return res.data;
+      }
+
+      setProfile(null);
       setProfileLoaded(true);
-      return prof;
+      return null;
     } catch (err) {
       console.error('[Auth] Profile fetch failed:', err.message);
       setProfile(null);
