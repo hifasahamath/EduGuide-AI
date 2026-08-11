@@ -26,18 +26,30 @@ class RagService {
    * @param {Array}  history      - Previous messages in this chat session
    * @param {Object} userProfile  - The user's profile (contains AI settings like provider choice)
    */
-  static async generateResponse(userMessage, history, userProfile) {
+  static async generateResponse(userMessage, history = [], userProfile = {}) {
     const provider = userProfile?.ai_settings?.llmProvider || 'gemini';
     const strictMode = userProfile?.ai_settings?.mode === 'strict';
 
-    // Step 1: Embed the user's question (always uses Gemini embeddings)
-    const embedding = await EmbeddingService.generateEmbedding(userMessage);
+    // Step 1: Formulate context-aware query for vector embedding search
+    let searchQuery = userMessage;
+    const isFollowup = history.length > 0 && (
+      userMessage.length < 30 ||
+      /\b(this|that|it|they|them|the grant|the course|the university|deadline|requirement|apply|fee|cost|eligibility|gpa)\b/i.test(userMessage)
+    );
+
+    if (isFollowup) {
+      const recentHistory = history.slice(-2).map(m => m.content).join(' ');
+      searchQuery = `${recentHistory} ${userMessage}`;
+    }
+
+    // Embed the query for similarity search
+    const embedding = await EmbeddingService.generateEmbedding(searchQuery);
 
     // Step 2: Search our knowledge base in parallel
     const [faqs, courses, documents] = await Promise.all([
-      FaqModel.searchSimilar(embedding, 2, 0.4),
+      FaqModel.searchSimilar(embedding, 2, 0.38),
       CourseModel.searchSimilar(embedding, 3, 0.35),
-      DocumentModel.searchSimilar(embedding, 3, 0.4)
+      DocumentModel.searchSimilar(embedding, 3, 0.35)
     ]);
 
     // Step 3: Build the context from search results
@@ -64,12 +76,11 @@ class RagService {
       });
     }
 
-    // If nothing relevant was found in our knowledge base
     if (!contextStr) {
       contextStr = 'No relevant information found in the knowledge base for this question.';
     }
 
-    // Step 4: Build the system prompt
+    // Step 4: Build system prompt with follow-up questions directive
     const systemPrompt = `You are EduGuide-AI, a warm, highly knowledgeable, and empathetic Senior Educational Advisor & Career Consultant in Sri Lanka.
 Your mission is to guide students, parents, and job seekers towards the best academic pathways, university programs, scholarships, and career opportunities in Sri Lanka and globally.
 
@@ -83,12 +94,17 @@ ${contextStr}
 
 Tone & Response Guidelines:
 1. NATURAL SYNTHESIS: Never copy raw text chunks verbatim or sound robotic. Blend facts into smooth, engaging, and professional advice.
-2. CLEAR STRUCTURE: Use markdown headings (##, ###), bullet points, bold key terms, and callout boxes where appropriate to make information easy to digest.
+2. CLEAR STRUCTURE: Use markdown headings (##, ###), bullet points, bold key terms, and callout boxes where appropriate.
 3. ACCURACY FIRST: Preserve exact figures, grant codes, deadlines, GPA cutoffs, fees, and contact details without distortion.
-4. SRI LANKAN CONTEXT AWARENESS: Be familiar with A/L streams (Physical Science, Bio Science, Commerce, Arts, Technology), UGC Z-score mechanisms, Mahapola scholarships, and Ministry student loans.
-5. ENCOURAGING & EMPOWERING: Always maintain an encouraging, inspiring tone for students planning their future. If asked non-educational queries, politely pivot back to academic and career counseling.`;
+4. SRI LANKAN CONTEXT AWARENESS: Be familiar with A/L streams, UGC Z-score mechanisms, Mahapola scholarships, and Ministry student loans.
+5. CONVERSATIONAL MEMORY & FOLLOW-UP SUGGESTIONS: Always remember what was discussed in previous messages in this chat session. At the VERY END of your response, output exactly 3 relevant, context-aware follow-up question options that the student might want to ask next, formatted strictly as:
 
-    // Step 5: Generate response via the chosen LLM provider
+---FOLLOWUPS---
+- [Follow-up question 1]
+- [Follow-up question 2]
+- [Follow-up question 3]`;
+
+    // Step 5: Generate response via LLM provider
     const responseText = await LlmService.generateResponse(
       provider,
       systemPrompt,
@@ -96,8 +112,24 @@ Tone & Response Guidelines:
       userMessage
     );
 
+    // Step 6: Parse follow-up suggestions if present
+    let cleanText = responseText;
+    let followUps = [];
+
+    const followupSplit = responseText.split('---FOLLOWUPS---');
+    if (followupSplit.length > 1) {
+      cleanText = followupSplit[0].trim();
+      const rawFollowups = followupSplit[1].trim();
+      followUps = rawFollowups
+        .split('\n')
+        .map(line => line.replace(/^[-*•\d.\s]+/, '').trim())
+        .filter(Boolean)
+        .slice(0, 3);
+    }
+
     return {
-      text: responseText,
+      text: cleanText,
+      followUps,
       sources: {
         faqs: faqs?.length || 0,
         courses: courses?.length || 0,

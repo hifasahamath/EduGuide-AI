@@ -46,16 +46,45 @@ class LlmService {
     }
   }
 
+  static _sanitizeHistory(history = []) {
+    const sanitized = [];
+    let lastRole = null;
+
+    for (const msg of history) {
+      if (!msg || !msg.content || typeof msg.content !== 'string' || !msg.content.trim()) continue;
+      const role = (msg.role === 'assistant' || msg.role === 'model') ? 'model' : 'user';
+
+      if (role === lastRole) {
+        if (sanitized.length > 0) {
+          sanitized[sanitized.length - 1].content += '\n' + msg.content.trim();
+        }
+        continue;
+      }
+
+      sanitized.push({ role, content: msg.content.trim() });
+      lastRole = role;
+    }
+
+    return sanitized;
+  }
+
   // ── Gemini (default) ──────────────────────────────────
   static async _generateGemini(systemPrompt, history, userMessage) {
     const client = llmConfig.gemini.client;
     if (!client) throw new Error('Gemini API key is not configured.');
 
+    const sanitizedHistory = this._sanitizeHistory(history);
+
     // Convert chat history to Gemini's format (user/model roles)
-    const contents = history.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
+    const contents = sanitizedHistory.map(msg => ({
+      role: msg.role === 'model' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));
+
+    // Ensure the conversation starts with a user turn if history exists
+    if (contents.length > 0 && contents[0].role === 'model') {
+      contents.shift();
+    }
 
     // Add the current user message
     contents.push({

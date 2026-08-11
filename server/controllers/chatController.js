@@ -56,14 +56,18 @@ exports.handleChat = async (req, res) => {
     await ChatModel.addMessage(activeSessionId, {
       role: 'assistant',
       content: ragResponse.text,
-      metadata: { sources: ragResponse.sources }
+      metadata: { 
+        sources: ragResponse.sources,
+        followUps: ragResponse.followUps || []
+      }
     });
 
     return res.json({
       reply: ragResponse.text,
       intent,
       sessionId: activeSessionId,
-      sources: ragResponse.sources
+      sources: ragResponse.sources,
+      followUps: ragResponse.followUps || []
     });
 
   } catch (error) {

@@ -193,7 +193,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
             sender: m.role === 'assistant' ? 'bot' : 'user',
             text: m.content,
             timestamp: m.created_at ? new Date(m.created_at) : new Date(),
-            suggestions: [],
+            suggestions: m.metadata?.followUps || [],
           }));
           setMessages(msgs);
         })
@@ -291,13 +291,17 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
         reply.toLowerCase().includes("sorry") ||
         reply.toLowerCase().includes("contact");
 
+      const dynamicFollowups = res.data.followUps && res.data.followUps.length > 0
+        ? res.data.followUps
+        : getSuggestions(trimmed + ' ' + reply);
+
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         sender: 'bot',
         text: reply,
         timestamp: new Date(),
         courses: res.data.courses || [],
-        suggestions: getSuggestions(trimmed + ' ' + reply),
+        suggestions: dynamicFollowups,
         showWhatsApp: isFallback,
       }]);
     } catch {
