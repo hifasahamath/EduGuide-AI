@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import api from '../../services/api';
+import api, { bulkImportCourses } from '../../services/api';
 import {
   X, Upload, Download, CheckCircle, AlertCircle,
   FileText, Loader2, ChevronRight, Trash2
@@ -132,7 +132,7 @@ const BulkImportModal = ({ onClose, onSuccess }) => {
   const handleImport = async () => {
     setImporting(true);
     try {
-      const res = await api.bulkImportCourses(rows);
+      const res = await bulkImportCourses(rows);
       setResult(res.data);
       setStep('result');
       onSuccess();

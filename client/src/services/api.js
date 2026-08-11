@@ -67,5 +67,37 @@ export const saveSettings = (id, data) => api.put(`/settings/${id}`, data);
 export const getDashboardAnalytics = () => api.get('/analytics/dashboard');
 export const getInsightsAnalytics = () => api.get('/analytics/insights');
 
+// Attach helper methods directly to api instance for backward compatibility
+api.getCourses = getCourses;
+api.addCourse = addCourse;
+api.updateCourse = updateCourse;
+api.deleteCourse = deleteCourse;
+api.bulkImportCourses = bulkImportCourses;
+
+api.getFaqs = getFaqs;
+api.addFaq = addFaq;
+api.updateFaq = updateFaq;
+api.deleteFaq = deleteFaq;
+api.suggestFaqs = suggestFaqs;
+
+api.getPendingTraining = getPendingTraining;
+api.getTrainedData = getTrainedData;
+api.respondToTraining = respondToTraining;
+api.deleteTraining = deleteTraining;
+
+api.getDocuments = getDocuments;
+api.uploadDocument = uploadDocument;
+api.deleteDocument = deleteDocument;
+
+api.getUsers = getUsers;
+api.updateProfile = updateProfile;
+api.updateAiSettings = updateAiSettings;
+api.getActivityLog = getActivityLog;
+
+api.getSettings = getSettings;
+api.saveSettings = saveSettings;
+api.getDashboardAnalytics = getDashboardAnalytics;
+api.getInsightsAnalytics = getInsightsAnalytics;
+
 export { api };
 export default api;

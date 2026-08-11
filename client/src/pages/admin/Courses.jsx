@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../services/api';
+import api, { getCourses, addCourse, updateCourse, deleteCourse } from '../../services/api';
 import BulkImportModal from '../../components/admin/BulkImportModal';
 import {
   Edit2, Trash2, Plus, Search, BookOpen, X, Clock, Building2,
@@ -360,7 +360,7 @@ const Courses = () => {
 
   const fetchCourses = () => {
     setLoading(true);
-    api.getCourses().then(r => setCourses(r.data || [])).catch(console.error).finally(() => setLoading(false));
+    getCourses().then(r => setCourses(r.data || [])).catch(console.error).finally(() => setLoading(false));
   };
 
   useEffect(() => { fetchCourses(); }, []);
@@ -378,21 +378,24 @@ const Courses = () => {
         ...formData,
         totalFee: Number(formData.totalFee) || 0,
         registrationFee: Number(formData.registrationFee) || 0,
-        subjects: formData.subjects ? formData.subjects.split(',').map(s => s.trim()).filter(Boolean) : [],
-        jobOpportunities: formData.jobOpportunities ? formData.jobOpportunities.split(',').map(s => s.trim()).filter(Boolean) : [],
-        keywords: formData.keywords ? formData.keywords.split(',').map(s => s.trim()).filter(Boolean) : [],
-        tags: formData.tags ? formData.tags.split(',').map(s => s.trim()).filter(Boolean) : [],
+        subjects: formData.subjects ? (Array.isArray(formData.subjects) ? formData.subjects : formData.subjects.split(',').map(s => s.trim()).filter(Boolean)) : [],
+        jobOpportunities: formData.jobOpportunities ? (Array.isArray(formData.jobOpportunities) ? formData.jobOpportunities : formData.jobOpportunities.split(',').map(s => s.trim()).filter(Boolean)) : [],
+        keywords: formData.keywords ? (Array.isArray(formData.keywords) ? formData.keywords : formData.keywords.split(',').map(s => s.trim()).filter(Boolean)) : [],
+        tags: formData.tags ? (Array.isArray(formData.tags) ? formData.tags : formData.tags.split(',').map(s => s.trim()).filter(Boolean)) : [],
       };
-      if (editingId) await api.updateCourse(editingId, payload);
-      else await api.addCourse(payload);
+      if (editingId) await updateCourse(editingId, payload);
+      else await addCourse(payload);
       setIsModalOpen(false);
       fetchCourses();
-    } catch { alert('Failed to save. Please check backend connection.'); }
+    } catch (err) {
+      console.error('Save course error:', err);
+      alert('Failed to save. Please check backend connection.');
+    }
   };
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this course permanently?')) return;
-    try { await api.deleteCourse(id); fetchCourses(); } catch { console.error('Delete failed'); }
+    try { await deleteCourse(id); fetchCourses(); } catch { console.error('Delete failed'); }
   };
 
   const allFields = ['all', ...new Set(courses.map(c => c.field).filter(Boolean))];
