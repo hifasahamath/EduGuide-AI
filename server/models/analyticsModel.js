@@ -63,7 +63,7 @@ class AnalyticsModel {
     const { data: messages } = await supabase
       .from('chat_messages')
       .select('intent, detected_field')
-      .neq('role', 'model'); // only user messages
+      .eq('role', 'user'); // only user messages
 
     const fieldCounts = {};
     const intentCounts = {};

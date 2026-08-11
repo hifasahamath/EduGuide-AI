@@ -11,6 +11,7 @@ router.use(authenticateUser, adminAuth);
 // Q&A Training
 router.get('/pending', trainingController.getPending);
 router.get('/trained', trainingController.getTrained);
+router.post('/add', trainingController.addPending);
 router.post('/respond', trainingController.respond);
 router.delete('/:id', trainingController.deleteTraining);
 

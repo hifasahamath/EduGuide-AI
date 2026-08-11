@@ -130,7 +130,7 @@ const Profile = () => {
   const fetchActivity = useCallback(async () => {
     if (!user?.id) return;
     try {
-      const res = await api.get(`/profile/${user.id}/activity`);
+      const res = await api.get(`/auth/profile/${user.id}/activity`);
       setActivityLogs(res.data || []);
     } catch { setActivityLogs([]); }
   }, [user?.id]);
@@ -144,7 +144,7 @@ const Profile = () => {
   const saveProfile = async () => {
     setSaving(true);
     try {
-      await api.put(`/profile/${user.id}`, { name, email, phone });
+      await api.put(`/auth/profile/${user.id}`, { display_name: name, name, email, phone });
       updateSessionProfile({ name, email, phone });
       showToast('Profile updated successfully!');
     } catch { showToast('Failed to update profile.', 'error'); }
@@ -157,7 +157,7 @@ const Profile = () => {
     if (newPw.length < 6) return showToast('Password must be at least 6 characters.', 'error');
     setSaving(true);
     try {
-      await api.put(`/profile/${user.id}/password`, { currentPassword: currentPw, newPassword: newPw });
+      await api.put(`/auth/profile/${user.id}/password`, { currentPassword: currentPw, newPassword: newPw });
       setCurrentPw(''); setNewPw(''); setConfirmPw('');
       showToast('Password changed successfully!');
     } catch (err) {
@@ -169,7 +169,7 @@ const Profile = () => {
   const saveAiSettings = async () => {
     setSaving(true);
     try {
-      await api.put(`/profile/${user.id}/ai-settings`, { mode: aiMode, llmProvider, fallbackEnabled, fallbackMessage: fallbackMsg });
+      await api.put(`/auth/profile/${user.id}/ai-settings`, { mode: aiMode, llmProvider, fallbackEnabled, fallbackMessage: fallbackMsg });
       updateSessionProfile({ aiSettings: { mode: aiMode, llmProvider, fallbackEnabled, fallbackMessage: fallbackMsg } });
       showToast('AI settings saved!');
     } catch { showToast('Failed to save AI settings.', 'error'); }
@@ -179,7 +179,7 @@ const Profile = () => {
   const saveNotifications = async () => {
     setSaving(true);
     try {
-      await api.put(`/profile/${user.id}/notifications`, { failedQueries: notifFailed, newUsers: notifNewUsers });
+      await api.put(`/auth/profile/${user.id}/notifications`, { failedQueries: notifFailed, newUsers: notifNewUsers });
       showToast('Notification preferences saved!');
     } catch { showToast('Failed to save.', 'error'); }
     setSaving(false);
@@ -188,7 +188,7 @@ const Profile = () => {
   const saveContact = async () => {
     setSaving(true);
     try {
-      await api.put(`/profile/${user.id}/contact`, { whatsapp, supportEmail });
+      await api.put(`/auth/profile/${user.id}/contact`, { whatsapp, supportEmail });
       updateSessionProfile({ contact: { whatsapp, supportEmail } });
       showToast('Contact settings saved!');
     } catch { showToast('Failed to save.', 'error'); }

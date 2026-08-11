@@ -74,6 +74,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/faq', faqRoutes);
 app.use('/api/training', trainingRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/profile', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/settings', settingsRoutes);

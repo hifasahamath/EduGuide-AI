@@ -23,17 +23,17 @@ const UserProfile = ({ isDark }) => {
 
   useEffect(() => {
     if (!user?.id) return;
-    api.get(`/profile/${user.id}`)
+    api.get(`/auth/profile/${user.id}`)
       .then(res => {
         const data = res.data;
         setForm({
-          name: data.name || '',
+          name: data.display_name || data.name || '',
           email: data.email || '',
-        schoolName: data.schoolName || '',
-        address: data.address || '',
-        age: data.age || '',
-        language: data.language || 'English',
-        profilePic: data.profilePic || ''
+          schoolName: data.school_name || data.schoolName || '',
+          address: data.address || '',
+          age: data.age || '',
+          language: data.preferred_language || data.language || 'English',
+          profilePic: data.profile_pic || data.profilePic || ''
         });
       })
       .catch(() => setForm(f => ({ ...f, name: user.name || '', email: user.email || '' })));
@@ -48,7 +48,16 @@ const UserProfile = ({ isDark }) => {
     if (!user?.id) return;
     setSaving(true);
     try {
-      await api.put(`/profile/${user.id}`, { name: form.name, schoolName: form.schoolName, address: form.address, age: form.age, language: form.language, profilePic: form.profilePic });
+      await api.put(`/auth/profile/${user.id}`, {
+        display_name: form.name,
+        name: form.name,
+        school_name: form.schoolName,
+        schoolName: form.schoolName,
+        preferred_language: form.language,
+        language: form.language,
+        profile_pic: form.profilePic,
+        profilePic: form.profilePic
+      });
       updateSessionProfile({ name: form.name, schoolName: form.schoolName, address: form.address, age: form.age, language: form.language, profilePic: form.profilePic });
       showToast('Profile saved successfully!');
     } catch {
@@ -65,7 +74,7 @@ const UserProfile = ({ isDark }) => {
     }
     setSavingPass(true);
     try {
-      await api.put(`/profile/${user.id}`, { password: passwords.newPass });
+      await api.put(`/auth/profile/${user.id}/password`, { newPassword: passwords.newPass });
       showToast('Password changed successfully!');
       setPasswords({ current: '', newPass: '', confirm: '' });
     } catch (err) {

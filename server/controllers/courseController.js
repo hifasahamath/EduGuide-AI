@@ -12,27 +12,29 @@ exports.getCourses = async (req, res) => {
 
 exports.addCourse = async (req, res) => {
   try {
-    // Generate embedding for RAG
-    const textToEmbed = `Course Name: ${req.body.name}\nField: ${req.body.field}\nDescription: ${req.body.eligibility}\nSubjects: ${req.body.subjects?.join(', ')}`;
+    const subjectsStr = Array.isArray(req.body.subjects) ? req.body.subjects.join(', ') : (req.body.subjects || '');
+    const textToEmbed = `Course Name: ${req.body.name}\nField: ${req.body.field}\nDescription: ${req.body.eligibility}\nSubjects: ${subjectsStr}`;
     const embedding = await EmbeddingService.generateEmbedding(textToEmbed);
     
     const data = await CourseModel.create({ ...req.body, embedding });
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to add course' });
+    console.error('Add course error:', error);
+    res.status(500).json({ error: 'Failed to add course: ' + error.message });
   }
 };
 
 exports.updateCourse = async (req, res) => {
   try {
-    // Re-generate embedding
-    const textToEmbed = `Course Name: ${req.body.name}\nField: ${req.body.field}\nDescription: ${req.body.eligibility}\nSubjects: ${req.body.subjects?.join(', ')}`;
+    const subjectsStr = Array.isArray(req.body.subjects) ? req.body.subjects.join(', ') : (req.body.subjects || '');
+    const textToEmbed = `Course Name: ${req.body.name}\nField: ${req.body.field}\nDescription: ${req.body.eligibility}\nSubjects: ${subjectsStr}`;
     const embedding = await EmbeddingService.generateEmbedding(textToEmbed);
     
     const data = await CourseModel.update(req.params.id, { ...req.body, embedding });
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update course' });
+    console.error('Update course error:', error);
+    res.status(500).json({ error: 'Failed to update course: ' + error.message });
   }
 };
 
@@ -50,11 +52,10 @@ exports.bulkImportCourses = async (req, res) => {
     const courses = req.body;
     if (!Array.isArray(courses)) return res.status(400).json({ error: 'Expected an array' });
     
-    // In a real prod environment, we would batch embeddings to avoid hitting API rate limits.
-    // For now, we do them sequentially or in small chunks.
     const enriched = [];
     for (const c of courses) {
-      const textToEmbed = `Course Name: ${c.name}\nField: ${c.field}\nDescription: ${c.eligibility}\nSubjects: ${c.subjects?.join(', ')}`;
+      const subjectsStr = Array.isArray(c.subjects) ? c.subjects.join(', ') : (c.subjects || '');
+      const textToEmbed = `Course Name: ${c.name}\nField: ${c.field}\nDescription: ${c.eligibility}\nSubjects: ${subjectsStr}`;
       const embedding = await EmbeddingService.generateEmbedding(textToEmbed);
       enriched.push({ ...c, embedding });
     }

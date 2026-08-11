@@ -21,6 +21,18 @@ exports.getTrained = async (req, res) => {
   }
 };
 
+exports.addPending = async (req, res) => {
+  try {
+    const { question, intent } = req.body;
+    if (!question) return res.status(400).json({ error: 'Question is required' });
+    const data = await TrainingModel.storeUnknown(question, intent || 'unknown');
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('addPending error:', error);
+    res.status(500).json({ error: 'Failed to add question to training queue' });
+  }
+};
+
 exports.respond = async (req, res) => {
   try {
     const { id, response } = req.body;

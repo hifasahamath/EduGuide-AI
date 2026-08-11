@@ -181,7 +181,7 @@ const ChatHistory = () => {
       const params = new URLSearchParams();
       if (dateFilter !== 'all') params.set('dateFilter', dateFilter);
       if (statusFilter !== 'all') params.set('statusFilter', statusFilter);
-      const res = await api.get(`/admin/sessions?${params.toString()}`);
+      const res = await api.get(`/chat/admin/sessions?${params.toString()}`);
       setSessions(res.data.sessions || []);
       setStats(res.data.stats || null);
     } catch (err) {
@@ -255,7 +255,7 @@ const ChatHistory = () => {
     const question = userMsgs[userMsgs.length - 1]?.text || session.title;
     if (!question) return;
     try {
-      await api.post(`/admin/train`, { question, intent: null });
+      await api.post(`/training/add`, { question, intent: null });
       toast('Sent to training queue!');
     } catch { toast('Failed to send.'); }
   };

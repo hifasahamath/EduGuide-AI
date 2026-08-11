@@ -22,22 +22,51 @@ exports.updateProfile = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
     
-    // Allowed fields to update
-    const { display_name, phone, school_name, academic_level, interests, preferred_language, profile_pic } = req.body;
+    const {
+      display_name, name, phone, school_name, schoolName,
+      academic_level, age, interests, preferred_language, language,
+      profile_pic, profilePic
+    } = req.body;
     
     const updates = {};
-    if (display_name !== undefined) updates.display_name = display_name;
+    const dName = display_name !== undefined ? display_name : name;
+    if (dName !== undefined) updates.display_name = dName;
     if (phone !== undefined) updates.phone = phone;
-    if (school_name !== undefined) updates.school_name = school_name;
+    const sName = school_name !== undefined ? school_name : schoolName;
+    if (sName !== undefined) updates.school_name = sName;
     if (academic_level !== undefined) updates.academic_level = academic_level;
-    if (interests !== undefined) updates.interests = interests;
-    if (preferred_language !== undefined) updates.preferred_language = preferred_language;
-    if (profile_pic !== undefined) updates.profile_pic = profile_pic;
+    const lang = preferred_language !== undefined ? preferred_language : language;
+    if (lang !== undefined) updates.preferred_language = lang;
+    const pPic = profile_pic !== undefined ? profile_pic : profilePic;
+    if (pPic !== undefined) updates.profile_pic = pPic;
 
     const profile = await UserModel.update(req.params.id, updates);
     res.json(profile);
   } catch (error) {
+    console.error('Update profile error:', error);
     res.status(500).json({ error: 'Failed to update profile' });
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    if (req.user.id !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+    const { newPassword, password } = req.body;
+    const passToSet = newPassword || password;
+    if (!passToSet || passToSet.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    const { supabaseAdmin } = require('../config/supabase');
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(req.params.id, {
+      password: passToSet
+    });
+    if (error) throw error;
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Update password error:', error);
+    res.status(500).json({ error: 'Failed to update password: ' + error.message });
   }
 };
 

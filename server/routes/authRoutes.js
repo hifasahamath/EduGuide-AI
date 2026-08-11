@@ -8,6 +8,7 @@ router.use('/profile', authenticateUser);
 
 router.get('/profile/:id', authController.getProfile);
 router.put('/profile/:id', authController.updateProfile);
+router.put('/profile/:id/password', authController.updatePassword);
 router.put('/profile/:id/ai-settings', authController.updateAiSettings);
 router.put('/profile/:id/notifications', authController.updateNotifications);
 router.put('/profile/:id/contact', authController.updateContact);
