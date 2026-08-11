@@ -63,15 +63,15 @@ const Login = () => {
   }, []);
 
   // If the user is already logged in (or just logged in), redirect them.
-  // profile.role determines where they go.
   useEffect(() => {
-    if (!profile) return;
-    if (profile.role === 'admin') {
+    if (!user) return;
+    const role = profile?.role || user.user_metadata?.role || 'user';
+    if (role === 'admin') {
       navigate('/admin', { replace: true });
     } else {
       navigate('/chat', { replace: true });
     }
-  }, [profile, navigate]);
+  }, [user, profile, navigate]);
 
   // Restore saved email from "remember me"
   useEffect(() => {
@@ -115,8 +115,13 @@ const Login = () => {
       if (rememberMe) localStorage.setItem('_eg_remember_email', email);
       else localStorage.removeItem('_eg_remember_email');
 
-      // The useEffect watching `profile` handles the redirect.
-      // onAuthStateChange fires → AuthContext fetches profile → useEffect redirects.
+      // Navigate based on user role
+      const targetRole = result.role || 'user';
+      if (targetRole === 'admin') {
+        navigate('/admin', { replace: true });
+      } else {
+        navigate('/chat', { replace: true });
+      }
     } else {
       // Track failed attempt
       const newCount = (d.count || 0) + 1;

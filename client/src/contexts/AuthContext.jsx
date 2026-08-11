@@ -20,10 +20,9 @@ export const AuthProvider = ({ children }) => {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      // PGRST116 = "no rows found" — not a real error, just means profile doesn't exist yet
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('[Auth] Profile fetch error:', error.message);
       }
 
@@ -76,9 +75,8 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Login with email + password.
-   * Supabase handles JWT creation. onAuthStateChange picks up the session
-   * and calls fetchProfile, which sets the profile state.
-   * We also fetch the role here so the caller can redirect immediately.
+   * Supabase handles JWT creation. We update user and profile in state immediately
+   * and return the user's role for immediate navigation.
    */
   const login = async (email, password) => {
     try {
@@ -88,11 +86,15 @@ export const AuthProvider = ({ children }) => {
       // Grab the role so Login.jsx can decide where to redirect
       const { data: prof } = await supabase
         .from('profiles')
-        .select('role')
+        .select('*')
         .eq('id', data.user.id)
-        .single();
+        .maybeSingle();
 
-      return { success: true, role: prof?.role || 'user', user: data.user };
+      setUser(data.user);
+      if (prof) setProfile(prof);
+
+      const userRole = prof?.role || data.user.user_metadata?.role || 'user';
+      return { success: true, role: userRole, user: data.user, profile: prof };
     } catch (err) {
       return { success: false, error: err.message };
     }
