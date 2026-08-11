@@ -4,35 +4,45 @@ const FaqModel = require('../models/faqModel');
 const CourseModel = require('../models/courseModel');
 const DocumentModel = require('../models/documentModel');
 
+/**
+ * RagService — Retrieval-Augmented Generation pipeline.
+ * 
+ * How it works:
+ * 1. Embed the user's question into a vector
+ * 2. Search our own knowledge base (FAQs, courses, uploaded documents, trained Q&A)
+ * 3. If matches are found, build a context prompt from those results
+ * 4. Send the context + question to the LLM for a natural language response
+ * 5. If no relevant knowledge found, the question gets flagged for admin training
+ * 
+ * The AI should always prioritise our own knowledge over general AI knowledge.
+ * This ensures accuracy and gives the admin control over what the bot says.
+ */
 class RagService {
+
   /**
-   * Execute the full Retrieval-Augmented Generation pipeline.
-   * 1. Embed user query
-   * 2. Search Postgres pgvector (FAQs, Courses, Documents)
-   * 3. Construct augmented prompt
-   * 4. Generate response via chosen LLM provider
+   * Generate a response using our knowledge base + LLM.
    * 
-   * @param {string} userMessage 
-   * @param {Array} history 
-   * @param {Object} userProfile (contains ai_settings.llmProvider)
+   * @param {string} userMessage  - The user's question
+   * @param {Array}  history      - Previous messages in this chat session
+   * @param {Object} userProfile  - The user's profile (contains AI settings like provider choice)
    */
   static async generateResponse(userMessage, history, userProfile) {
     const provider = userProfile?.ai_settings?.llmProvider || 'gemini';
     const strictMode = userProfile?.ai_settings?.mode === 'strict';
 
-    // 1. Generate query embedding (Always uses Gemini embeddings)
+    // Step 1: Embed the user's question (always uses Gemini embeddings)
     const embedding = await EmbeddingService.generateEmbedding(userMessage);
 
-    // 2. Parallel Vector Search across 3 collections
+    // Step 2: Search our knowledge base in parallel
     const [faqs, courses, documents] = await Promise.all([
       FaqModel.searchSimilar(embedding, 2, 0.4),
       CourseModel.searchSimilar(embedding, 3, 0.35),
-      DocumentModel.searchSimilar(embedding, 3, 0.4) // Uploaded PDFs/Word etc.
+      DocumentModel.searchSimilar(embedding, 3, 0.4)
     ]);
 
-    // 3. Build the Context String
+    // Step 3: Build the context from search results
     let contextStr = '';
-    
+
     if (faqs && faqs.length > 0) {
       contextStr += '### RELEVANT FAQs ###\n';
       faqs.forEach(f => {
@@ -54,26 +64,33 @@ class RagService {
       });
     }
 
+    // If nothing relevant was found in our knowledge base
     if (!contextStr) {
-      contextStr = "No highly relevant specific information found in the database. Rely on general knowledge.";
+      contextStr = 'No relevant information found in the knowledge base for this question.';
     }
 
-    // 4. Construct System Prompt
-    let systemPrompt = `You are EduGuide-AI, an expert educational consultant for Sri Lanka.
-Your goal is to help students find the right courses and answer their questions based ONLY on the provided context.
-    
-${strictMode ? 'STRICT MODE: If the answer is not in the context, you MUST say you do not know. Do not hallucinate external information.' : 'SMART MODE: Use the provided context first. If not found, use your general knowledge, but clarify it is general advice.'}
+    // Step 4: Build the system prompt
+    // The AI is instructed to use our knowledge first, and only fall back to
+    // general knowledge if explicitly allowed (smart mode, not strict mode).
+    const systemPrompt = `You are EduGuide-AI, an expert educational consultant for Sri Lanka.
+Your primary job is to help students find courses and answer education questions.
 
-=== RETRIEVED CONTEXT ===
+${strictMode
+  ? 'STRICT MODE: You MUST answer ONLY from the provided context below. If the answer is not in the context, say "I don\'t have that information yet. Your question has been noted and our team will add an answer soon." Do NOT use external knowledge.'
+  : 'SMART MODE: Use the provided context as your primary source. If the context has a good answer, use it. If the context has nothing relevant, you may use general knowledge but clearly note it as general advice, not verified information.'}
+
+=== OUR KNOWLEDGE BASE ===
 ${contextStr}
-=========================
+===========================
 
 Guidelines:
 - Keep answers concise, clear, and encouraging.
-- Format responses cleanly with markdown.
-- If recommending a course, mention its name and why it fits.`;
+- Format responses with markdown for readability.
+- When recommending a course, mention its name and why it fits.
+- Never invent course details (fees, duration, etc.) that aren't in the context.
+- If asked about something outside education, politely redirect to education topics.`;
 
-    // 5. Generate Response via chosen LLM Provider
+    // Step 5: Generate response via the chosen LLM provider
     const responseText = await LlmService.generateResponse(
       provider,
       systemPrompt,
@@ -83,7 +100,11 @@ Guidelines:
 
     return {
       text: responseText,
-      sources: { faqs: faqs?.length, courses: courses?.length, documents: documents?.length }
+      sources: {
+        faqs: faqs?.length || 0,
+        courses: courses?.length || 0,
+        documents: documents?.length || 0
+      }
     };
   }
 }

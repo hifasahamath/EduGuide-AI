@@ -1,18 +1,23 @@
 const llmConfig = require('../config/llm');
 
+/**
+ * EmbeddingService — generates vector embeddings for text.
+ * 
+ * Always uses Gemini for embeddings (gemini-embedding-2, 3072 dimensions)
+ * regardless of which LLM provider is used for chat responses.
+ * This keeps all vectors in the same dimensional space for consistent search.
+ */
 class EmbeddingService {
+
   /**
-   * Generate an embedding vector using Gemini's text-embedding-004 model (768 dimensions)
-   * We use Gemini for embeddings regardless of the chat LLM provider to maintain vector consistency.
-   * 
-   * @param {string} text - The text to embed
-   * @returns {Promise<number[]>} - The embedding vector array (length 768)
+   * Generate a 3072-dimensional embedding vector for the given text.
+   * The vector is stored in Supabase and used for cosine similarity search.
    */
   static async generateEmbedding(text) {
     try {
       const gemini = llmConfig.gemini.client;
       if (!gemini) {
-        throw new Error("Gemini API key is not configured for embeddings.");
+        throw new Error('Gemini API key is not configured — needed for embeddings.');
       }
 
       const response = await gemini.models.embedContent({
@@ -20,21 +25,19 @@ class EmbeddingService {
         contents: text,
       });
 
-      // The returned format from @google/genai SDK v1.51+
       return response.embeddings[0].values;
     } catch (error) {
-      console.error("Error generating embedding:", error);
+      console.error('[Embedding] Generation failed:', error.message);
       throw error;
     }
   }
 
   /**
-   * Helper to chunk large text into smaller segments for embedding
-   * @param {string} text 
-   * @param {number} maxTokens (approx)
+   * Split large text into smaller chunks for individual embedding.
+   * Uses paragraph boundaries as natural split points.
+   * Each chunk stays under maxLength characters.
    */
   static chunkText(text, maxLength = 2000) {
-    // Very basic chunker by paragraphs
     const paragraphs = text.split(/\n\s*\n/);
     const chunks = [];
     let currentChunk = '';
@@ -47,11 +50,11 @@ class EmbeddingService {
         currentChunk += p + '\n\n';
       }
     }
-    
+
     if (currentChunk.trim()) {
       chunks.push(currentChunk.trim());
     }
-    
+
     return chunks;
   }
 }

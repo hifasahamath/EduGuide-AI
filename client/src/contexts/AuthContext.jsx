@@ -6,9 +6,14 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);       // true only during initial session check
 
-  // Fetch profile from Supabase — called by onAuthStateChange only
+  // true only during the very first session check on page load
+  const [loading, setLoading] = useState(true);
+
+  /**
+   * Fetches the user's profile row from the profiles table.
+   * Called after login and on auth state changes.
+   */
   const fetchProfile = useCallback(async (userId) => {
     try {
       const { data, error } = await supabase
@@ -17,32 +22,37 @@ export const AuthProvider = ({ children }) => {
         .eq('id', userId)
         .single();
 
+      // PGRST116 = "no rows found" — not a real error, just means profile doesn't exist yet
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error);
+        console.error('[Auth] Profile fetch error:', error.message);
       }
 
       setProfile(data || null);
+      return data || null;
     } catch (err) {
-      console.error('Profile fetch failed:', err);
+      console.error('[Auth] Profile fetch failed:', err.message);
       setProfile(null);
+      return null;
     }
   }, []);
 
+  // Listen for Supabase auth events (login, logout, token refresh)
   useEffect(() => {
     let isMounted = true;
 
-    // 1. Check existing session on mount
+    // Check if there's already an active session (e.g. page refresh)
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!isMounted) return;
+
       if (session?.user) {
         setUser(session.user);
         await fetchProfile(session.user.id);
       }
+
       if (isMounted) setLoading(false);
     });
 
-    // 2. Listen for auth state changes (login, logout, token refresh)
-    //    This is the SINGLE source of truth for user/profile state.
+    // This fires on login, logout, and token refresh
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
 
@@ -65,16 +75,17 @@ export const AuthProvider = ({ children }) => {
   }, [fetchProfile]);
 
   /**
-   * Login: authenticates with Supabase and returns the role.
-   * Does NOT directly set user/profile state — onAuthStateChange handles that.
-   * This prevents the double-update race condition.
+   * Login with email + password.
+   * Supabase handles JWT creation. onAuthStateChange picks up the session
+   * and calls fetchProfile, which sets the profile state.
+   * We also fetch the role here so the caller can redirect immediately.
    */
   const login = async (email, password) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) return { success: false, error: error.message };
 
-      // Fetch profile to determine role for the caller's redirect logic
+      // Grab the role so Login.jsx can decide where to redirect
       const { data: prof } = await supabase
         .from('profiles')
         .select('role')
@@ -87,48 +98,70 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginWithGoogle = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: `${window.location.origin}/chat` }
-      });
-      if (error) return { success: false, error: error.message };
-      return { success: true, data };
-    } catch (err) {
-      return { success: false, error: err.message };
-    }
-  };
-
+  /**
+   * Register a new user account.
+   * Email confirmation is turned off, so the user can login right away.
+   * The DB trigger (handle_new_user) auto-creates the profile row.
+   * As a safety net, we also try to insert the profile ourselves.
+   */
   const register = async (email, password, name) => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { display_name: name, role: 'user' } }
+        options: {
+          data: { display_name: name, role: 'user' }
+        }
       });
       if (error) return { success: false, error: error.message };
+
+      // Safety net: if the DB trigger didn't fire (or was slow),
+      // try to insert the profile row ourselves. If it already exists,
+      // the unique constraint on id will make this a no-op.
+      if (data.user) {
+        const { error: profileErr } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            email: email,
+            display_name: name,
+            role: 'user'
+          }, { onConflict: 'id' });
+
+        if (profileErr) {
+          console.warn('[Auth] Profile upsert after register:', profileErr.message);
+          // Not fatal — the trigger probably handled it
+        }
+      }
+
       return { success: true, data };
     } catch (err) {
       return { success: false, error: err.message };
     }
   };
 
+  /**
+   * Sign out and clear all local state.
+   */
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
   };
 
+  /**
+   * Update the profile object in memory without re-fetching from DB.
+   * Useful after the user edits their name, avatar, etc.
+   */
   const updateSessionProfile = (updates) => {
     setProfile(prev => ({ ...prev, ...updates }));
   };
 
-  // Only block rendering during the very first session check.
-  // After that, the app is always visible and ProtectedRoute handles auth gating.
+  // Show a loading spinner during the initial session check.
+  // After that the app renders normally and ProtectedRoute handles gating.
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f4f4f8' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0f0f1a' }}>
         <div style={{ width: 32, height: 32, border: '3px solid #6366f1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -136,7 +169,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, loginWithGoogle, register, logout, updateSessionProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, login, register, logout, updateSessionProfile }}>
       {children}
     </AuthContext.Provider>
   );
@@ -145,7 +178,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used inside an AuthProvider');
   }
   return context;
 };

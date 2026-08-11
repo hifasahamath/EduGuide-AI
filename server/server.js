@@ -1,3 +1,11 @@
+/**
+ * EduGuide-AI — Express Server Entry Point
+ * 
+ * Handles API routes for chat, courses, FAQs, training,
+ * user management, analytics, and settings.
+ * Auth is done via Supabase JWTs validated in middleware.
+ */
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');

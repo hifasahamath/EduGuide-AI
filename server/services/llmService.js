@@ -1,43 +1,63 @@
 const llmConfig = require('../config/llm');
 
+/**
+ * LlmService — provider-independent text generation.
+ * 
+ * Supported providers: gemini, openai, anthropic, xai
+ * 
+ * The provider is chosen per-user via their ai_settings.llmProvider field.
+ * Embeddings are always Gemini (handled by EmbeddingService), but chat
+ * responses can come from any provider.
+ * 
+ * To add a new provider:
+ * 1. Add its client config in config/llm.js
+ * 2. Add a _generateXxx method here
+ * 3. Add a case in generateResponse()
+ */
 class LlmService {
+
   /**
-   * Generate a response using the specified provider
-   * 
-   * @param {string} provider - 'gemini', 'openai', 'anthropic', 'xai'
-   * @param {string} systemPrompt - The system context/instructions
-   * @param {Array} history - Array of { role: 'user'|'assistant', content: string }
-   * @param {string} userMessage - The latest user message
+   * Generate a chat response using the specified provider.
+   * Falls back to Gemini if the requested provider isn't configured.
    */
   static async generateResponse(provider = 'gemini', systemPrompt, history, userMessage) {
     const p = provider.toLowerCase();
-    
+
     try {
-      if (p === 'openai' || p === 'xai') {
+      // Check if requested provider is available, fall back to gemini if not
+      if ((p === 'openai' || p === 'xai') && llmConfig[p]?.client) {
         return await this._generateOpenAI(p, systemPrompt, history, userMessage);
-      } else if (p === 'anthropic') {
+      } else if (p === 'anthropic' && llmConfig.anthropic?.client) {
         return await this._generateAnthropic(systemPrompt, history, userMessage);
       } else {
-        // Default to Gemini
+        // Default: Gemini
         return await this._generateGemini(systemPrompt, history, userMessage);
       }
     } catch (error) {
-      console.error(`LLM Service Error [${provider}]:`, error);
+      console.error(`[LLM] Error with ${provider}:`, error.message);
+
+      // If the chosen provider failed and it wasn't Gemini, try Gemini as fallback
+      if (p !== 'gemini' && llmConfig.gemini?.client) {
+        console.warn(`[LLM] Falling back to Gemini...`);
+        return await this._generateGemini(systemPrompt, history, userMessage);
+      }
+
       throw error;
     }
   }
 
+  // ── Gemini (default) ──────────────────────────────────
   static async _generateGemini(systemPrompt, history, userMessage) {
     const client = llmConfig.gemini.client;
-    if (!client) throw new Error("Gemini API key is not configured.");
+    if (!client) throw new Error('Gemini API key is not configured.');
 
-    // Convert standard history to Gemini format (user/model)
+    // Convert chat history to Gemini's format (user/model roles)
     const contents = history.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));
 
-    // Add current message
+    // Add the current user message
     contents.push({
       role: 'user',
       parts: [{ text: userMessage }]
@@ -56,6 +76,7 @@ class LlmService {
     return response.text;
   }
 
+  // ── OpenAI / xAI (both use OpenAI-compatible API) ─────
   static async _generateOpenAI(provider, systemPrompt, history, userMessage) {
     const client = llmConfig[provider].client;
     if (!client) throw new Error(`${provider} API key is not configured.`);
@@ -76,12 +97,11 @@ class LlmService {
     return response.choices[0].message.content;
   }
 
+  // ── Anthropic ─────────────────────────────────────────
   static async _generateAnthropic(systemPrompt, history, userMessage) {
     const client = llmConfig.anthropic.client;
-    if (!client) throw new Error("Anthropic API key is not configured.");
+    if (!client) throw new Error('Anthropic API key is not configured.');
 
-    // Anthropic requires strictly alternating user/assistant roles.
-    // For simplicity, we assume the history is mostly compliant, but might need cleaning in prod.
     const messages = [
       ...history.map(msg => ({ role: msg.role, content: msg.content })),
       { role: 'user', content: userMessage }

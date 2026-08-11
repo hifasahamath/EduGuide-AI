@@ -1,16 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Sparkles, Eye, EyeOff, Loader2, AlertCircle, ArrowRight,
   CheckCircle2, BookOpen, TrendingUp, MapPin, GraduationCap,
-  User, Mail, Lock, Phone, Shield, ChevronRight
+  User, Mail, Lock, Phone, ChevronRight
 } from 'lucide-react';
 
-const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 5 * 60 * 1000; // 5 min
-
-// ── Promo feature list ─────────────────────────────────────────────────────────
+// Promo features shown on the left panel
 const FEATURES = [
   { icon: <BookOpen size={16} />, text: 'Find courses instantly by field or budget' },
   { icon: <TrendingUp size={16} />, text: 'Compare fees and duration side by side' },
@@ -18,7 +15,7 @@ const FEATURES = [
   { icon: <MapPin size={16} />, text: 'Explore career paths and job prospects' },
 ];
 
-// ── Shared input component ─────────────────────────────────────────────────────
+// Reusable input component with icon and error display
 const AuthInput = ({ label, icon, error, ...props }) => (
   <div>
     <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{label}</label>
@@ -34,7 +31,6 @@ const AuthInput = ({ label, icon, error, ...props }) => (
   </div>
 );
 
-// ── Register page ──────────────────────────────────────────────────────────────
 const Register = () => {
   const { user, profile, register } = useAuth();
   const navigate = useNavigate();
@@ -47,7 +43,7 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
   const [apiError, setApiError] = useState('');
 
-  // Redirect if already logged in
+  // If already logged in, send them to the right place
   useEffect(() => {
     if (!profile) return;
     if (profile.role === 'admin') {
@@ -59,6 +55,7 @@ const Register = () => {
 
   const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
 
+  // Client-side validation
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = 'Full name is required';
@@ -72,6 +69,7 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setApiError('');
+
     const errs = validate();
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
@@ -81,13 +79,16 @@ const Register = () => {
     setLoading(false);
 
     if (result.success) {
+      // Email confirmation is OFF, so the account is ready immediately.
+      // Show success message, then redirect to login.
       setSuccess(true);
-      setTimeout(() => navigate('/login'), 2500);
+      setTimeout(() => navigate('/login'), 2000);
     } else {
       setApiError(result.error || 'Registration failed. Please try again.');
     }
   };
 
+  // ── Success screen ───────────────────────────────────────
   if (success) return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f0f1a] via-[#12121f] to-[#0a0a15] flex items-center justify-center">
       <div className="text-center">
@@ -100,13 +101,14 @@ const Register = () => {
     </div>
   );
 
+  // ── Registration form ────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0f0f1a] via-[#12121f] to-[#0a0a15] flex overflow-hidden">
       {/* Ambient blobs */}
       <div className="absolute top-1/3 left-1/4 w-[600px] h-[600px] rounded-full bg-violet-600/8 blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full bg-indigo-600/8 blur-3xl pointer-events-none" />
 
-      {/* ── LEFT — Promo ─────────────────────────────────────── */}
+      {/* ── Left panel — Promo ─────────────────────────── */}
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative">
         {/* Logo */}
         <div className="flex items-center gap-3">
@@ -116,7 +118,7 @@ const Register = () => {
           <span className="text-white font-bold text-lg tracking-tight">EduGuide AI</span>
         </div>
 
-        {/* Hero */}
+        {/* Hero text */}
         <div>
           <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-6">
             <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
@@ -145,7 +147,7 @@ const Register = () => {
             ))}
           </div>
 
-          {/* Guest CTA */}
+          {/* Guest link */}
           <button
             onClick={() => navigate('/chat')}
             className="group flex items-center gap-2 text-sm text-gray-400 hover:text-violet-400 transition-colors font-medium"
@@ -157,7 +159,7 @@ const Register = () => {
           </button>
         </div>
 
-        {/* Bottom testimonial */}
+        {/* Testimonial */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-5 max-w-sm">
           <p className="text-gray-300 text-sm italic leading-relaxed">
             "EduGuide AI helped me compare 12 courses and pick the one that matched my budget and career goals in minutes."
@@ -166,7 +168,7 @@ const Register = () => {
         </div>
       </div>
 
-      {/* ── RIGHT — Form ─────────────────────────────────────── */}
+      {/* ── Right panel — Form ────────────────────────── */}
       <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
         <div className="w-full max-w-md">
           {/* Mobile logo */}
@@ -237,7 +239,7 @@ const Register = () => {
               <AuthInput label="Phone (Optional)" icon={<Phone size={15} />} type="tel"
                 value={form.phone} onChange={set('phone')} placeholder="+94 77 000 0000" />
 
-              {/* Terms */}
+              {/* Terms checkbox */}
               <div>
                 <div
                   className={`flex items-start gap-3 cursor-pointer select-none ${errors.agreed ? 'text-red-400' : 'text-gray-400'}`}
@@ -276,7 +278,7 @@ const Register = () => {
           </div>
 
           <p className="text-center text-[11px] text-gray-600 mt-4">
-            © 2024 EduGuide AI · Powered by Gemini AI
+            © 2025 EduGuide AI · Powered by Gemini AI
           </p>
         </div>
       </div>
@@ -285,4 +287,3 @@ const Register = () => {
 };
 
 export default Register;
-

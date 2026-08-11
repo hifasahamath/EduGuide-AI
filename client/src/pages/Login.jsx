@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -6,9 +6,11 @@ import {
   Shield, BookOpen, TrendingUp, GraduationCap
 } from 'lucide-react';
 
+// Rate-limit constants
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes
 
+// Promo features shown on the left panel
 const FEATURES = [
   { icon: <BookOpen size={14} />, label: 'Find Courses', desc: 'Search by field, fees, or university' },
   { icon: <TrendingUp size={14} />, label: 'Compare Fees', desc: 'Side-by-side cost analysis' },
@@ -27,7 +29,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Rate-limiting state (persisted in sessionStorage)
+  // ── Rate limiting (persisted in sessionStorage) ──────────
   const getAttemptData = () => {
     try { return JSON.parse(sessionStorage.getItem('_eg_login_attempts') || '{}'); }
     catch { return {}; }
@@ -41,22 +43,27 @@ const Login = () => {
   });
   const [lockRemaining, setLockRemaining] = useState(0);
 
-  // Countdown timer for lockout
+  // Countdown timer while locked out
   useEffect(() => {
     const d = getAttemptData();
     if (d.lockedUntil && Date.now() < d.lockedUntil) {
       const tick = setInterval(() => {
         const rem = Math.ceil((d.lockedUntil - Date.now()) / 1000);
-        if (rem <= 0) { clearInterval(tick); setLockRemaining(0); setAttemptsLeft(MAX_ATTEMPTS); saveAttemptData({}); }
-        else setLockRemaining(rem);
+        if (rem <= 0) {
+          clearInterval(tick);
+          setLockRemaining(0);
+          setAttemptsLeft(MAX_ATTEMPTS);
+          saveAttemptData({});
+        } else {
+          setLockRemaining(rem);
+        }
       }, 1000);
       return () => clearInterval(tick);
     }
   }, []);
 
-  // Auto-redirect if already logged in.
-  // This is the SINGLE place that handles post-login navigation.
-  // It fires when onAuthStateChange updates the profile in AuthContext.
+  // If the user is already logged in (or just logged in), redirect them.
+  // profile.role determines where they go.
   useEffect(() => {
     if (!profile) return;
     if (profile.role === 'admin') {
@@ -66,17 +73,18 @@ const Login = () => {
     }
   }, [profile, navigate]);
 
-  // Restore email from remember-me
+  // Restore saved email from "remember me"
   useEffect(() => {
     const saved = localStorage.getItem('_eg_remember_email');
     if (saved) { setEmail(saved); setRememberMe(true); }
   }, []);
 
+  // ── Handle login form submit ─────────────────────────────
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Check lockout
+    // Check if currently locked out
     const d = getAttemptData();
     if (d.lockedUntil && Date.now() < d.lockedUntil) {
       const rem = Math.ceil((d.lockedUntil - Date.now()) / 1000);
@@ -84,6 +92,7 @@ const Login = () => {
       return;
     }
 
+    // Basic validation
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       setError('Enter a valid email address.');
       return;
@@ -101,12 +110,15 @@ const Login = () => {
       // Reset attempt counter
       saveAttemptData({});
       setAttemptsLeft(MAX_ATTEMPTS);
-      // Handle remember me
+
+      // Remember me
       if (rememberMe) localStorage.setItem('_eg_remember_email', email);
       else localStorage.removeItem('_eg_remember_email');
-      // Navigation is handled by the useEffect above watching `profile`.
-      // onAuthStateChange will fire, update AuthContext, and the useEffect will redirect.
+
+      // The useEffect watching `profile` handles the redirect.
+      // onAuthStateChange fires → AuthContext fetches profile → useEffect redirects.
     } else {
+      // Track failed attempt
       const newCount = (d.count || 0) + 1;
       const locked = newCount >= MAX_ATTEMPTS;
       saveAttemptData({
@@ -114,6 +126,7 @@ const Login = () => {
         lockedUntil: locked ? Date.now() + LOCKOUT_MS : null
       });
       setAttemptsLeft(locked ? 0 : MAX_ATTEMPTS - newCount);
+
       if (locked) {
         setError(`Account temporarily locked after ${MAX_ATTEMPTS} failed attempts. Try again in 5 minutes.`);
         setLockRemaining(300);
@@ -133,7 +146,7 @@ const Login = () => {
 
       <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center relative z-10">
 
-        {/* ── LEFT — Promo ─────────────────────────────────── */}
+        {/* ── Left panel — Promo ──────────────────────────── */}
         <div className="hidden lg:block">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
@@ -174,7 +187,7 @@ const Login = () => {
           </button>
         </div>
 
-        {/* ── RIGHT — Form ─────────────────────────────────── */}
+        {/* ── Right panel — Login form ───────────────────── */}
         <div>
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-2 justify-center mb-8">
@@ -188,7 +201,7 @@ const Login = () => {
             <h2 className="text-xl font-bold text-white mb-1">Welcome back</h2>
             <p className="text-gray-400 text-sm mb-6">Sign in to continue your learning journey</p>
 
-            {/* Error Banner */}
+            {/* Error message */}
             {error && (
               <div className="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 mb-5 text-sm">
                 <AlertCircle size={15} className="flex-shrink-0" /> {error}
@@ -239,7 +252,7 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Remember + Forgot */}
+              {/* Remember me */}
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <div onClick={() => setRememberMe(!rememberMe)}
@@ -249,9 +262,6 @@ const Login = () => {
                   </div>
                   <span className="text-gray-400 text-xs select-none">Remember me</span>
                 </label>
-                <span className="text-violet-400 hover:text-violet-300 text-xs font-medium cursor-pointer transition-colors">
-                  Forgot password?
-                </span>
               </div>
 
               {/* Submit */}
@@ -276,7 +286,7 @@ const Login = () => {
           </div>
 
           <p className="text-center text-[11px] text-gray-600 mt-4">
-            © 2024 EduGuide AI · Powered by Gemini AI
+            © 2025 EduGuide AI · Powered by Gemini AI
           </p>
         </div>
       </div>

@@ -1,6 +1,12 @@
 const { supabaseAdmin: supabase } = require('../config/supabase');
 
+/**
+ * FaqModel — handles all FAQ CRUD operations.
+ * Admin creates Q&A pairs, users can search them via vector similarity.
+ */
 class FaqModel {
+
+  // Get all FAQs, ordered by most-asked first
   static async getAll() {
     const { data, error } = await supabase
       .from('faqs')
@@ -10,6 +16,7 @@ class FaqModel {
     return data;
   }
 
+  // Create a new FAQ entry
   static async create(faqData) {
     const { data, error } = await supabase
       .from('faqs')
@@ -20,10 +27,11 @@ class FaqModel {
     return data;
   }
 
+  // Update an existing FAQ
   static async update(id, updates) {
     const { data, error } = await supabase
       .from('faqs')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(updates)
       .eq('id', id)
       .select()
       .single();
@@ -31,6 +39,7 @@ class FaqModel {
     return data;
   }
 
+  // Delete a FAQ by id
   static async delete(id) {
     const { error } = await supabase
       .from('faqs')
@@ -40,24 +49,17 @@ class FaqModel {
     return true;
   }
 
+  /**
+   * Atomically increment the ask_count for a FAQ.
+   * Uses a Postgres RPC function to avoid the read-then-write race condition.
+   */
   static async incrementAskCount(id) {
-    // In Supabase, usually you'd use an RPC for atomic increment, 
-    // but a basic update works for small scale if we fetch first.
-    // Or we can create an RPC for this. For now, fetch and update:
-    const { data: faq } = await supabase.from('faqs').select('ask_count').eq('id', id).single();
-    if (!faq) return null;
-    
-    const { data, error } = await supabase
-      .from('faqs')
-      .update({ ask_count: (faq.ask_count || 0) + 1 })
-      .eq('id', id)
-      .select()
-      .single();
-    
+    const { error } = await supabase.rpc('increment_faq_ask_count', { faq_id: id });
     if (error) throw error;
-    return data;
+    return true;
   }
 
+  // Vector similarity search against FAQ embeddings
   static async searchSimilar(embedding, matchCount = 5, threshold = 0.5) {
     const { data, error } = await supabase.rpc('match_faqs', {
       query_embedding: embedding,

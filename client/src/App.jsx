@@ -3,12 +3,12 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
-// Client Imports
+// User pages
 import UserProfile from './pages/UserProfile';
 import ChatGPTLayout from './components/chatgpt/ChatGPTLayout';
 import Settings from './pages/Settings';
 
-// Admin Imports
+// Admin pages
 import Sidebar from './components/admin/Sidebar';
 import Dashboard from './pages/admin/Dashboard';
 import Courses from './pages/admin/Courses';
@@ -19,7 +19,7 @@ import AdminChatHistory from './pages/admin/ChatHistory';
 import Analytics from './pages/admin/Analytics';
 import AdminProfile from './pages/admin/Profile';
 
-// Shared
+// Auth pages
 import Login from './pages/Login';
 import Register from './pages/Register';
 

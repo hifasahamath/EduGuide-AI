@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { api } from '../../services/api';
+import api from '../../services/api';
 import {
   X, Upload, Download, CheckCircle, AlertCircle,
   FileText, Loader2, ChevronRight, Trash2
