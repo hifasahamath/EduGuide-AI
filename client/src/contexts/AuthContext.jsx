@@ -7,8 +7,10 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
 
-  // true only during the very first session check on page load
+  // true during the initial session check on page load
   const [loading, setLoading] = useState(true);
+  // true once the profile row from database has finished loading
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   /**
    * Fetches the user's profile row from the profiles table.
@@ -26,11 +28,14 @@ export const AuthProvider = ({ children }) => {
         console.error('[Auth] Profile fetch error:', error.message);
       }
 
-      setProfile(data || null);
-      return data || null;
+      const prof = data || null;
+      setProfile(prof);
+      setProfileLoaded(true);
+      return prof;
     } catch (err) {
       console.error('[Auth] Profile fetch failed:', err.message);
       setProfile(null);
+      setProfileLoaded(true);
       return null;
     }
   }, []);
@@ -46,6 +51,8 @@ export const AuthProvider = ({ children }) => {
       if (session?.user) {
         setUser(session.user);
         await fetchProfile(session.user.id);
+      } else {
+        setProfileLoaded(true);
       }
 
       if (isMounted) setLoading(false);
@@ -58,6 +65,7 @@ export const AuthProvider = ({ children }) => {
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setProfile(null);
+        setProfileLoaded(true);
         return;
       }
 
@@ -75,27 +83,27 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Login with email + password.
-   * Supabase handles JWT creation. We update user and profile in state immediately
-   * and return the user's role for immediate navigation.
+   * Supabase handles JWT creation. We fetch profile directly from DB,
+   * update state, and return role for instant redirection.
    */
   const login = async (email, password) => {
     try {
+      setProfileLoaded(false);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) return { success: false, error: error.message };
-
-      // Grab the role so Login.jsx can decide where to redirect
-      const { data: prof } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user.id)
-        .maybeSingle();
+      if (error) {
+        setProfileLoaded(true);
+        return { success: false, error: error.message };
+      }
 
       setUser(data.user);
-      if (prof) setProfile(prof);
+      
+      // Fetch authoritative profile row from database
+      const prof = await fetchProfile(data.user.id);
 
       const userRole = prof?.role || data.user.user_metadata?.role || 'user';
       return { success: true, role: userRole, user: data.user, profile: prof };
     } catch (err) {
+      setProfileLoaded(true);
       return { success: false, error: err.message };
     }
   };
@@ -171,7 +179,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, login, register, logout, updateSessionProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, profileLoaded, login, register, logout, updateSessionProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -19,7 +19,7 @@ const FEATURES = [
 ];
 
 const Login = () => {
-  const { user, profile, login } = useAuth();
+  const { user, profile, profileLoaded, login } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -62,16 +62,16 @@ const Login = () => {
     }
   }, []);
 
-  // If the user is already logged in (or just logged in), redirect them.
+  // If the user is already logged in (or just logged in), redirect them once profile is loaded.
   useEffect(() => {
-    if (!user) return;
-    const role = profile?.role || user.user_metadata?.role || 'user';
+    if (!user || !profileLoaded) return;
+    const role = profile?.role || 'user';
     if (role === 'admin') {
       navigate('/admin', { replace: true });
     } else {
       navigate('/chat', { replace: true });
     }
-  }, [user, profile, navigate]);
+  }, [user, profile, profileLoaded, navigate]);
 
   // Restore saved email from "remember me"
   useEffect(() => {

@@ -33,13 +33,13 @@ import Register from './pages/Register';
  * - If user has no profile yet (e.g., profile fetch failed), they are treated as 'user'
  */
 const ProtectedRoute = ({ children, allowedRole }) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, profileLoaded } = useAuth();
   
   // Not authenticated — redirect to login
   if (!user) return <Navigate to="/login" replace />;
   
-  // Profile is still loading — show a spinner to prevent premature redirect
-  if (loading) {
+  // Session or profile is still loading from database — show spinner to prevent premature redirect
+  if (loading || !profileLoaded) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f4f4f8' }}>
         <div style={{ width: 32, height: 32, border: '3px solid #6366f1', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
@@ -48,7 +48,7 @@ const ProtectedRoute = ({ children, allowedRole }) => {
     );
   }
   
-  // Determine role: DB profile is authoritative, user_metadata is fallback, 'user' is default
+  // DB profile is authoritative; fallback to user_metadata only if profile doesn't exist
   const role = profile?.role || user.user_metadata?.role || 'user';
   const isClient = role === 'user' || role === 'client' || role === 'student';
   
