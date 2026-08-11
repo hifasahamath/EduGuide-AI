@@ -34,20 +34,31 @@ class EmbeddingService {
 
   /**
    * Split large text into smaller chunks for individual embedding.
-   * Uses paragraph boundaries as natural split points.
-   * Each chunk stays under maxLength characters.
+   * Uses paragraph boundaries as natural split points with sliding window overlap.
+   * Each chunk stays under maxLength characters while preserving trailing overlap
+   * to ensure section headers and context stay attached across chunk boundaries.
    */
-  static chunkText(text, maxLength = 2000) {
-    const paragraphs = text.split(/\n\s*\n/);
+  static chunkText(text, maxLength = 1800, overlap = 250) {
+    if (!text || !text.trim()) return [];
+
+    const paragraphs = text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
     const chunks = [];
     let currentChunk = '';
 
     for (const p of paragraphs) {
-      if (currentChunk.length + p.length > maxLength) {
-        if (currentChunk) chunks.push(currentChunk.trim());
-        currentChunk = p + '\n\n';
+      if ((currentChunk ? (currentChunk + '\n\n' + p) : p).length > maxLength) {
+        if (currentChunk.trim()) {
+          chunks.push(currentChunk.trim());
+          // Retain trailing overlap text from previous chunk
+          const tail = currentChunk.slice(-overlap);
+          const lastNewline = tail.indexOf('\n');
+          const cleanOverlap = lastNewline !== -1 ? tail.slice(lastNewline + 1) : tail;
+          currentChunk = cleanOverlap + '\n\n' + p;
+        } else {
+          currentChunk = p;
+        }
       } else {
-        currentChunk += p + '\n\n';
+        currentChunk = currentChunk ? (currentChunk + '\n\n' + p) : p;
       }
     }
 
