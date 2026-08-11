@@ -1,7 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 
 // User pages
 import UserProfile from './pages/UserProfile';
@@ -65,19 +66,41 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 
 const AdminLayout = ({ children }) => {
   const { user, profile } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
   const name = profile?.display_name || user?.user_metadata?.display_name || 'Administrator';
+  
   return (
-    <div className="flex h-screen bg-[#f4f4f8] font-sans text-left">
+    <div className={`flex h-screen font-sans text-left transition-colors duration-300 ${
+      isDark ? 'bg-[#12121e] text-gray-100' : 'bg-[#f4f4f8] text-gray-900'
+    }`}>
       <Sidebar />
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
-        <header className="bg-white/80 backdrop-blur-sm sticky top-0 z-10 px-8 py-3.5 flex justify-between items-center border-b border-gray-100 shadow-sm">
+        <header className={`sticky top-0 z-10 px-8 py-3.5 flex justify-between items-center border-b backdrop-blur-sm transition-colors duration-300 ${
+          isDark 
+            ? 'bg-[#1a1a2c]/90 border-white/10 text-gray-100 shadow-md' 
+            : 'bg-white/80 border-gray-100 text-gray-800 shadow-sm'
+        }`}>
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-sm text-gray-500 font-medium">System Online</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>System Online</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all ${
+                isDark 
+                  ? 'bg-white/10 border-white/15 text-gray-200 hover:bg-white/20' 
+                  : 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'
+              }`}
+              title="Toggle theme"
+            >
+              {isDark ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} className="text-indigo-600" />}
+              <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+
             <div className="text-right">
-              <p className="text-sm font-semibold text-gray-800">{name}</p>
+              <p className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>{name}</p>
               <p className="text-[11px] text-gray-400">{user?.email}</p>
             </div>
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md shadow-violet-200">

@@ -1,15 +1,18 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import {
   LayoutDashboard, BookOpen, HelpCircle, BrainCircuit,
-  Users, MessageSquare, BarChart3, UserCircle, LogOut, Sparkles, Shield
+  Users, MessageSquare, BarChart3, UserCircle, LogOut, Sparkles, Shield,
+  Sun, Moon
 } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const links = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={17} />, exact: true },
@@ -79,8 +82,21 @@ const Sidebar = () => {
       </nav>
 
       {/* User Strip */}
-      <div className="p-3 border-t border-white/5">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/5 mb-2">
+      <div className="p-3 border-t border-white/5 space-y-1">
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-gray-400 hover:bg-white/5 hover:text-gray-200 transition-colors text-xs font-medium"
+        >
+          <div className="flex items-center gap-2">
+            {theme === 'dark' ? <Moon size={14} className="text-violet-400" /> : <Sun size={14} className="text-amber-400" />}
+            <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+          </div>
+          <div className={`w-7 h-4 rounded-full transition-colors relative ${theme === 'dark' ? 'bg-violet-600' : 'bg-gray-600'}`}>
+            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform ${theme === 'dark' ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+          </div>
+        </button>
+
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/5">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center flex-shrink-0">
             <span className="text-white text-xs font-bold">
               {user?.name?.[0]?.toUpperCase() || 'A'}
