@@ -197,19 +197,19 @@ const FAQRow = ({ faq, onEdit, onDelete }) => {
   const missingKeywords = !faq.keywords?.length;
 
   return (
-    <div className={`border-b border-gray-50 hover:bg-gray-50/60 transition-colors ${missingIntent || missingKeywords ? 'border-l-2 border-l-amber-300' : ''}`}>
+    <div className={`border-b border-gray-50 dark:border-white/5 hover:bg-gray-50/60 dark:hover:bg-white/5 transition-colors ${missingIntent || missingKeywords ? 'border-l-2 border-l-amber-300 dark:border-l-amber-500' : ''}`}>
       <div className="flex items-start gap-3 px-5 py-4">
         {/* Ask count */}
         <div className="flex-shrink-0 text-center min-w-[36px]">
-          <p className="text-sm font-bold text-gray-700">{faq.askCount || 0}</p>
+          <p className="text-sm font-bold text-gray-700 dark:text-gray-200">{faq.askCount || 0}</p>
           <p className="text-[9px] text-gray-400 uppercase">asks</p>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start gap-2 flex-wrap">
-            <p className="font-semibold text-gray-800 text-sm flex-1 min-w-0">{faq.question}</p>
+            <p className="font-semibold text-gray-800 dark:text-white text-sm flex-1 min-w-0">{faq.question}</p>
             {(missingIntent || missingKeywords) && (
-              <span className="flex items-center gap-1 text-[10px] text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full flex-shrink-0">
+              <span className="flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/20 border border-amber-100 dark:border-amber-500/30 px-2 py-0.5 rounded-full flex-shrink-0">
                 <AlertTriangle size={9}/> Incomplete
               </span>
             )}
@@ -218,26 +218,26 @@ const FAQRow = ({ faq, onEdit, onDelete }) => {
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             <IntentBadge intent={faq.intent}/>
             {faq.keywords?.slice(0,4).map(k => (
-              <span key={k} className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded-full">{k}</span>
+              <span key={k} className="text-[10px] px-1.5 py-0.5 bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-300 rounded-full">{k}</span>
             ))}
             {faq.keywords?.length > 4 && <span className="text-[10px] text-gray-400">+{faq.keywords.length - 4}</span>}
           </div>
 
           <button onClick={() => setExpanded(!expanded)}
-            className="mt-1.5 flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 font-medium">
+            className="mt-1.5 flex items-center gap-1 text-xs text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 font-medium">
             {expanded ? <><ChevronUp size={12}/>Hide answer</> : <><ChevronDown size={12}/>Show answer</>}
           </button>
 
           {expanded && (
-            <div className="mt-2 text-sm text-gray-600 bg-indigo-50 rounded-xl p-3 border border-indigo-100 whitespace-pre-wrap leading-relaxed">
+            <div className="mt-2 text-sm text-gray-600 dark:text-gray-200 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl p-3 border border-indigo-100 dark:border-indigo-500/20 whitespace-pre-wrap leading-relaxed">
               {faq.answer}
             </div>
           )}
         </div>
 
         <div className="flex gap-1.5 flex-shrink-0">
-          <button onClick={() => onEdit(faq)} className="p-2 rounded-lg hover:bg-indigo-50 text-indigo-500 transition-colors"><Edit2 size={14}/></button>
-          <button onClick={() => onDelete(faq.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-400 transition-colors"><Trash2 size={14}/></button>
+          <button onClick={() => onEdit(faq)} className="p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 transition-colors"><Edit2 size={14}/></button>
+          <button onClick={() => onDelete(faq.id)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/20 text-red-400 transition-colors"><Trash2 size={14}/></button>
         </div>
       </div>
     </div>
@@ -299,16 +299,16 @@ const FAQ = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">AI Knowledge Base</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{faqs.length} FAQ entries · intent-mapped · keyword-indexed</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AI Knowledge Base</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{faqs.length} FAQ entries · intent-mapped · keyword-indexed</p>
         </div>
         <div className="flex items-center gap-2">
-          {toast && <span className="text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1"><CheckCircle2 size={12}/>{toast}</span>}
-          <button onClick={fetchData} className="flex items-center gap-1.5 text-sm px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium">
+          {toast && <span className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1"><CheckCircle2 size={12}/>{toast}</span>}
+          <button onClick={fetchData} className="flex items-center gap-1.5 text-sm px-3 py-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200 rounded-xl font-medium">
             <RefreshCw size={13}/>Refresh
           </button>
           <button onClick={() => { setEditingFaq(null); setShowModal(true); }}
-            className="flex items-center gap-1.5 text-sm px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-sm shadow-indigo-200">
+            className="flex items-center gap-1.5 text-sm px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-sm shadow-indigo-200 dark:shadow-none">
             <Plus size={15}/>Add FAQ
           </button>
         </div>
@@ -317,31 +317,31 @@ const FAQ = () => {
       {/* Analytics Strip */}
       {analytics && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <StatCard label="Total FAQs" value={analytics.total} icon={<BookOpen size={18}/>} color="bg-indigo-50 text-indigo-700"/>
-          <StatCard label="Unanswered" value={analytics.unanswered || 0} icon={<HelpCircle size={18}/>} color="bg-red-50 text-red-600"/>
-          <StatCard label="Trained" value={analytics.answered || 0} icon={<BrainCircuit size={18}/>} color="bg-emerald-50 text-emerald-700"/>
-          <StatCard label="Incomplete" value={incomplete} icon={<AlertTriangle size={18}/>} color={incomplete > 0 ? 'bg-amber-50 text-amber-700' : 'bg-gray-50 text-gray-400'}/>
+          <StatCard label="Total FAQs" value={analytics.total} icon={<BookOpen size={18}/>} color="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300"/>
+          <StatCard label="Unanswered" value={analytics.unanswered || 0} icon={<HelpCircle size={18}/>} color="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400"/>
+          <StatCard label="Trained" value={analytics.answered || 0} icon={<BrainCircuit size={18}/>} color="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"/>
+          <StatCard label="Incomplete" value={incomplete} icon={<AlertTriangle size={18}/>} color={incomplete > 0 ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300' : 'bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-500'}/>
         </div>
       )}
 
       {/* Incomplete warning */}
       {incomplete > 0 && (
-        <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
+        <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
           <AlertTriangle size={15}/>
           <strong>{incomplete} FAQ{incomplete !== 1 ? 's' : ''}</strong> are missing intent or keywords — they won't be matched efficiently by the AI.
         </div>
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-wrap gap-3 items-center">
+      <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm p-4 flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-48">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"/>
           <input type="text" placeholder="Search questions, answers, keywords..."
             value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"/>
+            className="w-full border border-gray-200 dark:border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white dark:bg-[#151525] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"/>
         </div>
         <select value={filterIntent} onChange={e => setFilterIntent(e.target.value)}
-          className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 appearance-none bg-white">
+          className="border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 appearance-none bg-white dark:bg-[#151525] text-gray-700 dark:text-gray-200">
           <option value="all">All Intents</option>
           {INTENTS.map(i => <option key={i} value={i}>{i}</option>)}
         </select>

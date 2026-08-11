@@ -265,22 +265,22 @@ const ChatHistory = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Chat History</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Monitor, filter, and manage all student conversations</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Chat History</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">Monitor, filter, and manage all student conversations</p>
         </div>
         <div className="flex items-center gap-2">
           {actionToast && (
-            <span className="text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg font-medium">{actionToast}</span>
+            <span className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg font-medium">{actionToast}</span>
           )}
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg">
+          <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg">
             <Activity size={11} className="animate-pulse" /> Live
           </div>
           <button onClick={exportCSV}
-            className="flex items-center gap-1.5 text-sm px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors">
+            className="flex items-center gap-1.5 text-sm px-3 py-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200 rounded-xl font-medium transition-colors">
             <Download size={14} /> Export CSV
           </button>
           <button onClick={fetchData}
-            className="flex items-center gap-1.5 text-sm px-3 py-2 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 font-medium transition-colors">
+            className="flex items-center gap-1.5 text-sm px-3 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-medium transition-colors">
             <RefreshCw size={14} /> Refresh
           </button>
         </div>
@@ -288,14 +288,14 @@ const ChatHistory = () => {
 
       {/* Stats Strip */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Sessions" value={stats?.total} icon={<MessageSquare size={16} className="text-indigo-600" />} color="bg-indigo-50" />
-        <StatCard label="Chats Today" value={stats?.chatsToday} icon={<Flame size={16} className="text-orange-500" />} color="bg-orange-50" />
-        <StatCard label="Avg Msgs / Chat" value={stats?.avgMsgsPerChat} icon={<Activity size={16} className="text-emerald-600" />} color="bg-emerald-50" />
-        <StatCard label="Spam Detected" value={stats?.spamCount} icon={<AlertTriangle size={16} className="text-red-500" />} color="bg-red-50" />
+        <StatCard label="Total Sessions" value={stats?.total} icon={<MessageSquare size={16} className="text-indigo-600 dark:text-indigo-400" />} color="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300" />
+        <StatCard label="Chats Today" value={stats?.chatsToday} icon={<Flame size={16} className="text-orange-500 dark:text-orange-400" />} color="bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300" />
+        <StatCard label="Avg Msgs / Chat" value={stats?.avgMsgsPerChat} icon={<Activity size={16} className="text-emerald-600 dark:text-emerald-400" />} color="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" />
+        <StatCard label="Spam Detected" value={stats?.spamCount} icon={<AlertTriangle size={16} className="text-red-500 dark:text-red-400" />} color="bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400" />
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm p-4">
         <div className="flex flex-wrap gap-3 items-center">
           {/* Search */}
           <div className="relative flex-1 min-w-52">

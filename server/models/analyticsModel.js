@@ -6,17 +6,17 @@ class AnalyticsModel {
     today.setHours(0, 0, 0, 0);
     const todayStr = today.toISOString();
 
-    const [usersResult, coursesResult, chatsResult, pendingResult, chatsTodayResult, trainingTotalResult] = await Promise.all([
+    const [usersResult, coursesResult, chatsResult, pendingResult, chatsTodayResult, trainingTotalResult, trainedResult] = await Promise.all([
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
       supabase.from('courses').select('id', { count: 'exact', head: true }),
       supabase.from('chat_sessions').select('id', { count: 'exact', head: true }),
       supabase.from('training_data').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       supabase.from('chat_sessions').select('id', { count: 'exact', head: true }).gte('created_at', todayStr),
-      supabase.from('training_data').select('id', { count: 'exact', head: true })
+      supabase.from('training_data').select('id', { count: 'exact', head: true }),
+      supabase.from('training_data').select('id', { count: 'exact', head: true }).in('status', ['trained', 'learned'])
     ]);
 
     // Approximate AI Accuracy: if training data catches unknowns, accuracy = 100 - (total unknowns / total chats) * 100
-    // For a better metric, we could count messages, but this is a good approximation.
     const totalChats = chatsResult.count || 1; // avoid div by zero
     const totalUnknowns = trainingTotalResult.count || 0;
     
@@ -24,11 +24,18 @@ class AnalyticsModel {
     if (aiAccuracy > 100) aiAccuracy = 100;
     const fallbackRate = 100 - aiAccuracy;
 
+    const trainedCount = trainedResult.count || 0;
+    const pendingCount = pendingResult.count || 0;
+    const totalTrainingItems = trainedCount + pendingCount;
+    const trainingCompletion = totalTrainingItems > 0 ? Math.round((trainedCount / totalTrainingItems) * 100) : 100;
+
     return {
       totalUsers: usersResult.count || 0,
       totalCourses: coursesResult.count || 0,
       totalChats: chatsResult.count || 0,
-      pendingTraining: pendingResult.count || 0,
+      pendingTraining: pendingCount,
+      trainedCount,
+      trainingCompletion,
       aiAccuracy,
       fallbackRate,
       chatsToday: chatsTodayResult.count || 0

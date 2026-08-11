@@ -122,7 +122,7 @@ const UserPanel = ({ user, onClose, onEdit, onDelete, onBlock }) => {
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-md h-full overflow-y-auto shadow-2xl flex flex-col">
+      <div className="relative bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-gray-100 w-full max-w-md h-full overflow-y-auto shadow-2xl flex flex-col border-l border-gray-100 dark:border-white/10">
         {/* Header */}
         <div className={`bg-gradient-to-br from-indigo-600 to-violet-700 p-6 text-white`}>
           <div className="flex items-start justify-between mb-4">
@@ -249,27 +249,27 @@ const Row = ({ icon, label, value }) => (
 // ── User Card (grid) ───────────────────────────────────────────────────────────
 const UserCard = ({ user, onClick }) => (
   <div onClick={() => onClick(user)}
-    className={`bg-white rounded-2xl border shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer group
-      ${user.blocked ? 'border-red-200 opacity-70' : 'border-gray-100'}`}>
+    className={`bg-white dark:bg-[#1a1a2c] rounded-2xl border shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer group
+      ${user.blocked ? 'border-red-200 dark:border-red-500/30 opacity-70' : 'border-gray-100 dark:border-white/10'}`}>
     <div className="p-5 flex items-center gap-3">
       <AvatarBox user={user} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="font-semibold text-gray-800 truncate text-sm">{user.name || 'Anonymous'}</p>
+          <p className="font-semibold text-gray-800 dark:text-white truncate text-sm">{user.name || 'Anonymous'}</p>
           {user.blocked && <XCircle size={12} className="text-red-500 flex-shrink-0" />}
         </div>
-        <p className="text-xs text-gray-400 truncate">{user.email}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-400 truncate">{user.email}</p>
       </div>
-      <ChevronRight size={15} className="text-gray-300 group-hover:text-indigo-400 flex-shrink-0 transition-colors" />
+      <ChevronRight size={15} className="text-gray-300 dark:text-gray-600 group-hover:text-indigo-400 flex-shrink-0 transition-colors" />
     </div>
     <div className="px-5 pb-4 space-y-2.5">
       <div className="flex items-center justify-between">
         <RoleBadge role={user.role} />
-        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${user.isActive ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-400'}`}>
+        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${user.isActive ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300' : 'bg-gray-100 dark:bg-white/10 text-gray-400'}`}>
           {user.isActive ? 'Active' : 'Inactive'}
         </span>
       </div>
-      <div className="flex items-center gap-3 text-[11px] text-gray-500">
+      <div className="flex items-center gap-3 text-[11px] text-gray-500 dark:text-gray-400">
         <span className="flex items-center gap-1"><MessageSquare size={10}/>{user.totalChats || 0} chats</span>
         {user.mostSearchedTopic && <span className="flex items-center gap-1 truncate"><BrainCircuit size={10}/>{user.mostSearchedTopic}</span>}
       </div>
@@ -347,12 +347,12 @@ const Users = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{users.length} registered users · {stats.active} active</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">User Management</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{users.length} registered users · {stats.active} active</p>
         </div>
         <div className="flex items-center gap-2">
-          {toast && <span className="text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1"><CheckCircle2 size={12}/>{toast}</span>}
-          <button onClick={fetchUsers} className="flex items-center gap-1.5 text-sm px-3 py-2 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 font-medium">
+          {toast && <span className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg font-medium flex items-center gap-1"><CheckCircle2 size={12}/>{toast}</span>}
+          <button onClick={fetchUsers} className="flex items-center gap-1.5 text-sm px-3 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-medium">
             <RefreshCw size={14}/> Refresh
           </button>
         </div>
@@ -361,10 +361,10 @@ const Users = () => {
       {/* Stat Strips */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label:'Total Users', value: stats.total, color:'bg-indigo-50 text-indigo-700' },
-          { label:'Active', value: stats.active, color:'bg-emerald-50 text-emerald-700' },
-          { label:'Students', value: stats.students, color:'bg-violet-50 text-violet-700' },
-          { label:'Blocked', value: stats.blocked, color:'bg-red-50 text-red-600' },
+          { label:'Total Users', value: stats.total, color:'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300' },
+          { label:'Active', value: stats.active, color:'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' },
+          { label:'Students', value: stats.students, color:'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300' },
+          { label:'Blocked', value: stats.blocked, color:'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400' },
         ].map((s,i) => (
           <div key={i} className={`rounded-xl p-4 text-center ${s.color}`}>
             <p className="text-2xl font-bold">{s.value}</p>
@@ -376,27 +376,27 @@ const Users = () => {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-52">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"/>
           <input type="text" placeholder="Search name, email, topic, phone..."
             value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"/>
+            className="w-full border border-gray-200 dark:border-white/10 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"/>
         </div>
 
         {/* Role tabs */}
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
+        <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl">
           {[['all','All'],['student','Students'],['admin','Admins']].map(([v,l]) => (
             <button key={v} onClick={() => setRoleFilter(v)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${roleFilter===v ? 'bg-white text-gray-900 shadow-sm':'text-gray-500'}`}>
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${roleFilter===v ? 'bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-white shadow-sm':'text-gray-500 dark:text-gray-400'}`}>
               {l}
             </button>
           ))}
         </div>
 
         {/* Activity tabs */}
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
+        <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl">
           {[['all','All Activity'],['active','Active'],['inactive','Inactive']].map(([v,l]) => (
             <button key={v} onClick={() => setActFilter(v)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${actFilter===v ? 'bg-white text-gray-900 shadow-sm':'text-gray-500'}`}>
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${actFilter===v ? 'bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-white shadow-sm':'text-gray-500 dark:text-gray-400'}`}>
               {l}
             </button>
           ))}

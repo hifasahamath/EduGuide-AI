@@ -15,12 +15,12 @@ const COLORS = ['#7c3aed', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'
 // ── Shared Components ─────────────────────────────────────────────────────────
 
 const ChartCard = ({ title, icon, children, span = '', badge }) => (
-  <div className={`bg-white rounded-2xl border border-gray-100 shadow-sm p-6 ${span}`}>
+  <div className={`bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm p-6 ${span}`}>
     <div className="flex items-center justify-between mb-5">
-      <h3 className="font-bold text-gray-800 flex items-center gap-2">
-        <span className="text-indigo-500">{icon}</span> {title}
+      <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
+        <span className="text-indigo-500 dark:text-indigo-400">{icon}</span> {title}
       </h3>
-      {badge && <span className="text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">{badge}</span>}
+      {badge && <span className="text-xs bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 px-2 py-0.5 rounded-full font-medium">{badge}</span>}
     </div>
     {children}
   </div>
@@ -28,7 +28,7 @@ const ChartCard = ({ title, icon, children, span = '', badge }) => (
 
 const MetricPill = ({ label, value, color, icon }) => (
   <div className={`flex items-center gap-3 p-4 rounded-xl border ${color}`}>
-    <div className="w-8 h-8 rounded-lg bg-white/60 flex items-center justify-center">{icon}</div>
+    <div className="w-8 h-8 rounded-lg bg-white/60 dark:bg-black/20 flex items-center justify-center">{icon}</div>
     <div>
       <p className="text-xs font-medium opacity-70">{label}</p>
       <p className="text-xl font-bold">{value}</p>
@@ -41,10 +41,10 @@ const GaugeBar = ({ label, value, maxValue, color, note }) => {
   return (
     <div>
       <div className="flex justify-between text-sm mb-1">
-        <span className="text-gray-600 font-medium">{label}</span>
-        <span className="font-bold text-gray-800">{value} <span className="text-gray-400 text-xs font-normal">({pct}%)</span></span>
+        <span className="text-gray-600 dark:text-gray-300 font-medium">{label}</span>
+        <span className="font-bold text-gray-800 dark:text-white">{value} <span className="text-gray-400 text-xs font-normal">({pct}%)</span></span>
       </div>
-      <div className="w-full bg-gray-100 rounded-full h-2">
+      <div className="w-full bg-gray-100 dark:bg-white/10 rounded-full h-2">
         <div className={`${color} rounded-full h-2 transition-all duration-700`} style={{ width: `${pct}%` }} />
       </div>
       {note && <p className="text-[10px] text-gray-400 mt-0.5">{note}</p>}
@@ -129,14 +129,14 @@ const Analytics = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Analytics</h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
             Real-time platform insights and AI performance metrics
             {lastRefresh && <span className="ml-2 text-gray-400">· Updated {lastRefresh.toLocaleTimeString()}</span>}
           </p>
         </div>
         <button onClick={fetchData}
-          className="flex items-center gap-2 text-sm px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl hover:bg-indigo-100 font-medium transition-colors">
+          className="flex items-center gap-2 text-sm px-4 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-medium transition-colors">
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
@@ -162,21 +162,21 @@ const Analytics = () => {
       {/* Top KPI Row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricPill label="Total Sessions" value={totalSessions}
-          color="bg-indigo-50 border-indigo-100 text-indigo-700" icon={<MessageSquare size={15} className="text-indigo-600" />} />
+          color="bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300" icon={<MessageSquare size={15} className="text-indigo-600 dark:text-indigo-400" />} />
         <MetricPill label="Total Messages" value={totalMessages}
-          color="bg-emerald-50 border-emerald-100 text-emerald-700" icon={<Activity size={15} className="text-emerald-600" />} />
+          color="bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300" icon={<Activity size={15} className="text-emerald-600 dark:text-emerald-400" />} />
         <MetricPill label="Avg Chat Depth" value={`${avgDepth} msgs`}
-          color="bg-blue-50 border-blue-100 text-blue-700" icon={<BarChart2 size={15} className="text-blue-600" />} />
+          color="bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20 text-blue-700 dark:text-blue-300" icon={<BarChart2 size={15} className="text-blue-600 dark:text-blue-400" />} />
         <MetricPill label="Trained Answers" value={trainedCount}
-          color="bg-violet-50 border-violet-100 text-violet-700" icon={<BrainCircuit size={15} className="text-violet-600" />} />
+          color="bg-violet-50 dark:bg-violet-500/10 border-violet-100 dark:border-violet-500/20 text-violet-700 dark:text-violet-300" icon={<BrainCircuit size={15} className="text-violet-600 dark:text-violet-400" />} />
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-gray-100 rounded-xl w-fit">
+      <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit">
         {tabs.map(t => (
           <button key={t.key} onClick={() => setActiveTab(t.key)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              activeTab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              activeTab === t.key ? 'bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}>
             {t.icon} {t.label}
           </button>

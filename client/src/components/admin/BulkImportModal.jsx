@@ -150,17 +150,17 @@ const BulkImportModal = ({ onClose, onSuccess }) => {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
         onClick={e => e.stopPropagation()}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col border border-gray-100 overflow-hidden"
+        className="bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col border border-gray-100 dark:border-white/10 overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/10 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center">
-              <Upload size={17} className="text-emerald-600" />
+            <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
+              <Upload size={17} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 text-base">Bulk Import Courses</h3>
-              <p className="text-xs text-gray-400">Upload a CSV file to import multiple courses at once</p>
+              <h3 className="font-bold text-gray-900 dark:text-white text-base">Bulk Import Courses</h3>
+              <p className="text-xs text-gray-400 dark:text-gray-400">Upload a CSV file to import multiple courses at once</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -170,13 +170,13 @@ const BulkImportModal = ({ onClose, onSuccess }) => {
                 const stepIdx = { upload: 0, preview: 1, result: 2 }[step];
                 return (
                   <React.Fragment key={s}>
-                    <span className={`px-2.5 py-1 rounded-full ${i === stepIdx ? 'bg-indigo-600 text-white' : i < stepIdx ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>{s}</span>
-                    {i < 2 && <ChevronRight size={12} className="text-gray-300" />}
+                    <span className={`px-2.5 py-1 rounded-full ${i === stepIdx ? 'bg-indigo-600 text-white' : i < stepIdx ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-gray-100 dark:bg-white/10 text-gray-400'}`}>{s}</span>
+                    {i < 2 && <ChevronRight size={12} className="text-gray-300 dark:text-gray-600" />}
                   </React.Fragment>
                 );
               })}
             </div>
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400"><X size={18} /></button>
+            <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 text-gray-400"><X size={18} /></button>
           </div>
         </div>
 

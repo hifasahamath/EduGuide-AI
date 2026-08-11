@@ -62,8 +62,8 @@ const CourseCard = ({ course, onEdit, onDelete }) => {
 
   return (
     <motion.div layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-      className={`bg-white rounded-2xl border shadow-sm hover:shadow-md transition-all group overflow-hidden ${
-        missing.length > 0 ? 'border-amber-200' : 'border-gray-100'
+      className={`bg-white dark:bg-[#1a1a2c] rounded-2xl border shadow-sm hover:shadow-md transition-all group overflow-hidden ${
+        missing.length > 0 ? 'border-amber-200 dark:border-amber-500/30' : 'border-gray-100 dark:border-white/10'
       }`}
     >
       <div className="h-1.5 bg-gradient-to-r from-indigo-500 to-violet-600" />
@@ -75,34 +75,34 @@ const CourseCard = ({ course, onEdit, onDelete }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${fieldStyle}`}>{course.field || 'General'}</span>
-              {course.courseType && <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 font-semibold">{course.courseType}</span>}
-              {course.level && <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-semibold">{course.level}</span>}
+              {course.courseType && <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-semibold">{course.courseType}</span>}
+              {course.level && <span className="text-[11px] px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 font-semibold">{course.level}</span>}
               {isPopular && (
-                <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-bold border border-amber-100">
+                <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold border border-amber-100 dark:border-amber-500/30">
                   <Star size={8} fill="currentColor"/>Popular
                 </span>
               )}
               {missing.length > 0 && (
-                <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">
+                <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-semibold">
                   <AlertTriangle size={8}/>Missing: {missing[0]}{missing.length > 1 ? ` +${missing.length-1}` : ''}
                 </span>
               )}
             </div>
-            <h3 className="font-bold text-gray-900 text-base leading-tight">{course.name}</h3>
+            <h3 className="font-bold text-gray-900 dark:text-white text-base leading-tight">{course.name}</h3>
           </div>
           <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex-shrink-0">
-            <button onClick={() => onEdit(course)} className="w-8 h-8 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 flex items-center justify-center"><Edit2 size={13} /></button>
-            <button onClick={() => onDelete(course.id)} className="w-8 h-8 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 flex items-center justify-center"><Trash2 size={13} /></button>
+            <button onClick={() => onEdit(course)} className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center"><Edit2 size={13} /></button>
+            <button onClick={() => onDelete(course.id)} className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/30 text-red-500 dark:text-red-400 flex items-center justify-center"><Trash2 size={13} /></button>
           </div>
         </div>
 
         <div className="space-y-1.5">
-          {course.university && <div className="flex items-center gap-2 text-xs text-gray-500"><Building2 size={12} className="text-gray-400" />{course.university}</div>}
+          {course.university && <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><Building2 size={12} className="text-gray-400" />{course.university}</div>}
           <div className="flex items-center gap-4">
-            {course.totalFee && <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700"><DollarSign size={12} className="text-emerald-500" />LKR {Number(course.totalFee).toLocaleString()}</div>}
-            {course.duration && <div className="flex items-center gap-1.5 text-xs text-gray-500"><Clock size={12} className="text-gray-400" />{course.duration}</div>}
+            {course.totalFee && <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400"><DollarSign size={12} className="text-emerald-500" />LKR {Number(course.totalFee).toLocaleString()}</div>}
+            {course.duration && <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400"><Clock size={12} className="text-gray-400" />{course.duration}</div>}
           </div>
-          {course.city && <div className="flex items-center gap-1.5 text-xs text-gray-500"><MapPin size={12} className="text-gray-400" />{course.city}</div>}
+          {course.city && <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400"><MapPin size={12} className="text-gray-400" />{course.city}</div>}
         </div>
 
         <button onClick={() => setExpanded(!expanded)} className="mt-3 flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 font-medium transition-colors">
@@ -417,20 +417,20 @@ const Courses = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Manage Courses</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{courses.length} courses · AI uses this data to answer students</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Manage Courses</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{courses.length} courses · AI uses this data to answer students</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={fetchCourses} className="flex items-center gap-2 text-sm px-4 py-2 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 font-medium transition-colors"><RefreshCw size={14} /></button>
+          <button onClick={fetchCourses} className="flex items-center gap-2 text-sm px-4 py-2 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-white/20 font-medium transition-colors"><RefreshCw size={14} /></button>
           <button
             onClick={() => setIsBulkOpen(true)}
-            className="flex items-center gap-2 text-sm px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-md shadow-emerald-200 transition-all"
+            className="flex items-center gap-2 text-sm px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-md shadow-emerald-200 dark:shadow-none transition-all"
           >
             <Upload size={16} /> Bulk Import CSV
           </button>
           <button
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 text-sm px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-md shadow-indigo-200 transition-all"
+            className="flex items-center gap-2 text-sm px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-md shadow-indigo-200 dark:shadow-none transition-all"
           >
             <Plus size={16} /> Add Course
           </button>
@@ -440,10 +440,10 @@ const Courses = () => {
       {/* Analytics Strip */}
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: 'Total Courses', value: courses.length, color: 'bg-indigo-50 text-indigo-700', icon: <BookOpen size={16}/> },
-          { label: 'With Keywords', value: withKeywords, color: 'bg-emerald-50 text-emerald-700', icon: <Tag size={16}/> },
-          { label: 'Incomplete Data', value: missingData, color: missingData > 0 ? 'bg-amber-50 text-amber-700' : 'bg-gray-50 text-gray-400', icon: <AlertTriangle size={16}/> },
-          { label: 'Fields Covered', value: uniqueFields, color: 'bg-violet-50 text-violet-700', icon: <TrendingUp size={16}/> },
+          { label: 'Total Courses', value: courses.length, color: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300', icon: <BookOpen size={16}/> },
+          { label: 'With Keywords', value: withKeywords, color: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300', icon: <Tag size={16}/> },
+          { label: 'Incomplete Data', value: missingData, color: missingData > 0 ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300' : 'bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-500', icon: <AlertTriangle size={16}/> },
+          { label: 'Fields Covered', value: uniqueFields, color: 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300', icon: <TrendingUp size={16}/> },
         ].map((s, i) => (
           <div key={i} className={`rounded-xl p-4 flex items-center gap-3 ${s.color}`}>
             <div className="opacity-70">{s.icon}</div>
@@ -454,7 +454,7 @@ const Courses = () => {
 
       {/* Missing data warning */}
       {missingData > 0 && (
-        <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-700">
+        <div className="flex items-center gap-2 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
           <AlertTriangle size={14}/>
           <strong>{missingData} course{missingData !== 1 ? 's' : ''}</strong> have incomplete data (missing fee, duration, eligibility, keywords, or career info). The AI may give incomplete answers for these.
         </div>
@@ -463,14 +463,14 @@ const Courses = () => {
       {/* Search + Field Filter */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-52">
-          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input type="text" placeholder="Search by name, university, field, city..." value={search} onChange={e => setSearch(e.target.value)} className="w-full border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+          <input type="text" placeholder="Search by name, university, field, city..." value={search} onChange={e => setSearch(e.target.value)} className="w-full border border-gray-200 dark:border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500" />
         </div>
-        <div className="flex gap-1 p-1 bg-gray-100 rounded-xl overflow-x-auto">
+        <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl overflow-x-auto">
           {allFields.map(f => (
             <button key={f} onClick={() => setFieldFilter(f)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                fieldFilter === f ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                fieldFilter === f ? 'bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
               }`}>
               {f === 'all' ? 'All Fields' : f}
             </button>

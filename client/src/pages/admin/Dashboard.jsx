@@ -10,13 +10,13 @@ import {
 
 // ── StatCard ──────────────────────────────────────────────────────────────────
 const StatCard = ({ title, value, icon, gradient, sub }) => (
-  <div className="relative overflow-hidden rounded-2xl p-6 bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+  <div className="relative overflow-hidden rounded-2xl p-6 bg-white dark:bg-[#1a1a2c] border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all group">
     <div className={`absolute -top-8 -right-8 w-28 h-28 rounded-full opacity-[0.08] ${gradient}`} />
     <div className="flex items-start justify-between relative">
       <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{title}</p>
-        <h3 className="text-3xl font-bold text-gray-900">{value ?? <span className="text-gray-300">—</span>}</h3>
-        {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+        <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">{title}</p>
+        <h3 className="text-3xl font-bold text-gray-900 dark:text-white">{value ?? <span className="text-gray-300 dark:text-gray-600">—</span>}</h3>
+        {sub && <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{sub}</p>}
       </div>
       <div className={`p-3 rounded-xl ${gradient} bg-opacity-10 text-white`}>{icon}</div>
     </div>
@@ -56,14 +56,14 @@ const SessionRow = ({ session }) => {
   })();
 
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 px-2 rounded-xl transition-colors">
-      <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0">
-        <MessageCircle size={15} className="text-indigo-600" />
+    <div className="flex items-start gap-3 py-3 border-b border-gray-50 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 px-2 rounded-xl transition-colors">
+      <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+        <MessageCircle size={15} className="text-indigo-600 dark:text-indigo-400" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-800 truncate">{session.title || 'Untitled Chat'}</p>
+        <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{session.title || 'Untitled Chat'}</p>
         {session.lastMessage && (
-          <p className="text-xs text-gray-400 truncate mt-0.5">{session.lastMessage}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-400 truncate mt-0.5">{session.lastMessage}</p>
         )}
       </div>
       <div className="text-right flex-shrink-0">
@@ -120,8 +120,8 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Welcome back, Admin. Here's what's happening.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">Welcome back, Admin. Here's what's happening.</p>
         </div>
         <div className="flex items-center gap-3">
           {lastRefresh && (
@@ -130,10 +130,10 @@ const Dashboard = () => {
             </span>
           )}
           <button onClick={fetchDashboard}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg font-medium transition-colors">
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-600 dark:text-gray-200 rounded-lg font-medium transition-colors">
             <RefreshCw size={12} /> Refresh
           </button>
-          <div className="flex items-center gap-1.5 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg">
+          <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg">
             <Activity size={11} className="animate-pulse" /> Live
           </div>
         </div>
@@ -158,18 +158,26 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             { label: 'AI Accuracy', value: `${data.aiAccuracy}%`, icon: <Target size={14} />, good: data.aiAccuracy >= 70, tip: `${data.fallbackRate}% fallback rate` },
-            { label: 'Training Done', value: `${data.trainingCompletion}%`, icon: <CheckCircle2 size={14} />, good: data.trainingCompletion >= 70, tip: `${data.trainedCount} answers trained` },
+            { label: 'Training Done', value: `${data.trainingCompletion}%`, icon: <CheckCircle2 size={14} />, good: data.trainingCompletion >= 70, tip: `${data.trainedCount || 0} answers trained` },
             { label: 'Chats Today', value: data.chatsToday, icon: <Flame size={14} />, good: true, tip: 'active sessions' },
             { label: 'Needs Training', value: data.pendingTraining, icon: <AlertTriangle size={14} />, good: data.pendingTraining === 0, tip: 'unanswered questions' },
           ].map((m, i) => (
-            <div key={i} className={`rounded-xl p-4 border flex items-center gap-3 ${m.good ? 'bg-emerald-50 border-emerald-100' : 'bg-orange-50 border-orange-100'}`}>
-              <div className={`p-2 rounded-lg ${m.good ? 'bg-emerald-100 text-emerald-600' : 'bg-orange-100 text-orange-600'}`}>
+            <div key={i} className={`rounded-xl p-4 border flex items-center gap-3 ${
+              m.good 
+                ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20' 
+                : 'bg-orange-50 dark:bg-orange-500/10 border-orange-100 dark:border-orange-500/20'
+            }`}>
+              <div className={`p-2 rounded-lg ${
+                m.good 
+                  ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' 
+                  : 'bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400'
+              }`}>
                 {m.icon}
               </div>
               <div>
-                <p className="text-xs text-gray-500 font-medium">{m.label}</p>
-                <p className="font-bold text-gray-900">{m.value}</p>
-                <p className="text-[10px] text-gray-400">{m.tip}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{m.label}</p>
+                <p className="font-bold text-gray-900 dark:text-white">{m.value}</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500">{m.tip}</p>
               </div>
             </div>
           ))}
@@ -179,12 +187,12 @@ const Dashboard = () => {
       {/* Content Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Sessions */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="font-bold text-gray-800 flex items-center gap-2">
+            <h2 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
               <Clock size={16} className="text-indigo-500" /> Recent Conversations
             </h2>
-            <Link to="/admin/history" className="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+            <Link to="/admin/history" className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-medium flex items-center gap-1">
               View all <ChevronRight size={13} />
             </Link>
           </div>
@@ -203,8 +211,8 @@ const Dashboard = () => {
         {/* Right Column */}
         <div className="space-y-5">
           {/* Quick Actions */}
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-            <h2 className="font-bold text-gray-800 flex items-center gap-2 mb-4">
+          <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm p-6">
+            <h2 className="font-bold text-gray-800 dark:text-white flex items-center gap-2 mb-4">
               <Zap size={16} className="text-yellow-500" /> Quick Actions
             </h2>
             <div className="space-y-2">
@@ -228,7 +236,7 @@ const Dashboard = () => {
                 <MetricBar label="AI Accuracy" value={data.aiAccuracy} color="bg-emerald-400"
                   note={`${data.totalChats} total sessions`} />
                 <MetricBar label="Training Complete" value={data.trainingCompletion} color="bg-blue-400"
-                  note={`${data.trainedCount} trained answers`} />
+                  note={`${data.trainedCount || 0} trained answers`} />
                 <MetricBar label="Success Rate" value={Math.max(0, 100 - data.fallbackRate)} color="bg-amber-400"
                   note={`${data.fallbackRate}% fallback rate`} />
               </div>

@@ -8,28 +8,28 @@ import {
 const PendingCard = ({ item, response, onChange, onSubmit, onDelete }) => {
   const [expanded, setExpanded] = useState(true);
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
-      <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100 p-4 flex items-start gap-3">
-        <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <MessageSquare size={15} className="text-orange-600" />
+    <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all overflow-hidden">
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-500/10 dark:to-amber-500/10 border-b border-orange-100 dark:border-orange-500/20 p-4 flex items-start gap-3">
+        <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <MessageSquare size={15} className="text-orange-600 dark:text-orange-400" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-1">Student Asked</p>
+            <p className="text-xs font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-1">Student Asked</p>
             <div className="flex items-center gap-1">
               {item.occurrences > 1 && (
-                <span className="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
+                <span className="text-[10px] bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded-full font-semibold">
                   Asked {item.occurrences}× 
                 </span>
               )}
-              <button onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => setExpanded(!expanded)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-800">{item.user_input}</p>
+          <p className="text-sm font-semibold text-gray-800 dark:text-white">{item.user_input}</p>
           {item.detected_intent && (
-            <span className="inline-block mt-1 text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
+            <span className="inline-block mt-1 text-[10px] bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full">
               Intent: {item.detected_intent}
             </span>
           )}
@@ -38,33 +38,30 @@ const PendingCard = ({ item, response, onChange, onSubmit, onDelete }) => {
       {expanded && (
         <div className="p-4 space-y-3">
           <div className="flex items-center gap-2">
-            <Lightbulb size={13} className="text-emerald-600" />
-            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Your Official Answer</p>
+            <Lightbulb size={14} className="text-amber-500 flex-shrink-0" />
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Provide the official answer for the AI to learn:</p>
           </div>
           <textarea
             rows={3}
-            placeholder="Type the correct, official answer to teach the chatbot..."
             value={response || ''}
             onChange={e => onChange(item.id, e.target.value)}
-            className="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300 resize-none placeholder-gray-300 transition-all"
+            placeholder="Type answer here... e.g., 'The course registration fee is LKR 5,000 and total fee is LKR 250,000...'"
+            className="w-full border border-gray-200 dark:border-white/10 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white dark:bg-[#151525] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
           />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <Clock size={11} />
-              {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Unknown date'}
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => onDelete(item.id)} className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors" title="Dismiss">
-                <Trash2 size={14} />
-              </button>
-              <button
-                onClick={() => onSubmit(item.id)}
-                disabled={!response?.trim()}
-                className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm font-semibold transition-all shadow-sm shadow-emerald-200"
-              >
-                <Brain size={14} /> Save & Train
-              </button>
-            </div>
+          <div className="flex items-center justify-between pt-1">
+            <button
+              onClick={() => onDelete(item.id)}
+              className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 font-medium transition-colors"
+            >
+              <Trash2 size={13} /> Ignore Question
+            </button>
+            <button
+              onClick={() => onSubmit(item.id)}
+              disabled={!response?.trim()}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-40 text-white rounded-xl text-xs font-semibold shadow-md shadow-orange-200 dark:shadow-none transition-all"
+            >
+              <Sparkles size={13} /> Save & Train AI
+            </button>
           </div>
         </div>
       )}
@@ -73,60 +70,50 @@ const PendingCard = ({ item, response, onChange, onSubmit, onDelete }) => {
 };
 
 const TrainedCard = ({ item, onDelete }) => (
-  <div className="bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden">
-    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 p-4 flex items-start gap-3">
-      <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-        <Check size={14} className="text-emerald-600" />
+  <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 p-5 shadow-sm space-y-3">
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex-1 min-w-0">
+        <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-semibold">
+          Trained Entry
+        </span>
+        <p className="text-sm font-semibold text-gray-800 dark:text-white mt-1.5">{item.user_input}</p>
       </div>
-      <div className="flex-1">
-        <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Question</p>
-        <p className="text-sm font-semibold text-gray-800">{item.user_input}</p>
-      </div>
-      <button onClick={() => onDelete(item.id)} className="text-gray-300 hover:text-red-400 transition-colors">
-        <Trash2 size={14} />
+      <button
+        onClick={() => onDelete(item.id)}
+        className="text-gray-300 dark:text-gray-600 hover:text-red-500 p-1.5 rounded-lg transition-colors flex-shrink-0"
+      >
+        <Trash2 size={15} />
       </button>
     </div>
-    <div className="p-4">
-      <div className="flex items-center gap-2 mb-2">
-        <Sparkles size={13} className="text-violet-500" />
-        <p className="text-xs font-semibold text-violet-600 uppercase tracking-wider">Trained Response</p>
-      </div>
-      <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{item.response}</p>
-      {item.trained_at && (
-        <p className="text-[10px] text-gray-400 mt-2">
-          Trained: {new Date(item.trained_at).toLocaleDateString()}
-        </p>
-      )}
+    <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-3 text-xs text-gray-700 dark:text-gray-200 leading-relaxed">
+      {item.response || item.answer}
     </div>
   </div>
 );
 
 const DocumentCard = ({ doc, onDelete }) => (
-  <div className="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden flex items-center justify-between p-4">
-    <div className="flex items-center gap-4">
-      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-        <FileText size={20} className="text-blue-600" />
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-gray-800">{doc.title}</p>
-        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-          <span>{doc.filename}</span>
-          <span>•</span>
-          <span>Chunk {doc.chunk_index + 1}</span>
-          <span>•</span>
-          <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+  <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 p-5 shadow-sm space-y-3">
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center flex-shrink-0">
+          <FileText size={17} className="text-violet-600 dark:text-violet-400" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{doc.title || doc.file_name || 'Document'}</p>
+          <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+            {doc.file_type ? doc.file_type.toUpperCase() : 'DOC'} · Chunk {doc.chunk_index + 1}
+          </p>
         </div>
       </div>
-    </div>
-    <div className="flex items-center gap-3">
-      {doc.file_url && (
-        <a href={doc.file_url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline">
-          View File
-        </a>
-      )}
-      <button onClick={() => onDelete(doc.id)} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
-        <Trash2 size={16} />
+      <button
+        onClick={() => onDelete(doc.id)}
+        className="text-gray-300 dark:text-gray-600 hover:text-red-500 p-1.5 rounded-lg transition-colors flex-shrink-0"
+      >
+        <Trash2 size={15} />
       </button>
+    </div>
+    <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-3">
+      {doc.content}
     </div>
   </div>
 );
@@ -239,24 +226,24 @@ const Training = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Training Data & Knowledge Base</h1>
-          <p className="text-gray-500 text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Training Data & Knowledge Base</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
             Teach the chatbot directly or upload documents (PDF, DOCX, CSV) for RAG.
           </p>
         </div>
-        <button onClick={fetchData} className="flex items-center gap-2 text-sm px-4 py-2 bg-orange-50 text-orange-700 rounded-xl hover:bg-orange-100 font-medium transition-colors">
+        <button onClick={fetchData} className="flex items-center gap-2 text-sm px-4 py-2 bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 rounded-xl hover:bg-orange-100 dark:hover:bg-orange-500/20 font-medium transition-colors">
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
 
       {successMsg && (
-        <div className="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm font-medium">
+        <div className="flex items-center gap-3 p-4 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-emerald-700 dark:text-emerald-300 text-sm font-medium">
           <Check size={16} /> {successMsg}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-gray-100 rounded-xl w-fit">
+      <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit">
         {[
           { key: 'pending', label: `Pending Q&A (${pending.length})`, icon: <MessageSquare size={13} /> },
           { key: 'trained', label: `Trained Q&A (${trained.length})`, icon: <BookOpen size={13} /> },
@@ -264,7 +251,7 @@ const Training = () => {
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              tab === t.key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              tab === t.key ? 'bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}>
             {t.icon} {t.label}
           </button>
