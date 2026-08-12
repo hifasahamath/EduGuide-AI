@@ -34,12 +34,12 @@ const SectionHeader = ({ icon, title, color = 'text-indigo-600' }) => (
 
 const Field = ({ label, children }) => (
   <div>
-    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">{label}</label>
+    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">{label}</label>
     {children}
   </div>
 );
 
-const inputCls = 'w-full border border-gray-200 rounded-xl py-2.5 px-3.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all';
+const inputCls = 'w-full border border-slate-300 dark:border-slate-700 rounded-xl py-2.5 px-3.5 text-xs font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all';
 const selectCls = inputCls + ' appearance-none';
 
 // ── Missing data check ────────────────────────────────────────────────────────
@@ -62,8 +62,8 @@ const CourseCard = ({ course, onEdit, onDelete }) => {
 
   return (
     <motion.div layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-      className={`bg-white dark:bg-[#1a1a2c] rounded-2xl border shadow-sm hover:shadow-md transition-all group overflow-hidden ${
-        missing.length > 0 ? 'border-amber-200 dark:border-amber-500/30' : 'border-gray-100 dark:border-white/10'
+      className={`bg-white dark:bg-slate-900/90 rounded-2xl border shadow-xs hover:shadow-md transition-all group overflow-hidden ${
+        missing.length > 0 ? 'border-amber-300 dark:border-amber-500/40' : 'border-slate-200 dark:border-slate-800'
       }`}
     >
       <div className="h-1.5 bg-gradient-to-r from-indigo-500 to-violet-600" />

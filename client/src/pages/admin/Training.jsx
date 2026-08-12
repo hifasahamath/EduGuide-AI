@@ -8,7 +8,7 @@ import {
 const PendingCard = ({ item, response, onChange, onSubmit, onDelete }) => {
   const [expanded, setExpanded] = useState(true);
   return (
-    <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-all overflow-hidden">
+    <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs hover:shadow-md transition-all overflow-hidden">
       <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-500/10 dark:to-amber-500/10 border-b border-orange-100 dark:border-orange-500/20 p-4 flex items-start gap-3">
         <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
           <MessageSquare size={15} className="text-orange-600 dark:text-orange-400" />
@@ -70,7 +70,7 @@ const PendingCard = ({ item, response, onChange, onSubmit, onDelete }) => {
 };
 
 const TrainedCard = ({ item, onDelete }) => (
-  <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 p-5 shadow-sm space-y-3">
+  <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs space-y-3">
     <div className="flex items-start justify-between gap-3">
       <div className="flex-1 min-w-0">
         <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full font-semibold">

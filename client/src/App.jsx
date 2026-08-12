@@ -73,26 +73,26 @@ const AdminLayout = ({ children }) => {
   
   return (
     <div className={`flex h-screen font-sans text-left transition-colors duration-300 ${
-      isDark ? 'bg-[#12121e] text-gray-100' : 'bg-[#f4f4f8] text-gray-900'
+      isDark ? 'bg-[#080c16] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
     }`}>
       <Sidebar />
       <div className="flex-1 overflow-x-hidden overflow-y-auto">
-        <header className={`sticky top-0 z-10 px-8 py-3.5 flex justify-between items-center border-b backdrop-blur-sm transition-colors duration-300 ${
+        <header className={`sticky top-0 z-10 px-8 py-3.5 flex justify-between items-center border-b backdrop-blur-md transition-colors duration-300 ${
           isDark 
-            ? 'bg-[#1a1a2c]/90 border-white/10 text-gray-100 shadow-md' 
-            : 'bg-white/80 border-gray-100 text-gray-800 shadow-sm'
+            ? 'bg-[#0d1322]/95 border-slate-800 text-slate-100 shadow-sm' 
+            : 'bg-white/95 border-slate-200 text-slate-900 shadow-xs'
         }`}>
           <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className={`text-sm font-medium ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>System Online</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className={`text-xs font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>System Online</span>
           </div>
           <div className="flex items-center gap-4">
             <button
               onClick={toggleTheme}
-              className={`flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-xl border transition-all ${
+              className={`flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-xl border transition-all ${
                 isDark 
-                  ? 'bg-white/10 border-white/15 text-gray-200 hover:bg-white/20' 
-                  : 'bg-gray-100 border-gray-200 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-700' 
+                  : 'bg-slate-100 border-slate-300 text-slate-800 hover:bg-slate-200'
               }`}
               title="Toggle theme"
             >
@@ -101,15 +101,15 @@ const AdminLayout = ({ children }) => {
             </button>
 
             <div className="text-right">
-              <p className={`text-sm font-semibold ${isDark ? 'text-gray-100' : 'text-gray-800'}`}>{name}</p>
-              <p className="text-[11px] text-gray-400">{user?.email}</p>
+              <p className={`text-sm font-bold ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>{name}</p>
+              <p className={`text-[11px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{user?.email}</p>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-md shadow-violet-200">
-              <span className="text-white text-sm font-bold">{name[0]?.toUpperCase()}</span>
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+              <span className="text-white text-sm font-extrabold">{name[0]?.toUpperCase()}</span>
             </div>
           </div>
         </header>
-        <main className="p-8">{children}</main>
+        <main className="p-6 md:p-8">{children}</main>
       </div>
     </div>
   );

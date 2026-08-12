@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import {
   Sparkles, Eye, EyeOff, Loader2, AlertCircle, ArrowRight,
   Shield, BookOpen, TrendingUp, GraduationCap
 } from 'lucide-react';
 
-// Rate-limit constants
 const MAX_ATTEMPTS = 5;
-const LOCKOUT_MS = 5 * 60 * 1000; // 5 minutes
+const LOCKOUT_MS = 5 * 60 * 1000;
 
-// Promo features shown on the left panel
 const FEATURES = [
-  { icon: <BookOpen size={14} />, label: 'Find Courses', desc: 'Search by field, fees, or university' },
-  { icon: <TrendingUp size={14} />, label: 'Compare Fees', desc: 'Side-by-side cost analysis' },
-  { icon: <GraduationCap size={14} />, label: 'AI Guidance', desc: 'Personalised recommendations' },
-  { icon: <Shield size={14} />, label: 'Secure & Private', desc: 'Your data is protected' },
+  { icon: <BookOpen size={16} />, label: 'Find Courses', desc: 'Search by field, fees, or university' },
+  { icon: <TrendingUp size={16} />, label: 'Compare Fees', desc: 'Side-by-side cost analysis' },
+  { icon: <GraduationCap size={16} />, label: 'AI Guidance', desc: 'Personalised recommendations' },
+  { icon: <Shield size={16} />, label: 'Secure & Private', desc: 'Your data is protected' },
 ];
+
+const GoogleIcon = () => (
+  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+  </svg>
+);
 
 const Login = () => {
   const { user, profile, profileLoaded, login } = useAuth();
@@ -28,8 +36,8 @@ const Login = () => {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
-  // ── Rate limiting (persisted in sessionStorage) ──────────
   const getAttemptData = () => {
     try { return JSON.parse(sessionStorage.getItem('_eg_login_attempts') || '{}'); }
     catch { return {}; }
@@ -43,7 +51,6 @@ const Login = () => {
   });
   const [lockRemaining, setLockRemaining] = useState(0);
 
-  // Countdown timer while locked out
   useEffect(() => {
     const d = getAttemptData();
     if (d.lockedUntil && Date.now() < d.lockedUntil) {
@@ -62,7 +69,6 @@ const Login = () => {
     }
   }, []);
 
-  // If the user is already logged in (or just logged in), redirect them once profile is loaded.
   useEffect(() => {
     if (!user || !profileLoaded) return;
     const role = profile?.role || 'user';
@@ -73,18 +79,15 @@ const Login = () => {
     }
   }, [user, profile, profileLoaded, navigate]);
 
-  // Restore saved email from "remember me"
   useEffect(() => {
     const saved = localStorage.getItem('_eg_remember_email');
     if (saved) { setEmail(saved); setRememberMe(true); }
   }, []);
 
-  // ── Handle login form submit ─────────────────────────────
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Check if currently locked out
     const d = getAttemptData();
     if (d.lockedUntil && Date.now() < d.lockedUntil) {
       const rem = Math.ceil((d.lockedUntil - Date.now()) / 1000);
@@ -92,7 +95,6 @@ const Login = () => {
       return;
     }
 
-    // Basic validation
     if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       setError('Enter a valid email address.');
       return;
@@ -107,15 +109,12 @@ const Login = () => {
     setLoading(false);
 
     if (result.success) {
-      // Reset attempt counter
       saveAttemptData({});
       setAttemptsLeft(MAX_ATTEMPTS);
 
-      // Remember me
       if (rememberMe) localStorage.setItem('_eg_remember_email', email);
       else localStorage.removeItem('_eg_remember_email');
 
-      // Navigate based on user role
       const targetRole = result.role || 'user';
       if (targetRole === 'admin') {
         navigate('/admin', { replace: true });
@@ -123,7 +122,6 @@ const Login = () => {
         navigate('/chat', { replace: true });
       }
     } else {
-      // Track failed attempt
       const newCount = (d.count || 0) + 1;
       const locked = newCount >= MAX_ATTEMPTS;
       saveAttemptData({
@@ -141,89 +139,118 @@ const Login = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/chat`
+        }
+      });
+      if (error) throw error;
+    } catch (err) {
+      setError(err.message || 'Google sign in failed. Please try again.');
+      setGoogleLoading(false);
+    }
+  };
+
   const isLocked = lockRemaining > 0;
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
-      {/* Subtle ambient lighting */}
-      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] rounded-full bg-slate-800/20 blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-4 sm:p-6 select-none font-sans">
+      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center">
 
-      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center relative z-10">
-
-        {/* ── Left panel — Promo ──────────────────────────── */}
-        <div className="hidden lg:block">
-          <div className="flex items-center gap-3 mb-8">
+        {/* ── Left panel — Light Theme Promo ──────────────────────────── */}
+        <div className="hidden lg:block bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm space-y-6">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
               <Sparkles size={20} className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-extrabold text-white tracking-tight leading-none">EduGuide AI</h1>
-              <p className="text-indigo-400 text-xs font-semibold mt-0.5">Higher Education & Career Advisor</p>
+              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight leading-none">EduGuide AI</h1>
+              <p className="text-indigo-600 text-xs font-bold mt-0.5">Higher Education & Career Advisor</p>
             </div>
           </div>
 
-          <h2 className="text-3xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+          <h2 className="text-2xl font-extrabold text-slate-900 leading-tight tracking-tight">
             Discover accredited pathways<br />
-            <span className="text-indigo-400">
-              with intelligent guidance
-            </span>
+            <span className="text-indigo-600">with intelligent guidance</span>
           </h2>
-          <p className="text-slate-400 text-sm leading-relaxed mb-8 max-w-sm">
+          
+          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
             Search accredited degree programs, compare institutional course fees, and receive personalized academic advice.
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 pt-2">
             {FEATURES.map((f, i) => (
-              <div key={i} className="bg-slate-900/80 border border-slate-800/90 rounded-xl p-3.5">
-                <div className="w-7 h-7 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 mb-2">{f.icon}</div>
-                <p className="text-white text-xs font-bold">{f.label}</p>
-                <p className="text-slate-400 text-[11px] mt-0.5">{f.desc}</p>
+              <div key={i} className="bg-slate-50 border border-slate-200/90 rounded-xl p-3.5 hover:border-slate-300 transition-all">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 mb-2 font-bold">{f.icon}</div>
+                <p className="text-slate-900 text-xs font-bold">{f.label}</p>
+                <p className="text-slate-500 text-[11px] font-medium mt-0.5">{f.desc}</p>
               </div>
             ))}
           </div>
 
           <button onClick={() => navigate('/chat')}
-            className="mt-8 group flex items-center gap-2 text-xs text-slate-400 hover:text-indigo-400 transition-colors font-medium">
-            <span className="w-6 h-6 rounded-md bg-slate-800/80 border border-slate-700 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
+            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2">
+            <span className="w-6 h-6 rounded-md bg-slate-100 border border-slate-300 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
               <ArrowRight size={12} />
             </span>
             Explore as Guest — no login required
           </button>
         </div>
 
-        {/* ── Right panel — Login form ───────────────────── */}
-        <div>
+        {/* ── Right panel — Light Theme Login Form ───────────────────── */}
+        <div className="w-full">
           {/* Mobile logo */}
-          <div className="flex lg:hidden items-center gap-2 justify-center mb-8">
-            <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
-              <Sparkles size={16} className="text-white" />
+          <div className="flex lg:hidden items-center gap-2 justify-center mb-6">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+              <Sparkles size={18} className="text-white" />
             </div>
-            <span className="text-white font-bold text-base">EduGuide AI</span>
+            <span className="text-slate-900 font-extrabold text-lg">EduGuide AI</span>
           </div>
 
-          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Welcome back</h2>
-            <p className="text-slate-400 text-xs mb-6">Sign in to your EduGuide student account</p>
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-md">
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Welcome back</h2>
+            <p className="text-slate-600 text-xs font-medium mt-1 mb-6">Sign in to your EduGuide student account</p>
+
+            {/* Google OAuth Button */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={googleLoading || isLocked}
+              className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-xs transition-all disabled:opacity-60 mb-5"
+            >
+              {googleLoading ? <Loader2 size={16} className="animate-spin mr-2" /> : <GoogleIcon />}
+              <span>Continue with Google</span>
+            </button>
+
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-slate-200" />
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">OR</span>
+              <div className="flex-1 h-px bg-slate-200" />
+            </div>
 
             {/* Error message */}
             {error && (
-              <div className="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 mb-5 text-xs font-medium">
-                <AlertCircle size={15} className="flex-shrink-0" /> {error}
+              <div className="flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 mb-5 text-xs font-bold">
+                <AlertCircle size={15} className="flex-shrink-0 text-rose-600" /> {error}
               </div>
             )}
 
             {/* Attempts warning */}
             {!isLocked && attemptsLeft < MAX_ATTEMPTS && attemptsLeft > 0 && (
-              <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl px-4 py-3 mb-5 text-xs font-medium">
-                <Shield size={13} /> {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} remaining before temporary lockout.
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 mb-5 text-xs font-bold">
+                <Shield size={13} className="text-amber-600" /> {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} remaining before temporary lockout.
               </div>
             )}
 
             <form onSubmit={handleLogin} className="space-y-4" noValidate>
               {/* Email */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Email Address</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address</label>
                 <input
                   type="email"
                   value={email}
@@ -232,13 +259,13 @@ const Login = () => {
                   placeholder="you@example.com"
                   autoComplete="email"
                   disabled={isLocked}
-                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-3.5 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all disabled:opacity-50"
+                  className="w-full bg-white border border-slate-300 rounded-xl py-2.5 px-3.5 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all disabled:opacity-50"
                 />
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
                 <div className="relative">
                   <input
                     type={showPass ? 'text' : 'password'}
@@ -248,30 +275,31 @@ const Login = () => {
                     placeholder="••••••••"
                     autoComplete="current-password"
                     disabled={isLocked}
-                    className="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-3.5 pr-10 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all disabled:opacity-50"
+                    className="w-full bg-white border border-slate-300 rounded-xl py-2.5 px-3.5 pr-10 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all disabled:opacity-50"
                   />
                   <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors">
                     {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
               </div>
 
               {/* Remember me */}
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-xs pt-1">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <div onClick={() => setRememberMe(!rememberMe)}
-                    className={`w-4 h-4 rounded border flex items-center justify-center transition-all cursor-pointer flex-shrink-0
-                      ${rememberMe ? 'bg-indigo-600 border-indigo-600' : 'bg-transparent border-slate-700 hover:border-indigo-500'}`}>
-                    {rememberMe && <div className="w-2 h-2 rounded-xs bg-white" />}
-                  </div>
-                  <span className="text-slate-400 text-xs select-none">Remember me</span>
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={e => setRememberMe(e.target.checked)}
+                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer"
+                  />
+                  <span className="text-slate-700 font-semibold text-xs select-none">Remember me</span>
                 </label>
               </div>
 
               {/* Submit */}
               <button type="submit" disabled={loading || isLocked}
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-xs shadow-indigo-500/20 disabled:opacity-60 disabled:cursor-not-allowed text-xs">
+                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-xs shadow-indigo-600/20 disabled:opacity-60 disabled:cursor-not-allowed text-xs">
                 {isLocked
                   ? `Locked — wait ${lockRemaining}s`
                   : loading
@@ -282,15 +310,15 @@ const Login = () => {
             </form>
 
             {/* Register link */}
-            <div className="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-slate-400">New to EduGuide AI?</span>
-              <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-colors">
+            <div className="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between text-xs">
+              <span className="text-slate-600 font-medium">New to EduGuide AI?</span>
+              <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1 transition-colors">
                 Create account <ArrowRight size={12} />
               </Link>
             </div>
           </div>
 
-          <p className="text-center text-[11px] text-slate-500 mt-4">
+          <p className="text-center text-[11px] font-medium text-slate-500 mt-4">
             © 2026 EduGuide AI · Higher Education Platform
           </p>
         </div>

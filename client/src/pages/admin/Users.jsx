@@ -249,8 +249,8 @@ const Row = ({ icon, label, value }) => (
 // ── User Card (grid) ───────────────────────────────────────────────────────────
 const UserCard = ({ user, onClick }) => (
   <div onClick={() => onClick(user)}
-    className={`bg-white dark:bg-[#1a1a2c] rounded-2xl border shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer group
-      ${user.blocked ? 'border-red-200 dark:border-red-500/30 opacity-70' : 'border-gray-100 dark:border-white/10'}`}>
+    className={`bg-white dark:bg-slate-900/90 rounded-2xl border shadow-xs hover:shadow-md transition-all overflow-hidden cursor-pointer group
+      ${user.blocked ? 'border-red-300 dark:border-red-500/40 opacity-70' : 'border-slate-200 dark:border-slate-800'}`}>
     <div className="p-5 flex items-center gap-3">
       <AvatarBox user={user} />
       <div className="flex-1 min-w-0">

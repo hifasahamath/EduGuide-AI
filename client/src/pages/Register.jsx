@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import {
   Sparkles, Eye, EyeOff, Loader2, AlertCircle, ArrowRight,
   CheckCircle2, BookOpen, TrendingUp, MapPin, GraduationCap,
   User, Mail, Lock, Phone, ChevronRight
 } from 'lucide-react';
 
-// Promo features shown on the left panel
 const FEATURES = [
   { icon: <BookOpen size={16} />, text: 'Find courses instantly by field or budget' },
   { icon: <TrendingUp size={16} />, text: 'Compare fees and duration side by side' },
@@ -15,24 +15,32 @@ const FEATURES = [
   { icon: <MapPin size={16} />, text: 'Explore career paths and job prospects' },
 ];
 
-// Reusable input component with icon and error display
+const GoogleIcon = () => (
+  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+  </svg>
+);
+
 const AuthInput = ({ label, icon, error, ...props }) => (
   <div>
-    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{label}</label>
+    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">{label}</label>
     <div className="relative">
-      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">{icon}</div>
+      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">{icon}</div>
       <input
         {...props}
-        className={`w-full bg-slate-950/80 border rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 transition-all
-          ${error ? 'border-red-500/50 focus:ring-red-500/30' : 'border-slate-800 focus:ring-indigo-500/40 focus:border-indigo-500/40'}`}
+        className={`w-full bg-white border rounded-xl py-2.5 pl-10 pr-4 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 transition-all
+          ${error ? 'border-rose-500 focus:ring-rose-500/30' : 'border-slate-300 focus:ring-indigo-500/40 focus:border-indigo-500/40'}`}
       />
     </div>
-    {error && <p className="text-xs text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={11} />{error}</p>}
+    {error && <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1"><AlertCircle size={11} />{error}</p>}
   </div>
 );
 
 const Register = () => {
-  const { user, profile, register } = useAuth();
+  const { profile, register } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', phone: '' });
@@ -40,10 +48,10 @@ const Register = () => {
   const [agreed, setAgreed] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [apiError, setApiError] = useState('');
 
-  // If already logged in, send them to the right place
   useEffect(() => {
     if (!profile) return;
     if (profile.role === 'admin') {
@@ -55,7 +63,6 @@ const Register = () => {
 
   const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
 
-  // Client-side validation
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = 'Full name is required';
@@ -79,8 +86,6 @@ const Register = () => {
     setLoading(false);
 
     if (result.success) {
-      // Email confirmation is OFF, so the account is ready immediately.
-      // Show success message, then redirect to login.
       setSuccess(true);
       setTimeout(() => navigate('/login'), 2000);
     } else {
@@ -88,104 +93,116 @@ const Register = () => {
     }
   };
 
-  // ── Success screen ───────────────────────────────────────
+  const handleGoogleSignIn = async () => {
+    setApiError('');
+    setGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/chat`
+        }
+      });
+      if (error) throw error;
+    } catch (err) {
+      setApiError(err.message || 'Google sign in failed. Please try again.');
+      setGoogleLoading(false);
+    }
+  };
+
   if (success) return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center select-none">
-      <div className="text-center">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-5">
-          <CheckCircle2 size={32} className="text-emerald-400" />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-6 select-none font-sans">
+      <div className="text-center bg-white border border-slate-200 rounded-2xl p-8 shadow-lg max-w-md w-full">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center mx-auto mb-4">
+          <CheckCircle2 size={32} className="text-emerald-600" />
         </div>
-        <h2 className="text-2xl font-extrabold text-white mb-2 tracking-tight">Account Created Successfully</h2>
-        <p className="text-slate-400 text-xs">Welcome to EduGuide AI. Redirecting to sign in...</p>
+        <h2 className="text-2xl font-extrabold text-slate-900 mb-2 tracking-tight">Account Created Successfully</h2>
+        <p className="text-slate-600 text-xs font-medium">Welcome to EduGuide AI. Redirecting to sign in...</p>
       </div>
     </div>
   );
 
-  // ── Registration form ────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex overflow-hidden select-none">
-      {/* Ambient lighting */}
-      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/3 w-[350px] h-[350px] rounded-full bg-slate-800/20 blur-3xl pointer-events-none" />
-
-      {/* ── Left panel — Promo ─────────────────────────── */}
-      <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
-            <Sparkles size={20} className="text-white" />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-4 sm:p-6 select-none font-sans">
+      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center">
+        
+        {/* ── Left panel — Light Theme Promo ─────────────────────────── */}
+        <div className="hidden lg:block bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm space-y-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+              <Sparkles size={20} className="text-white" />
+            </div>
+            <span className="text-slate-900 font-extrabold text-lg tracking-tight">EduGuide AI</span>
           </div>
-          <span className="text-white font-extrabold text-lg tracking-tight">EduGuide AI</span>
-        </div>
 
-        {/* Hero text */}
-        <div>
-          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-3.5 py-1 mb-6">
-            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-            <span className="text-indigo-300 text-xs font-semibold">Smart Education Advisor</span>
+          <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-full px-3.5 py-1">
+            <div className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse" />
+            <span className="text-indigo-800 text-xs font-bold">Smart Education Advisor</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+          
+          <h1 className="text-3xl font-extrabold text-slate-900 leading-tight tracking-tight">
             Find Your<br />
-            <span className="text-indigo-400">
-              Ideal Academic Path
-            </span><br />
+            <span className="text-indigo-600">Ideal Academic Path</span><br />
             with AI
           </h1>
-          <p className="text-slate-400 text-sm leading-relaxed mb-8 max-w-sm">
+
+          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
             Discover accredited degree programs, compare course fees, and receive personalized career guidance.
           </p>
 
-          {/* Features */}
-          <div className="space-y-3 mb-10">
+          <div className="space-y-3 pt-2">
             {FEATURES.map((f, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className="w-7 h-7 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 flex-shrink-0">
+              <div key={i} className="flex items-center gap-3 bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0">
                   {f.icon}
                 </div>
-                <p className="text-slate-300 text-xs font-medium">{f.text}</p>
+                <p className="text-slate-800 text-xs font-bold">{f.text}</p>
               </div>
             ))}
           </div>
 
-          {/* Guest link */}
-          <button
-            onClick={() => navigate('/chat')}
-            className="group flex items-center gap-2 text-xs text-slate-400 hover:text-indigo-400 transition-colors font-medium"
-          >
-            <span className="w-6 h-6 rounded-md bg-slate-800/80 border border-slate-700 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
+          <button onClick={() => navigate('/chat')}
+            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2">
+            <span className="w-6 h-6 rounded-md bg-slate-100 border border-slate-300 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
               <ChevronRight size={13} />
             </span>
             Explore as Guest — no account needed
           </button>
         </div>
 
-        {/* Testimonial */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 max-w-sm">
-          <p className="text-slate-300 text-xs italic leading-relaxed">
-            "EduGuide AI helped me compare higher diploma options and choose the exact degree track for my software engineering career."
-          </p>
-          <p className="text-indigo-400 text-xs font-semibold mt-3">— Asel, BSc Software Engineering student</p>
-        </div>
-      </div>
-
-      {/* ── Right panel — Form ────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
-        <div className="w-full max-w-md">
-          {/* Mobile logo */}
-          <div className="flex lg:hidden items-center gap-2 justify-center mb-8">
-            <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
-              <Sparkles size={16} className="text-white" />
+        {/* ── Right panel — Light Theme Registration Form ────────────────── */}
+        <div className="w-full">
+          <div className="flex lg:hidden items-center gap-2 justify-center mb-6">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+              <Sparkles size={18} className="text-white" />
             </div>
-            <span className="text-white font-bold text-base">EduGuide AI</span>
+            <span className="text-slate-900 font-extrabold text-lg">EduGuide AI</span>
           </div>
 
-          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Create your account</h2>
-            <p className="text-slate-400 text-xs mb-6">Start your smart education journey today</p>
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-md">
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Create your account</h2>
+            <p className="text-slate-600 text-xs font-medium mt-1 mb-6">Start your smart education journey today</p>
+
+            {/* Google OAuth Button */}
+            <button
+              type="button"
+              onClick={handleGoogleSignIn}
+              disabled={googleLoading}
+              className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-xs transition-all disabled:opacity-60 mb-5"
+            >
+              {googleLoading ? <Loader2 size={16} className="animate-spin mr-2" /> : <GoogleIcon />}
+              <span>Sign up with Google</span>
+            </button>
+
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-slate-200" />
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">OR</span>
+              <div className="flex-1 h-px bg-slate-200" />
+            </div>
 
             {apiError && (
-              <div className="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 mb-5 text-xs font-medium">
-                <AlertCircle size={15} /> {apiError}
+              <div className="flex items-center gap-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-4 py-3 mb-5 text-xs font-bold">
+                <AlertCircle size={15} className="flex-shrink-0 text-rose-600" /> {apiError}
               </div>
             )}
 
@@ -200,43 +217,43 @@ const Register = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
                   <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"><Lock size={15} /></div>
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Lock size={15} /></div>
                     <input
                       type={showPass ? 'text' : 'password'}
                       value={form.password}
                       onChange={set('password')}
                       placeholder="Min 6 chars"
                       autoComplete="new-password"
-                      className={`w-full bg-slate-950/80 border rounded-xl py-2.5 pl-10 pr-8 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 transition-all ${
-                        errors.password ? 'border-red-500/50 focus:ring-red-500/30' : 'border-slate-800 focus:ring-indigo-500/40'
+                      className={`w-full bg-white border rounded-xl py-2.5 pl-10 pr-8 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 transition-all ${
+                        errors.password ? 'border-rose-500 focus:ring-rose-500/30' : 'border-slate-300 focus:ring-indigo-500/40'
                       }`}
                     />
                     <button type="button" onClick={() => setShowPass(!showPass)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700">
                       {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
-                  {errors.password && <p className="text-xs text-red-400 mt-1">{errors.password}</p>}
+                  {errors.password && <p className="text-xs text-rose-600 font-bold mt-1">{errors.password}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Confirm</label>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Confirm</label>
                   <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"><Lock size={15} /></div>
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Lock size={15} /></div>
                     <input
                       type={showPass ? 'text' : 'password'}
                       value={form.confirm}
                       onChange={set('confirm')}
                       placeholder="Repeat"
                       autoComplete="new-password"
-                      className={`w-full bg-slate-950/80 border rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 transition-all ${
-                        errors.confirm ? 'border-red-500/50 focus:ring-red-500/30' : 'border-slate-800 focus:ring-indigo-500/40'
+                      className={`w-full bg-white border rounded-xl py-2.5 pl-10 pr-4 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 transition-all ${
+                        errors.confirm ? 'border-rose-500 focus:ring-rose-500/30' : 'border-slate-300 focus:ring-indigo-500/40'
                       }`}
                     />
                   </div>
-                  {errors.confirm && <p className="text-xs text-red-400 mt-1">{errors.confirm}</p>}
+                  {errors.confirm && <p className="text-xs text-rose-600 font-bold mt-1">{errors.confirm}</p>}
                 </div>
               </div>
 
@@ -246,42 +263,40 @@ const Register = () => {
               {/* Terms checkbox */}
               <div>
                 <div
-                  className={`flex items-start gap-3 cursor-pointer select-none ${errors.agreed ? 'text-red-400' : 'text-slate-400'}`}
+                  className={`flex items-start gap-2.5 cursor-pointer select-none ${errors.agreed ? 'text-rose-600 font-bold' : 'text-slate-700 font-semibold'}`}
                   onClick={() => setAgreed(a => !a)}
                 >
-                  <div className="relative mt-0.5 flex-shrink-0">
-                    <div
-                      className={`w-4 h-4 rounded border flex items-center justify-center transition-all
-                        ${agreed ? 'bg-indigo-600 border-indigo-600' : 'bg-transparent border-slate-700 hover:border-indigo-500'}`}
-                    >
-                      {agreed && <CheckCircle2 size={11} className="text-white" />}
-                    </div>
-                  </div>
+                  <input
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={e => setAgreed(e.target.checked)}
+                    className="w-4 h-4 accent-indigo-600 rounded cursor-pointer mt-0.5"
+                  />
                   <span className="text-xs leading-snug">
                     I agree to the{' '}
-                    <span className="text-indigo-400 underline" onClick={e => e.stopPropagation()}>Terms of Service</span>
+                    <span className="text-indigo-600 underline font-bold" onClick={e => e.stopPropagation()}>Terms of Service</span>
                     {' '}and{' '}
-                    <span className="text-indigo-400 underline" onClick={e => e.stopPropagation()}>Privacy Policy</span>
+                    <span className="text-indigo-600 underline font-bold" onClick={e => e.stopPropagation()}>Privacy Policy</span>
                   </span>
                 </div>
-                {errors.agreed && <p className="text-xs text-red-400 mt-1 ml-7">{errors.agreed}</p>}
+                {errors.agreed && <p className="text-xs text-rose-600 font-bold mt-1 ml-6">{errors.agreed}</p>}
               </div>
 
               <button type="submit" disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-xs shadow-indigo-500/20 disabled:opacity-60 disabled:cursor-not-allowed mt-1 text-xs">
+                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-xs shadow-indigo-600/20 disabled:opacity-60 disabled:cursor-not-allowed mt-1 text-xs">
                 {loading ? <><Loader2 size={16} className="animate-spin" /> Creating account...</> : <>Create Account <ArrowRight size={15} /></>}
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-xs">
-              <span className="text-slate-400">Already have an account?</span>
-              <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-colors">
+            <div className="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between text-xs">
+              <span className="text-slate-600 font-medium">Already have an account?</span>
+              <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1 transition-colors">
                 Sign In <ArrowRight size={12} />
               </Link>
             </div>
           </div>
 
-          <p className="text-center text-[11px] text-slate-500 mt-4">
+          <p className="text-center text-[11px] font-medium text-slate-500 mt-4">
             © 2026 EduGuide AI · Higher Education Platform
           </p>
         </div>
@@ -291,4 +306,3 @@ const Register = () => {
 };
 
 export default Register;
-
