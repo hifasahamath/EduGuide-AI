@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
    * Uses direct Supabase query first, with fallback to Express server API (service_role)
    * if client RLS fails or is blocked.
    */
-  const fetchProfile = useCallback(async (userId) => {
+  const fetchProfile = useCallback(async (userId, currentUser = null) => {
     try {
       // 1. Try direct Supabase query first
       const { data, error } = await supabase
@@ -34,23 +34,46 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (error) {
-        console.warn('[Auth] Direct Supabase profile fetch failed, using Express API fallback:', error.message);
+        console.warn('[Auth] Direct Supabase profile fetch failed, trying API:', error.message);
       }
 
-      // 2. Fallback to Express backend server API (which uses service_role key to bypass RLS)
-      const res = await api.get(`/auth/profile/${userId}`);
-      if (res.data) {
-        setProfile(res.data);
-        setProfileLoaded(true);
-        return res.data;
+      // 2. Fallback to Express backend server API
+      try {
+        const res = await api.get(`/auth/profile/${userId}`);
+        if (res.data) {
+          setProfile(res.data);
+          setProfileLoaded(true);
+          return res.data;
+        }
+      } catch (e) {
+        // Express profile fallback empty, proceed to auto-provision
       }
 
-      setProfile(null);
+      // 3. Auto-provision profile for Google OAuth / Social Login users
+      const userMeta = currentUser?.user_metadata || {};
+      const fallbackName = userMeta.full_name || userMeta.name || currentUser?.email?.split('@')[0] || 'User';
+      
+      const newProfile = {
+        id: userId,
+        email: currentUser?.email || '',
+        display_name: fallbackName,
+        role: 'user',
+        created_at: new Date().toISOString()
+      };
+
+      const { data: createdData } = await supabase
+        .from('profiles')
+        .upsert([newProfile])
+        .select()
+        .maybeSingle();
+
+      const finalProfile = createdData || newProfile;
+      setProfile(finalProfile);
       setProfileLoaded(true);
-      return null;
+      return finalProfile;
     } catch (err) {
       console.error('[Auth] Profile fetch failed:', err.message);
-      setProfile(null);
+      setProfile({ id: userId, role: 'user' });
       setProfileLoaded(true);
       return null;
     }
@@ -60,13 +83,13 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     let isMounted = true;
 
-    // Check if there's already an active session (e.g. page refresh)
+    // Check if there's already an active session (e.g. page refresh or OAuth redirect)
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!isMounted) return;
 
       if (session?.user) {
         setUser(session.user);
-        await fetchProfile(session.user.id);
+        await fetchProfile(session.user.id, session.user);
       } else {
         setProfileLoaded(true);
       }
@@ -74,7 +97,7 @@ export const AuthProvider = ({ children }) => {
       if (isMounted) setLoading(false);
     });
 
-    // This fires on login, logout, and token refresh
+    // This fires on login, logout, OAuth callback, and token refresh
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
 
@@ -87,7 +110,7 @@ export const AuthProvider = ({ children }) => {
 
       if (session?.user) {
         setUser(session.user);
-        await fetchProfile(session.user.id);
+        await fetchProfile(session.user.id, session.user);
       }
     });
 

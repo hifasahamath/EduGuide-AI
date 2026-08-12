@@ -146,12 +146,17 @@ const Login = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/chat`
+          redirectTo: `${window.location.origin}/chat`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'select_account'
+          }
         }
       });
       if (error) throw error;
     } catch (err) {
-      setError(err.message || 'Google sign in failed. Please try again.');
+      console.error('[Google OAuth Error]', err);
+      setError(err.message || 'Google authentication failed. Please ensure Google OAuth provider is enabled in your Supabase project settings.');
       setGoogleLoading(false);
     }
   };
