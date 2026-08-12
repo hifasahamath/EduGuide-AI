@@ -128,7 +128,7 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
 
         {/* Text bubble */}
         {msg.text && (
-          <div className={`px-4.5 py-3 rounded-2xl text-sm leading-relaxed break-words max-w-full ${
+          <div className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl text-sm leading-relaxed break-words max-w-full text-left inline-block ${
             isBot ? `${botBubble} rounded-tl-xs` : `${userBubble} rounded-tr-xs shadow-xs`
           } ${msg.isError ? 'border-red-500/50 text-red-400' : ''}`}>
             {isBot ? (
