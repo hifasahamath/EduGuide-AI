@@ -279,17 +279,21 @@ const SubscriptionPlans = () => {
                 </div>
 
                 {/* Card Actions */}
-                <div className="mt-8 pt-4 border-t border-inherit flex items-center gap-2">
+                <div className="mt-8 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
                   <button
                     onClick={() => openEditModal(plan)}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/30 text-xs font-bold transition-all"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs"
                   >
                     <Edit2 size={13} /> Edit Plan
                   </button>
 
                   <button
                     onClick={() => handleDeletePlan(plan.id)}
-                    className="p-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all"
+                    className={`p-2.5 rounded-xl border transition-all ${
+                      isDark
+                        ? 'bg-rose-950/60 border-rose-800 text-rose-300 hover:bg-rose-900'
+                        : 'bg-rose-50 border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white'
+                    }`}
                     title="Delete Plan"
                   >
                     <Trash2 size={14} />

@@ -92,29 +92,32 @@ const TrainedCard = ({ item, onDelete }) => (
 );
 
 const DocumentCard = ({ doc, onDelete }) => (
-  <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 p-5 shadow-sm space-y-3">
-    <div className="flex items-start justify-between gap-3">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-9 h-9 rounded-xl bg-violet-100 dark:bg-violet-500/20 flex items-center justify-center flex-shrink-0">
-          <FileText size={17} className="text-violet-600 dark:text-violet-400" />
+  <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 p-4.5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3">
+    <div className="flex items-start justify-between gap-2.5">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950/80 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center flex-shrink-0">
+          <FileText size={17} className="text-indigo-600 dark:text-indigo-400" />
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{doc.title || doc.file_name || 'Document'}</p>
-          <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
-            {doc.file_type ? doc.file_type.toUpperCase() : 'DOC'} · Chunk {doc.chunk_index + 1}
+        <div className="min-w-0 flex-1">
+          <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{doc.title || doc.file_name || 'Knowledge Doc'}</p>
+          <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+            {doc.file_type ? doc.file_type.toUpperCase() : 'TXT'} · Chunk {doc.chunk_index + 1}
           </p>
         </div>
       </div>
       <button
         onClick={() => onDelete(doc.id)}
-        className="text-gray-300 dark:text-gray-600 hover:text-red-500 p-1.5 rounded-lg transition-colors flex-shrink-0"
+        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors flex-shrink-0"
+        title="Delete Document"
       >
-        <Trash2 size={15} />
+        <Trash2 size={16} />
       </button>
     </div>
-    <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-300 leading-relaxed line-clamp-3">
-      {doc.content}
-    </div>
+    {doc.content && (
+      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 text-xs text-slate-700 dark:text-slate-300 font-medium leading-relaxed line-clamp-3 border border-slate-200/60 dark:border-slate-800">
+        {doc.content}
+      </div>
+    )}
   </div>
 );
 
@@ -305,7 +308,7 @@ const Training = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {documents.length === 0 ? (
               <p className="text-center py-8 text-gray-400 font-medium">No documents uploaded yet.</p>
             ) : (
