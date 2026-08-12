@@ -71,8 +71,8 @@ const Bubble = ({ msg }) => {
       <div className="max-w-[75%]">
         <div className={`rounded-2xl px-3 py-2 text-sm ${isUser
           ? 'bg-indigo-600 text-white rounded-tr-sm'
-          : 'bg-gray-100 text-gray-800 rounded-tl-sm'}`}>
-          {msg.text}
+          : 'bg-gray-100 dark:bg-slate-800 text-gray-800 dark:text-slate-100 rounded-tl-sm'}`}>
+          {msg.text || msg.content}
         </div>
         <div className="flex items-center gap-2 mt-0.5 px-1">
           {msg.intent && msg.intent !== 'unknown' && (
@@ -182,10 +182,42 @@ const ChatHistory = () => {
       if (dateFilter !== 'all') params.set('dateFilter', dateFilter);
       if (statusFilter !== 'all') params.set('statusFilter', statusFilter);
       const res = await api.get(`/chat/admin/sessions?${params.toString()}`);
-      setSessions(res.data.sessions || []);
-      setStats(res.data.stats || null);
+      
+      const rawSessions = Array.isArray(res.data) ? res.data : (res.data.sessions || []);
+      const normalizedSessions = rawSessions.map(s => ({
+        id: s.id,
+        user_id: s.user_id,
+        userId: s.userId || s.userEmail || s.profiles?.email || s.user_id || 'Student',
+        title: s.title || 'Chat Session',
+        status: s.status || 'resolved',
+        isSpam: Boolean(s.isSpam || s.is_spam),
+        messageCount: s.messageCount || s.messages?.length || s.chat_messages?.length || 0,
+        lastMessage: s.lastMessage || s.messages?.[s.messages.length - 1]?.content || s.chat_messages?.[s.chat_messages.length - 1]?.content || '',
+        detectedField: s.detectedField || s.context?.lastField || null,
+        detectedCourse: s.detectedCourse || s.context?.lastCourse || null,
+        createdAt: s.createdAt || s.created_at,
+        updatedAt: s.updatedAt || s.updated_at,
+        messages: s.messages || s.chat_messages || []
+      }));
+
+      setSessions(normalizedSessions);
+
+      if (res.data.stats) {
+        setStats(res.data.stats);
+      } else {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const todaySessions = normalizedSessions.filter(s => s.createdAt && String(s.createdAt).startsWith(todayStr));
+        const totalMsgs = normalizedSessions.reduce((acc, s) => acc + (s.messageCount || 0), 0);
+        const avg = normalizedSessions.length > 0 ? (totalMsgs / normalizedSessions.length).toFixed(1) : 0;
+        setStats({
+          totalSessions: normalizedSessions.length,
+          chatsToday: todaySessions.length,
+          avgMsgsPerChat: Number(avg),
+          spamDetected: normalizedSessions.filter(s => s.isSpam).length
+        });
+      }
     } catch (err) {
-      console.error(err);
+      console.error('Fetch sessions error:', err);
     } finally {
       setLoading(false);
     }
@@ -193,7 +225,6 @@ const ChatHistory = () => {
 
   useEffect(() => {
     fetchData();
-    // Auto-refresh every 30s
     refreshRef.current = setInterval(fetchData, 30000);
     return () => clearInterval(refreshRef.current);
   }, [fetchData]);
@@ -207,7 +238,7 @@ const ChatHistory = () => {
       || s.lastMessage?.toLowerCase().includes(q)
       || s.detectedCourse?.toLowerCase().includes(q)
       || s.detectedField?.toLowerCase().includes(q)
-      || s.messages?.some(m => m.text?.toLowerCase().includes(q));
+      || s.messages?.some(m => (m.text || m.content)?.toLowerCase().includes(q));
     const matchField = fieldFilter === 'All Fields' || s.detectedField === fieldFilter;
     return matchSearch && matchField;
   });
