@@ -118,7 +118,7 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
           <Sparkles size={14} className="text-white" />
         </div>
       )}
-      <div className={`max-w-[80%] ${isBot ? '' : 'flex flex-col items-end'}`}>
+      <div className={`max-w-[78%] min-w-0 ${isBot ? '' : 'flex flex-col items-end'}`}>
         {/* Course cards if present */}
         {isBot && msg.courses?.length > 0 && (
           <div className="mb-2.5 w-full">
@@ -128,14 +128,16 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
 
         {/* Text bubble */}
         {msg.text && (
-          <div className={`px-4.5 py-3.5 rounded-2xl text-sm leading-relaxed ${
-            isBot ? `${botBubble} rounded-tl-xs` : `${userBubble} rounded-tr-xs`
+          <div className={`px-4.5 py-3 rounded-2xl text-sm leading-relaxed break-words max-w-full ${
+            isBot ? `${botBubble} rounded-tl-xs` : `${userBubble} rounded-tr-xs shadow-xs`
           } ${msg.isError ? 'border-red-500/50 text-red-400' : ''}`}>
             {isBot ? (
-              <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-1.5 prose-chat font-sans">
+              <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-1.5 prose-chat font-sans break-words">
                 <ReactMarkdown>{msg.text}</ReactMarkdown>
               </div>
-            ) : msg.text}
+            ) : (
+              <span className="whitespace-pre-wrap break-words">{msg.text}</span>
+            )}
           </div>
         )}
 
@@ -181,10 +183,10 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
       </div>
 
       {!isBot && (
-        <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shadow-xs mt-0.5">
+        <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-slate-800 dark:bg-slate-800 border border-slate-700 flex items-center justify-center shadow-xs mt-0.5">
           {user?.profilePic
-            ? <img src={user.profilePic} alt="u" className="w-7 h-7 rounded-lg object-cover" />
-            : <span className="text-indigo-400 text-xs font-bold">{user?.name?.[0]?.toUpperCase() || 'U'}</span>}
+            ? <img src={user.profilePic} alt="u" className="w-8 h-8 rounded-xl object-cover" />
+            : <span className="text-indigo-300 text-xs font-extrabold">{user?.name?.[0]?.toUpperCase() || 'U'}</span>}
         </div>
       )}
     </motion.div>
@@ -504,7 +506,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
           </div>
         ) : (
           /* Messages */
-          <div className="max-w-3xl mx-auto py-6 px-4 space-y-5 pb-36">
+          <div className="max-w-3xl mx-auto py-6 px-4 space-y-5 pb-48">
             <AnimatePresence initial={false}>
               {messages.map(msg => (
                 <MessageBubble key={msg.id} msg={msg} isDark={isDark} user={user} onQuickAction={sendMessage} />
@@ -530,7 +532,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
                 </div>
               </motion.div>
             )}
-            <div ref={messagesEndRef} />
+            <div ref={messagesEndRef} className="h-10 flex-shrink-0" />
           </div>
         )}
       </div>
