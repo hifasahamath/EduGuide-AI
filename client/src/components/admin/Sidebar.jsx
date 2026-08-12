@@ -5,7 +5,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import {
   LayoutDashboard, BookOpen, HelpCircle, BrainCircuit,
   Users, MessageSquare, BarChart3, UserCircle, LogOut, Sparkles, Shield,
-  Sun, Moon
+  Sun, Moon, CreditCard
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -21,6 +21,7 @@ const Sidebar = () => {
     { name: 'Train Chatbot', path: '/admin/training', icon: <BrainCircuit size={17} />, badge: 'AI' },
     { name: 'Users', path: '/admin/users', icon: <Users size={17} /> },
     { name: 'Chat History', path: '/admin/history', icon: <MessageSquare size={17} /> },
+    { name: 'Subscription Plans', path: '/admin/subscriptions', icon: <CreditCard size={17} /> },
     { name: 'Analytics', path: '/admin/analytics', icon: <BarChart3 size={17} /> },
     { name: 'Profile', path: '/admin/profile', icon: <UserCircle size={17} /> },
   ];

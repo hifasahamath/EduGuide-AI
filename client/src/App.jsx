@@ -19,6 +19,7 @@ import Users from './pages/admin/Users';
 import AdminChatHistory from './pages/admin/ChatHistory';
 import Analytics from './pages/admin/Analytics';
 import AdminProfile from './pages/admin/Profile';
+import SubscriptionPlans from './pages/admin/SubscriptionPlans';
 
 // Auth pages
 import Login from './pages/Login';
@@ -137,6 +138,7 @@ function App() {
             <Route path="/admin/training" element={<ProtectedRoute allowedRole="admin"><AdminLayout><Training /></AdminLayout></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute allowedRole="admin"><AdminLayout><Users /></AdminLayout></ProtectedRoute>} />
             <Route path="/admin/history" element={<ProtectedRoute allowedRole="admin"><AdminLayout><AdminChatHistory /></AdminLayout></ProtectedRoute>} />
+            <Route path="/admin/subscriptions" element={<ProtectedRoute allowedRole="admin"><AdminLayout><SubscriptionPlans /></AdminLayout></ProtectedRoute>} />
             <Route path="/admin/analytics" element={<ProtectedRoute allowedRole="admin"><AdminLayout><Analytics /></AdminLayout></ProtectedRoute>} />
             <Route path="/admin/profile" element={<ProtectedRoute allowedRole="admin"><AdminLayout><AdminProfile /></AdminLayout></ProtectedRoute>} />
           </Routes>
