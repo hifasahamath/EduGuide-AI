@@ -113,16 +113,19 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
     setRenamingMode(false);
   };
 
-  const textMain = isDark ? 'text-gray-100' : 'text-gray-900';
-  const textMuted = isDark ? 'text-gray-400' : 'text-gray-500';
-  const rowBg = isDark ? 'bg-[#2a2a2a] border-white/8 hover:bg-[#333]' : 'bg-white border-gray-100 hover:bg-gray-50 shadow-sm';
+  const textMain = isDark ? 'text-slate-100' : 'text-slate-900';
+  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
+  const rowBg = isDark ? 'bg-slate-900/90 border-slate-800/90 hover:bg-slate-800/80' : 'bg-white border-slate-200/90 hover:bg-slate-50 shadow-xs';
 
   return (
-    <div className={`rounded-xl border transition-all group cursor-pointer ${rowBg} ${chat.pinned ? (isDark ? 'border-violet-500/30' : 'border-violet-200') : ''}`}>
+    <div className={`rounded-xl border transition-all group cursor-pointer ${rowBg} ${chat.pinned ? (isDark ? 'border-indigo-500/30' : 'border-indigo-200') : ''}`}>
       <div className="flex items-center gap-3 p-4" onClick={() => !renamingMode && onOpen(chat)}>
         {/* Icon */}
-        <div className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center
-          ${chat.pinned ? 'bg-violet-600/20 text-violet-400' : isDark ? 'bg-white/8 text-gray-400' : 'bg-violet-50 text-violet-500'}`}>
+        <div className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${
+          chat.pinned
+            ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30'
+            : isDark ? 'bg-slate-800 text-slate-400' : 'bg-indigo-50 text-indigo-600'
+        }`}>
           {chat.pinned ? <Pin size={15} /> : <MessageSquare size={15} />}
         </div>
 
@@ -132,8 +135,9 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
             <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
               <input ref={inputRef} value={renameVal} onChange={e => setRenameVal(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') submitRename(); if (e.key === 'Escape') setRenamingMode(false); }}
-                className={`flex-1 text-sm rounded-lg px-2 py-1 border focus:outline-none focus:ring-1 focus:ring-violet-500
-                  ${isDark ? 'bg-[#444] border-white/10 text-gray-100' : 'bg-gray-50 border-gray-300'}`} />
+                className={`flex-1 text-xs rounded-lg px-2 py-1 border focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                  isDark ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-slate-50 border-slate-300'
+                }`} />
               <button onClick={submitRename} className="text-emerald-500 hover:text-emerald-400 p-0.5"><Check size={13} /></button>
               <button onClick={() => setRenamingMode(false)} className={`${textMuted} p-0.5`}><X size={13} /></button>
             </div>
@@ -141,7 +145,7 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
             <>
               <div className="flex items-center gap-2">
                 <p className={`font-semibold text-sm truncate ${textMain}`}>{chat.title || 'New Chat'}</p>
-                {chat.pinned && <span className="text-[9px] text-violet-500 font-bold uppercase tracking-wider">Pinned</span>}
+                {chat.pinned && <span className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider">Pinned</span>}
               </div>
               <p className={`text-xs truncate mt-0.5 ${textMuted}`}>
                 {chat.lastPreview || 'No messages yet'}
@@ -152,21 +156,21 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
 
         {/* Meta + actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className={`text-[10px] ${textMuted} mr-1`}>{relTime(chat.updated_at)}</span>
+          <span className={`text-[10px] font-medium ${textMuted} mr-1`}>{relTime(chat.updated_at)}</span>
           {/* Actions — visible on hover */}
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onClick={e => { e.stopPropagation(); onPin(chat); }}
-              className={`p-1.5 rounded-lg ${textMuted} hover:text-violet-400 ${isDark ? 'hover:bg-white/10' : 'hover:bg-violet-50'} transition-colors`}
+              className={`p-1.5 rounded-lg ${textMuted} hover:text-indigo-400 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-indigo-50'} transition-colors`}
               title={chat.pinned ? 'Unpin' : 'Pin'}>
               {chat.pinned ? <PinOff size={12} /> : <Pin size={12} />}
             </button>
             <button onClick={e => { e.stopPropagation(); setRenamingMode(true); }}
-              className={`p-1.5 rounded-lg ${textMuted} hover:text-indigo-400 ${isDark ? 'hover:bg-white/10' : 'hover:bg-indigo-50'} transition-colors`}
+              className={`p-1.5 rounded-lg ${textMuted} hover:text-indigo-400 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-indigo-50'} transition-colors`}
               title="Rename">
               <Edit3 size={12} />
             </button>
             <button onClick={e => { e.stopPropagation(); onDelete(chat.id); }}
-              className="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
               title="Delete">
               <Trash2 size={12} />
             </button>
@@ -249,23 +253,23 @@ const ChatHistory = ({ isDark }) => {
   const recent = filtered.filter(c => !c.pinned);
 
   // Theme
-  const textMain = isDark ? 'text-gray-100' : 'text-gray-900';
-  const textMuted = isDark ? 'text-gray-400' : 'text-gray-500';
+  const textMain = isDark ? 'text-slate-100' : 'text-slate-900';
+  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
   const inputBg = isDark
-    ? 'bg-[#2a2a2a] border-white/10 text-gray-100 placeholder-gray-500'
-    : 'bg-white border-gray-200 text-gray-800 placeholder-gray-400 shadow-sm';
+    ? 'bg-slate-900/90 border-slate-800 text-slate-100 placeholder-slate-500'
+    : 'bg-white border-slate-200 text-slate-800 placeholder-slate-400 shadow-xs';
 
   return (
     <div className="space-y-5 pb-10">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-xl font-bold ${textMain}`}>Chat History</h1>
+          <h1 className={`text-xl font-bold tracking-tight ${textMain}`}>Chat History</h1>
           <p className={`text-xs mt-0.5 ${textMuted}`}>{chats.length} conversation{chats.length !== 1 ? 's' : ''} · sorted by recent</p>
         </div>
         <div className="flex items-center gap-2">
           {toast && <span className="text-xs text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full">{toast}</span>}
-          <button onClick={fetchChats} className={`p-2 rounded-lg ${textMuted} ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`} title="Refresh">
+          <button onClick={fetchChats} className={`p-2 rounded-xl border border-slate-200 dark:border-slate-800 ${textMuted} ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`} title="Refresh">
             <RefreshCw size={14} />
           </button>
         </div>
@@ -276,20 +280,20 @@ const ChatHistory = ({ isDark }) => {
         <Search size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMuted}`} />
         <input type="text" placeholder="Search by title or message content..."
           value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-          className={`w-full rounded-xl border py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition-all ${inputBg}`} />
+          className={`w-full rounded-xl border py-2.5 pl-9 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${inputBg}`} />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <div className="w-6 h-6 border-2 border-violet-500/30 border-t-violet-500 rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <div className={`text-center py-16 ${textMuted}`}>
-          <MessageSquare size={40} className="mx-auto mb-3 opacity-30" />
-          <p className="font-medium">No conversations found</p>
-          <p className="text-xs mt-1">Start chatting to see your history here</p>
+          <MessageSquare size={36} className="mx-auto mb-3 opacity-30" />
+          <p className="font-semibold text-sm">No conversations found</p>
+          <p className="text-xs mt-1">Start chatting to build your session history</p>
           <button onClick={() => navigate('/chat')}
-            className="mt-4 px-4 py-2 text-sm bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-semibold transition-colors">
+            className="mt-4 px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition-colors shadow-xs">
             Start a New Chat
           </button>
         </div>
@@ -330,8 +334,8 @@ const ChatHistory = ({ isDark }) => {
           {/* Load more */}
           {hasMore && (
             <button onClick={() => setPage(p => p + 1)}
-              className={`w-full py-2.5 text-sm rounded-xl border font-medium transition-colors
-                ${isDark ? 'border-white/10 text-gray-300 hover:bg-white/5' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+              className={`w-full py-2.5 text-xs rounded-xl border font-semibold transition-colors
+                ${isDark ? 'border-slate-800 text-slate-300 hover:bg-slate-800/60' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}>
               Load more ({filtered.length - page * PAGE_SIZE} remaining)
             </button>
           )}
@@ -347,3 +351,4 @@ const ChatHistory = ({ isDark }) => {
 };
 
 export default ChatHistory;
+

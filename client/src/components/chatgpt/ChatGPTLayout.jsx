@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { PanelLeft } from 'lucide-react';
 import ChatSidebar from './ChatSidebar';
 import MainChat from './MainChat';
 import SettingsModal from './SettingsModal';
@@ -30,7 +31,7 @@ const ChatGPTLayout = ({ page = 'chat' }) => {
 
   return (
     <div className={`flex h-screen w-full font-sans overflow-hidden transition-colors duration-300 ${
-      isDark ? 'bg-[#212121] text-gray-100' : 'bg-[#f8f8f8] text-gray-900'
+      isDark ? 'bg-[#090d16] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
     }`}>
       {/* Sidebar */}
       <div className={`
@@ -60,38 +61,55 @@ const ChatGPTLayout = ({ page = 'chat' }) => {
             isDark={isDark}
           />
         )}
+
         {page === 'profile' && (
-          <div className={`flex-1 overflow-y-auto ${isDark ? 'bg-[#212121]' : 'bg-gray-50'}`}>
-            <div className="max-w-3xl mx-auto p-6">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`mb-4 p-2 rounded-lg ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}
-              >
-                ☰
-              </button>
+          <div className={`flex-1 overflow-y-auto ${isDark ? 'bg-[#0b101d]' : 'bg-slate-50/50'}`}>
+            <div className="max-w-4xl mx-auto p-6 md:p-8">
+              {!sidebarOpen && (
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className={`mb-6 p-2 rounded-xl border border-slate-200 dark:border-slate-800 ${
+                    isDark ? 'bg-slate-900/60 hover:bg-slate-800 text-slate-300' : 'bg-white hover:bg-slate-100 text-slate-700 shadow-sm'
+                  } transition-all`}
+                  title="Expand sidebar"
+                >
+                  <PanelLeft size={18} />
+                </button>
+              )}
               <UserProfilePage isDark={isDark} />
             </div>
           </div>
         )}
+
         {page === 'history' && (
-          <div className={`flex-1 overflow-y-auto ${isDark ? 'bg-[#212121]' : 'bg-gray-50'}`}>
-            <div className="max-w-3xl mx-auto p-6">
-              <button onClick={() => setSidebarOpen(!sidebarOpen)}
-                className={`mb-4 p-2 rounded-lg ${isDark ? 'hover:bg-white/10 text-gray-300' : 'hover:bg-gray-200 text-gray-600'}`}>☰</button>
+          <div className={`flex-1 overflow-y-auto ${isDark ? 'bg-[#0b101d]' : 'bg-slate-50/50'}`}>
+            <div className="max-w-4xl mx-auto p-6 md:p-8">
+              {!sidebarOpen && (
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className={`mb-6 p-2 rounded-xl border border-slate-200 dark:border-slate-800 ${
+                    isDark ? 'bg-slate-900/60 hover:bg-slate-800 text-slate-300' : 'bg-white hover:bg-slate-100 text-slate-700 shadow-sm'
+                  } transition-all`}
+                  title="Expand sidebar"
+                >
+                  <PanelLeft size={18} />
+                </button>
+              )}
               <ChatHistoryPage isDark={isDark} />
             </div>
           </div>
         )}
+
         {page === 'settings' && (
           <div className="flex-1 flex flex-col h-full overflow-hidden">
-            <SettingsPage isDark={isDark} />
+            <SettingsPage isDark={isDark} sidebarOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
           </div>
         )}
       </div>
 
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div className="md:hidden fixed inset-0 bg-black/50 z-20" onClick={() => setSidebarOpen(false)} />
+        <div className="md:hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-20" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Settings Modal */}
@@ -101,3 +119,4 @@ const ChatGPTLayout = ({ page = 'chat' }) => {
 };
 
 export default ChatGPTLayout;
+

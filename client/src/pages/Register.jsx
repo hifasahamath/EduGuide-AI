@@ -18,13 +18,13 @@ const FEATURES = [
 // Reusable input component with icon and error display
 const AuthInput = ({ label, icon, error, ...props }) => (
   <div>
-    <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{label}</label>
+    <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{label}</label>
     <div className="relative">
-      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">{icon}</div>
+      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">{icon}</div>
       <input
         {...props}
-        className={`w-full bg-white/5 border rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 transition-all
-          ${error ? 'border-red-500/50 focus:ring-red-500/30' : 'border-white/10 focus:ring-violet-500/50 focus:border-violet-500/50'}`}
+        className={`w-full bg-slate-950/80 border rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 transition-all
+          ${error ? 'border-red-500/50 focus:ring-red-500/30' : 'border-slate-800 focus:ring-indigo-500/40 focus:border-indigo-500/40'}`}
       />
     </div>
     {error && <p className="text-xs text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={11} />{error}</p>}
@@ -90,59 +90,59 @@ const Register = () => {
 
   // ── Success screen ───────────────────────────────────────
   if (success) return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f0f1a] via-[#12121f] to-[#0a0a15] flex items-center justify-center">
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center select-none">
       <div className="text-center">
-        <div className="w-20 h-20 rounded-full bg-emerald-500/20 border-2 border-emerald-500/40 flex items-center justify-center mx-auto mb-5">
-          <CheckCircle2 size={40} className="text-emerald-400" />
+        <div className="w-16 h-16 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mx-auto mb-5">
+          <CheckCircle2 size={32} className="text-emerald-400" />
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">Account Created!</h2>
-        <p className="text-gray-400 text-sm">Welcome to EduGuide AI. Redirecting to login...</p>
+        <h2 className="text-2xl font-extrabold text-white mb-2 tracking-tight">Account Created Successfully</h2>
+        <p className="text-slate-400 text-xs">Welcome to EduGuide AI. Redirecting to sign in...</p>
       </div>
     </div>
   );
 
   // ── Registration form ────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f0f1a] via-[#12121f] to-[#0a0a15] flex overflow-hidden">
-      {/* Ambient blobs */}
-      <div className="absolute top-1/3 left-1/4 w-[600px] h-[600px] rounded-full bg-violet-600/8 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full bg-indigo-600/8 blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex overflow-hidden select-none">
+      {/* Ambient lighting */}
+      <div className="absolute top-1/3 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/3 w-[350px] h-[350px] rounded-full bg-slate-800/20 blur-3xl pointer-events-none" />
 
       {/* ── Left panel — Promo ─────────────────────────── */}
       <div className="hidden lg:flex flex-col justify-between w-[45%] p-12 relative">
         {/* Logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+          <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
             <Sparkles size={20} className="text-white" />
           </div>
-          <span className="text-white font-bold text-lg tracking-tight">EduGuide AI</span>
+          <span className="text-white font-extrabold text-lg tracking-tight">EduGuide AI</span>
         </div>
 
         {/* Hero text */}
         <div>
-          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-6">
-            <div className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-            <span className="text-violet-300 text-xs font-medium">AI-Powered Education Guide</span>
+          <div className="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-3.5 py-1 mb-6">
+            <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+            <span className="text-indigo-300 text-xs font-semibold">Smart Education Advisor</span>
           </div>
-          <h1 className="text-4xl font-extrabold text-white leading-tight mb-4">
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">
             Find Your<br />
-            <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-              Perfect Course
+            <span className="text-indigo-400">
+              Ideal Academic Path
             </span><br />
             with AI
           </h1>
-          <p className="text-gray-400 text-base leading-relaxed mb-8 max-w-sm">
-            Your smart education companion that guides you to the right degree, the right university, and the right career path.
+          <p className="text-slate-400 text-sm leading-relaxed mb-8 max-w-sm">
+            Discover accredited degree programs, compare course fees, and receive personalized career guidance.
           </p>
 
           {/* Features */}
           <div className="space-y-3 mb-10">
             {FEATURES.map((f, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center text-violet-400 flex-shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 flex-shrink-0">
                   {f.icon}
                 </div>
-                <p className="text-gray-300 text-sm">{f.text}</p>
+                <p className="text-slate-300 text-xs font-medium">{f.text}</p>
               </div>
             ))}
           </div>
@@ -150,21 +150,21 @@ const Register = () => {
           {/* Guest link */}
           <button
             onClick={() => navigate('/chat')}
-            className="group flex items-center gap-2 text-sm text-gray-400 hover:text-violet-400 transition-colors font-medium"
+            className="group flex items-center gap-2 text-xs text-slate-400 hover:text-indigo-400 transition-colors font-medium"
           >
-            <span className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-violet-500/10 transition-colors">
-              <ChevronRight size={14} />
+            <span className="w-6 h-6 rounded-md bg-slate-800/80 border border-slate-700 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
+              <ChevronRight size={13} />
             </span>
             Explore as Guest — no account needed
           </button>
         </div>
 
         {/* Testimonial */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 max-w-sm">
-          <p className="text-gray-300 text-sm italic leading-relaxed">
-            "EduGuide AI helped me compare 12 courses and pick the one that matched my budget and career goals in minutes."
+        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 max-w-sm">
+          <p className="text-slate-300 text-xs italic leading-relaxed">
+            "EduGuide AI helped me compare higher diploma options and choose the exact degree track for my software engineering career."
           </p>
-          <p className="text-violet-400 text-xs font-semibold mt-3">— Asel, BSc Software Engineering student</p>
+          <p className="text-indigo-400 text-xs font-semibold mt-3">— Asel, BSc Software Engineering student</p>
         </div>
       </div>
 
@@ -173,18 +173,18 @@ const Register = () => {
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-2 justify-center mb-8">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
-              <Sparkles size={18} className="text-white" />
+            <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+              <Sparkles size={16} className="text-white" />
             </div>
-            <span className="text-white font-bold text-lg">EduGuide AI</span>
+            <span className="text-white font-bold text-base">EduGuide AI</span>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white mb-1">Create your account</h2>
-            <p className="text-gray-400 text-sm mb-6">Start your smart education journey today</p>
+          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Create your account</h2>
+            <p className="text-slate-400 text-xs mb-6">Start your smart education journey today</p>
 
             {apiError && (
-              <div className="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 mb-5 text-sm">
+              <div className="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 mb-5 text-xs font-medium">
                 <AlertCircle size={15} /> {apiError}
               </div>
             )}
@@ -200,19 +200,21 @@ const Register = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Password</label>
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
                   <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"><Lock size={15} /></div>
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"><Lock size={15} /></div>
                     <input
                       type={showPass ? 'text' : 'password'}
                       value={form.password}
                       onChange={set('password')}
                       placeholder="Min 6 chars"
                       autoComplete="new-password"
-                      className={`w-full bg-white/5 border rounded-xl py-3 pl-10 pr-9 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 transition-all ${errors.password ? 'border-red-500/50 focus:ring-red-500/30' : 'border-white/10 focus:ring-violet-500/50'}`}
+                      className={`w-full bg-slate-950/80 border rounded-xl py-2.5 pl-10 pr-8 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 transition-all ${
+                        errors.password ? 'border-red-500/50 focus:ring-red-500/30' : 'border-slate-800 focus:ring-indigo-500/40'
+                      }`}
                     />
                     <button type="button" onClick={() => setShowPass(!showPass)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
                       {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
@@ -220,16 +222,18 @@ const Register = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Confirm</label>
+                  <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Confirm</label>
                   <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"><Lock size={15} /></div>
+                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"><Lock size={15} /></div>
                     <input
                       type={showPass ? 'text' : 'password'}
                       value={form.confirm}
                       onChange={set('confirm')}
                       placeholder="Repeat"
                       autoComplete="new-password"
-                      className={`w-full bg-white/5 border rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 transition-all ${errors.confirm ? 'border-red-500/50 focus:ring-red-500/30' : 'border-white/10 focus:ring-violet-500/50'}`}
+                      className={`w-full bg-slate-950/80 border rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 transition-all ${
+                        errors.confirm ? 'border-red-500/50 focus:ring-red-500/30' : 'border-slate-800 focus:ring-indigo-500/40'
+                      }`}
                     />
                   </div>
                   {errors.confirm && <p className="text-xs text-red-400 mt-1">{errors.confirm}</p>}
@@ -242,43 +246,43 @@ const Register = () => {
               {/* Terms checkbox */}
               <div>
                 <div
-                  className={`flex items-start gap-3 cursor-pointer select-none ${errors.agreed ? 'text-red-400' : 'text-gray-400'}`}
+                  className={`flex items-start gap-3 cursor-pointer select-none ${errors.agreed ? 'text-red-400' : 'text-slate-400'}`}
                   onClick={() => setAgreed(a => !a)}
                 >
                   <div className="relative mt-0.5 flex-shrink-0">
                     <div
-                      className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all
-                        ${agreed ? 'bg-violet-600 border-violet-600' : 'bg-transparent border-white/20 hover:border-violet-500/50'}`}
+                      className={`w-4 h-4 rounded border flex items-center justify-center transition-all
+                        ${agreed ? 'bg-indigo-600 border-indigo-600' : 'bg-transparent border-slate-700 hover:border-indigo-500'}`}
                     >
-                      {agreed && <CheckCircle2 size={12} className="text-white" />}
+                      {agreed && <CheckCircle2 size={11} className="text-white" />}
                     </div>
                   </div>
-                  <span className="text-sm leading-snug">
+                  <span className="text-xs leading-snug">
                     I agree to the{' '}
-                    <span className="text-violet-400 underline" onClick={e => e.stopPropagation()}>Terms of Service</span>
+                    <span className="text-indigo-400 underline" onClick={e => e.stopPropagation()}>Terms of Service</span>
                     {' '}and{' '}
-                    <span className="text-violet-400 underline" onClick={e => e.stopPropagation()}>Privacy Policy</span>
+                    <span className="text-indigo-400 underline" onClick={e => e.stopPropagation()}>Privacy Policy</span>
                   </span>
                 </div>
-                {errors.agreed && <p className="text-xs text-red-400 mt-1 ml-8">{errors.agreed}</p>}
+                {errors.agreed && <p className="text-xs text-red-400 mt-1 ml-7">{errors.agreed}</p>}
               </div>
 
               <button type="submit" disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-violet-500/20 disabled:opacity-60 disabled:cursor-not-allowed mt-1">
-                {loading ? <><Loader2 size={18} className="animate-spin" /> Creating account...</> : <>Create Account <ArrowRight size={16} /></>}
+                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-xs shadow-indigo-500/20 disabled:opacity-60 disabled:cursor-not-allowed mt-1 text-xs">
+                {loading ? <><Loader2 size={16} className="animate-spin" /> Creating account...</> : <>Create Account <ArrowRight size={15} /></>}
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between text-sm">
-              <span className="text-gray-500">Already have an account?</span>
-              <Link to="/login" className="text-violet-400 hover:text-violet-300 font-semibold flex items-center gap-1 transition-colors">
-                Sign In <ArrowRight size={13} />
+            <div className="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span className="text-slate-400">Already have an account?</span>
+              <Link to="/login" className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-colors">
+                Sign In <ArrowRight size={12} />
               </Link>
             </div>
           </div>
 
-          <p className="text-center text-[11px] text-gray-600 mt-4">
-            © 2025 EduGuide AI · Powered by Gemini AI
+          <p className="text-center text-[11px] text-slate-500 mt-4">
+            © 2026 EduGuide AI · Higher Education Platform
           </p>
         </div>
       </div>
@@ -287,3 +291,4 @@ const Register = () => {
 };
 
 export default Register;
+

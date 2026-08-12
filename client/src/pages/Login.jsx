@@ -144,51 +144,51 @@ const Login = () => {
   const isLocked = lockRemaining > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0f0f1a] via-[#12121f] to-[#0a0a15] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Ambient glow */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#090d16] text-slate-100 flex items-center justify-center p-4 relative overflow-hidden select-none">
+      {/* Subtle ambient lighting */}
+      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] rounded-full bg-slate-800/20 blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center relative z-10">
 
         {/* ── Left panel — Promo ──────────────────────────── */}
         <div className="hidden lg:block">
-          <div className="flex items-center gap-3 mb-10">
-            <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
-              <Sparkles size={22} className="text-white" />
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+              <Sparkles size={20} className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white leading-none">EduGuide AI</h1>
-              <p className="text-violet-400 text-xs font-medium mt-0.5">Your Smart Education Companion</p>
+              <h1 className="text-xl font-extrabold text-white tracking-tight leading-none">EduGuide AI</h1>
+              <p className="text-indigo-400 text-xs font-semibold mt-0.5">Higher Education & Career Advisor</p>
             </div>
           </div>
 
-          <h2 className="text-3xl font-extrabold text-white leading-tight mb-4">
-            Discover your path<br />
-            <span className="bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">
-              with AI guidance
+          <h2 className="text-3xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+            Discover accredited pathways<br />
+            <span className="text-indigo-400">
+              with intelligent guidance
             </span>
           </h2>
-          <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-xs">
-            Ask anything about courses, fees, universities, and career paths. Get instant, accurate answers powered by AI.
+          <p className="text-slate-400 text-sm leading-relaxed mb-8 max-w-sm">
+            Search accredited degree programs, compare institutional course fees, and receive personalized academic advice.
           </p>
 
           <div className="grid grid-cols-2 gap-3">
             {FEATURES.map((f, i) => (
-              <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-4">
-                <div className="w-7 h-7 rounded-lg bg-violet-500/15 flex items-center justify-center text-violet-400 mb-2">{f.icon}</div>
-                <p className="text-white text-sm font-semibold">{f.label}</p>
-                <p className="text-gray-500 text-xs mt-0.5">{f.desc}</p>
+              <div key={i} className="bg-slate-900/80 border border-slate-800/90 rounded-xl p-3.5">
+                <div className="w-7 h-7 rounded-lg bg-indigo-500/15 flex items-center justify-center text-indigo-400 mb-2">{f.icon}</div>
+                <p className="text-white text-xs font-bold">{f.label}</p>
+                <p className="text-slate-400 text-[11px] mt-0.5">{f.desc}</p>
               </div>
             ))}
           </div>
 
           <button onClick={() => navigate('/chat')}
-            className="mt-7 group flex items-center gap-2 text-sm text-gray-500 hover:text-violet-400 transition-colors font-medium">
-            <span className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center group-hover:bg-violet-500/10 transition-colors">
-              <ArrowRight size={13} />
+            className="mt-8 group flex items-center gap-2 text-xs text-slate-400 hover:text-indigo-400 transition-colors font-medium">
+            <span className="w-6 h-6 rounded-md bg-slate-800/80 border border-slate-700 flex items-center justify-center group-hover:bg-indigo-600/20 transition-colors">
+              <ArrowRight size={12} />
             </span>
-            Continue as Guest — no login needed
+            Explore as Guest — no login required
           </button>
         </div>
 
@@ -196,26 +196,26 @@ const Login = () => {
         <div>
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-2 justify-center mb-8">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
-              <Sparkles size={18} className="text-white" />
+            <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+              <Sparkles size={16} className="text-white" />
             </div>
-            <span className="text-white font-bold text-lg">EduGuide AI</span>
+            <span className="text-white font-bold text-base">EduGuide AI</span>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
-            <h2 className="text-xl font-bold text-white mb-1">Welcome back</h2>
-            <p className="text-gray-400 text-sm mb-6">Sign in to continue your learning journey</p>
+          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl">
+            <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Welcome back</h2>
+            <p className="text-slate-400 text-xs mb-6">Sign in to your EduGuide student account</p>
 
             {/* Error message */}
             {error && (
-              <div className="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 mb-5 text-sm">
+              <div className="flex items-center gap-2.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 mb-5 text-xs font-medium">
                 <AlertCircle size={15} className="flex-shrink-0" /> {error}
               </div>
             )}
 
             {/* Attempts warning */}
             {!isLocked && attemptsLeft < MAX_ATTEMPTS && attemptsLeft > 0 && (
-              <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl px-4 py-3 mb-5 text-xs">
+              <div className="flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl px-4 py-3 mb-5 text-xs font-medium">
                 <Shield size={13} /> {attemptsLeft} attempt{attemptsLeft !== 1 ? 's' : ''} remaining before temporary lockout.
               </div>
             )}
@@ -223,7 +223,7 @@ const Login = () => {
             <form onSubmit={handleLogin} className="space-y-4" noValidate>
               {/* Email */}
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Email Address</label>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Email Address</label>
                 <input
                   type="email"
                   value={email}
@@ -232,13 +232,13 @@ const Login = () => {
                   placeholder="you@example.com"
                   autoComplete="email"
                   disabled={isLocked}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all disabled:opacity-50"
+                  className="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-3.5 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all disabled:opacity-50"
                 />
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Password</label>
+                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
                 <div className="relative">
                   <input
                     type={showPass ? 'text' : 'password'}
@@ -248,50 +248,50 @@ const Login = () => {
                     placeholder="••••••••"
                     autoComplete="current-password"
                     disabled={isLocked}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 pr-11 text-white placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-all disabled:opacity-50"
+                    className="w-full bg-slate-950/80 border border-slate-800 rounded-xl py-2.5 px-3.5 pr-10 text-white placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all disabled:opacity-50"
                   />
                   <button type="button" onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors">
-                    {showPass ? <EyeOff size={17} /> : <Eye size={17} />}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
+                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
               </div>
 
               {/* Remember me */}
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-xs">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <div onClick={() => setRememberMe(!rememberMe)}
-                    className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all cursor-pointer flex-shrink-0
-                      ${rememberMe ? 'bg-violet-600 border-violet-600' : 'bg-transparent border-white/20 hover:border-violet-500/50'}`}>
-                    {rememberMe && <div className="w-2 h-2 rounded-sm bg-white" />}
+                    className={`w-4 h-4 rounded border flex items-center justify-center transition-all cursor-pointer flex-shrink-0
+                      ${rememberMe ? 'bg-indigo-600 border-indigo-600' : 'bg-transparent border-slate-700 hover:border-indigo-500'}`}>
+                    {rememberMe && <div className="w-2 h-2 rounded-xs bg-white" />}
                   </div>
-                  <span className="text-gray-400 text-xs select-none">Remember me</span>
+                  <span className="text-slate-400 text-xs select-none">Remember me</span>
                 </label>
               </div>
 
               {/* Submit */}
               <button type="submit" disabled={loading || isLocked}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-violet-500/20 disabled:opacity-60 disabled:cursor-not-allowed mt-1">
+                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-xs shadow-indigo-500/20 disabled:opacity-60 disabled:cursor-not-allowed text-xs">
                 {isLocked
                   ? `Locked — wait ${lockRemaining}s`
                   : loading
-                  ? <><Loader2 size={18} className="animate-spin" /> Signing in...</>
-                  : <>Sign In <ArrowRight size={16} /></>
+                  ? <><Loader2 size={16} className="animate-spin" /> Signing in...</>
+                  : <>Sign In <ArrowRight size={15} /></>
                 }
               </button>
             </form>
 
             {/* Register link */}
-            <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between text-sm">
-              <span className="text-gray-500 text-xs">New to EduGuide AI?</span>
-              <Link to="/register" className="text-violet-400 hover:text-violet-300 font-semibold flex items-center gap-1 text-xs transition-colors">
+            <div className="mt-6 pt-5 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span className="text-slate-400">New to EduGuide AI?</span>
+              <Link to="/register" className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 transition-colors">
                 Create account <ArrowRight size={12} />
               </Link>
             </div>
           </div>
 
-          <p className="text-center text-[11px] text-gray-600 mt-4">
-            © 2025 EduGuide AI · Powered by Gemini AI
+          <p className="text-center text-[11px] text-slate-500 mt-4">
+            © 2026 EduGuide AI · Higher Education Platform
           </p>
         </div>
       </div>
