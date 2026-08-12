@@ -117,12 +117,23 @@ const Analytics = () => {
   );
 
   const {
-    totalSessions, totalMessages, avgDepth,
-    pendingTraining, trainedCount, trainingCompletion,
-    aiAccuracy, fallbackRate, trainedResponseRate,
-    intentBreakdown, weeklyTrend, peakHours,
-    topFields, topCourses, topPending, smartInsights
-  } = data;
+    totalSessions = 0,
+    totalMessages = 0,
+    avgDepth = 0,
+    pendingTraining = 0,
+    trainedCount = 0,
+    trainingCompletion = 100,
+    aiAccuracy = 100,
+    fallbackRate = 0,
+    trainedResponseRate = 100,
+    intentBreakdown = [],
+    weeklyTrend = [],
+    peakHours = [],
+    topFields = [],
+    topCourses = [],
+    topPending = [],
+    smartInsights = []
+  } = data || {};
 
   return (
     <div className="space-y-6">
