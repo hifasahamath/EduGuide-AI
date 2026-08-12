@@ -114,17 +114,17 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
   };
 
   const textMain = isDark ? 'text-slate-100' : 'text-slate-900';
-  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
-  const rowBg = isDark ? 'bg-slate-900/90 border-slate-800/90 hover:bg-slate-800/80' : 'bg-white border-slate-200/90 hover:bg-slate-50 shadow-xs';
+  const textMuted = isDark ? 'text-slate-300' : 'text-slate-700';
+  const rowBg = isDark ? 'bg-slate-900/90 border-slate-700 hover:bg-slate-800/90' : 'bg-white border-slate-300 hover:bg-slate-50 shadow-xs';
 
   return (
-    <div className={`rounded-xl border transition-all group cursor-pointer ${rowBg} ${chat.pinned ? (isDark ? 'border-indigo-500/30' : 'border-indigo-200') : ''}`}>
+    <div className={`rounded-xl border transition-all group cursor-pointer ${rowBg} ${chat.pinned ? (isDark ? 'border-indigo-500/50' : 'border-indigo-300') : ''}`}>
       <div className="flex items-center gap-3 p-4" onClick={() => !renamingMode && onOpen(chat)}>
         {/* Icon */}
         <div className={`flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center ${
           chat.pinned
-            ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30'
-            : isDark ? 'bg-slate-800 text-slate-400' : 'bg-indigo-50 text-indigo-600'
+            ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/40'
+            : isDark ? 'bg-slate-800 text-slate-300' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
         }`}>
           {chat.pinned ? <Pin size={15} /> : <MessageSquare size={15} />}
         </div>
@@ -135,8 +135,8 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
             <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
               <input ref={inputRef} value={renameVal} onChange={e => setRenameVal(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') submitRename(); if (e.key === 'Escape') setRenamingMode(false); }}
-                className={`flex-1 text-xs rounded-lg px-2 py-1 border focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
-                  isDark ? 'bg-slate-950 border-slate-800 text-slate-100' : 'bg-slate-50 border-slate-300'
+                className={`flex-1 text-xs font-semibold rounded-lg px-2 py-1 border focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
+                  isDark ? 'bg-slate-950 border-slate-700 text-slate-100' : 'bg-white border-slate-300 text-slate-900'
                 }`} />
               <button onClick={submitRename} className="text-emerald-500 hover:text-emerald-400 p-0.5"><Check size={13} /></button>
               <button onClick={() => setRenamingMode(false)} className={`${textMuted} p-0.5`}><X size={13} /></button>
@@ -144,10 +144,10 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
           ) : (
             <>
               <div className="flex items-center gap-2">
-                <p className={`font-semibold text-sm truncate ${textMain}`}>{chat.title || 'New Chat'}</p>
-                {chat.pinned && <span className="text-[9px] text-indigo-400 font-bold uppercase tracking-wider">Pinned</span>}
+                <p className={`font-bold text-sm truncate ${textMain}`}>{chat.title || 'New Chat'}</p>
+                {chat.pinned && <span className="text-[9px] text-indigo-400 font-extrabold uppercase tracking-wider">Pinned</span>}
               </div>
-              <p className={`text-xs truncate mt-0.5 ${textMuted}`}>
+              <p className={`text-xs font-medium truncate mt-0.5 ${textMuted}`}>
                 {chat.lastPreview || 'No messages yet'}
               </p>
             </>
@@ -156,7 +156,7 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
 
         {/* Meta + actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className={`text-[10px] font-medium ${textMuted} mr-1`}>{relTime(chat.updated_at)}</span>
+          <span className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'} mr-1`}>{relTime(chat.updated_at)}</span>
           {/* Actions — visible on hover */}
           <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button onClick={e => { e.stopPropagation(); onPin(chat); }}
@@ -175,7 +175,7 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
               <Trash2 size={12} />
             </button>
           </div>
-          <ChevronRight size={14} className={`${textMuted} opacity-40 group-hover:opacity-100 transition-opacity`} />
+          <ChevronRight size={14} className={`${textMuted} opacity-50 group-hover:opacity-100 transition-opacity`} />
         </div>
       </div>
     </div>
@@ -254,22 +254,24 @@ const ChatHistory = ({ isDark }) => {
 
   // Theme
   const textMain = isDark ? 'text-slate-100' : 'text-slate-900';
-  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
+  const textMuted = isDark ? 'text-slate-300' : 'text-slate-700';
   const inputBg = isDark
-    ? 'bg-slate-900/90 border-slate-800 text-slate-100 placeholder-slate-500'
-    : 'bg-white border-slate-200 text-slate-800 placeholder-slate-400 shadow-xs';
+    ? 'bg-slate-900 border-slate-700 text-slate-100 placeholder-slate-400'
+    : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500 shadow-xs';
 
   return (
     <div className="space-y-5 pb-10">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-xl font-bold tracking-tight ${textMain}`}>Chat History</h1>
-          <p className={`text-xs mt-0.5 ${textMuted}`}>{chats.length} conversation{chats.length !== 1 ? 's' : ''} · sorted by recent</p>
+          <h1 className={`text-xl font-extrabold tracking-tight ${textMain}`}>Chat History</h1>
+          <p className={`text-xs mt-0.5 font-medium ${textMuted}`}>{chats.length} conversation{chats.length !== 1 ? 's' : ''} · sorted by recent</p>
         </div>
         <div className="flex items-center gap-2">
-          {toast && <span className="text-xs text-emerald-500 bg-emerald-500/10 px-3 py-1 rounded-full">{toast}</span>}
-          <button onClick={fetchChats} className={`p-2 rounded-xl border border-slate-200 dark:border-slate-800 ${textMuted} ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`} title="Refresh">
+          {toast && <span className="text-xs text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 font-semibold">{toast}</span>}
+          <button onClick={fetchChats} className={`p-2 rounded-xl border ${
+            isDark ? 'border-slate-800 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-700 hover:bg-slate-100'
+          }`} title="Refresh">
             <RefreshCw size={14} />
           </button>
         </div>
@@ -280,7 +282,7 @@ const ChatHistory = ({ isDark }) => {
         <Search size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${textMuted}`} />
         <input type="text" placeholder="Search by title or message content..."
           value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-          className={`w-full rounded-xl border py-2.5 pl-9 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${inputBg}`} />
+          className={`w-full rounded-xl border py-2.5 pl-9 pr-4 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${inputBg}`} />
       </div>
 
       {loading ? (
@@ -290,10 +292,10 @@ const ChatHistory = ({ isDark }) => {
       ) : filtered.length === 0 ? (
         <div className={`text-center py-16 ${textMuted}`}>
           <MessageSquare size={36} className="mx-auto mb-3 opacity-30" />
-          <p className="font-semibold text-sm">No conversations found</p>
-          <p className="text-xs mt-1">Start chatting to build your session history</p>
+          <p className="font-bold text-sm">No conversations found</p>
+          <p className="text-xs mt-1 font-medium">Start chatting to build your session history</p>
           <button onClick={() => navigate('/chat')}
-            className="mt-4 px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition-colors shadow-xs">
+            className="mt-4 px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors shadow-xs">
             Start a New Chat
           </button>
         </div>
@@ -334,8 +336,9 @@ const ChatHistory = ({ isDark }) => {
           {/* Load more */}
           {hasMore && (
             <button onClick={() => setPage(p => p + 1)}
-              className={`w-full py-2.5 text-xs rounded-xl border font-semibold transition-colors
-                ${isDark ? 'border-slate-800 text-slate-300 hover:bg-slate-800/60' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}>
+              className={`w-full py-2.5 text-xs rounded-xl border font-bold transition-colors ${
+                isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-300 text-slate-800 hover:bg-slate-100'
+              }`}>
               Load more ({filtered.length - page * PAGE_SIZE} remaining)
             </button>
           )}
@@ -351,4 +354,5 @@ const ChatHistory = ({ isDark }) => {
 };
 
 export default ChatHistory;
+
 

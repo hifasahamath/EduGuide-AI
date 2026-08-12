@@ -348,17 +348,76 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
   };
 
   // Theme helpers
-  const bg = isDark ? 'bg-[#090d16]' : 'bg-[#f8fafc]';
-  const headerBg = isDark ? 'bg-[#090d16]/85 border-slate-800/80' : 'bg-[#f8fafc]/85 border-slate-200/90';
+  const bg = isDark ? 'bg-[#080c16]' : 'bg-slate-50';
+  const headerBg = isDark ? 'bg-[#080c16]/90 border-slate-800' : 'bg-white/90 border-slate-200 shadow-xs';
   const inputBg = isDark
-    ? 'bg-slate-900/95 border-slate-800 text-slate-100 shadow-xl'
-    : 'bg-white border-slate-200 text-slate-900 shadow-md shadow-slate-200/40';
+    ? 'bg-slate-900/95 border-slate-700 text-slate-100 shadow-xl'
+    : 'bg-white border-slate-300 text-slate-900 shadow-md shadow-slate-200/50';
   const textMain = isDark ? 'text-slate-100' : 'text-slate-900';
-  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
+  const textMuted = isDark ? 'text-slate-300' : 'text-slate-700';
+  const textSubtle = isDark ? 'text-slate-400' : 'text-slate-500';
   const starterCard = isDark
-    ? 'bg-slate-900/70 hover:bg-slate-800/90 border-slate-800 text-slate-200'
-    : 'bg-white hover:bg-slate-50/90 border-slate-200/80 text-slate-800 shadow-xs';
-  const suggestBg = isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-lg';
+    ? 'bg-slate-900/90 hover:bg-slate-800/90 border-slate-700/80 text-slate-100 shadow-xs'
+    : 'bg-white hover:bg-slate-50 border-slate-300 text-slate-900 shadow-sm';
+  const suggestBg = isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-300 shadow-lg';
+
+  // Render Input Box component to avoid duplication
+  const renderInputBox = (isCentered = false) => (
+    <div className={`w-full ${isCentered ? 'max-w-2xl mx-auto' : 'max-w-3xl mx-auto'}`}>
+      {/* Input suggestions dropdown */}
+      <AnimatePresence>
+        {inputSuggestions.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
+            className={`mb-2 rounded-xl border overflow-hidden ${suggestBg}`}>
+            {inputSuggestions.map((s, i) => (
+              <button key={i} onClick={() => { setInput(s); setInputSuggestions([]); textareaRef.current?.focus(); }}
+                className={`w-full text-left px-4 py-2.5 text-xs font-semibold ${textMain} ${
+                  isDark ? 'hover:bg-slate-800 border-slate-800' : 'hover:bg-slate-100 border-slate-200'
+                } transition-colors flex items-center gap-2 border-b last:border-0`}>
+                <ChevronRight size={12} className="text-indigo-500 flex-shrink-0" />{s}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Input box */}
+      <div className={`flex items-end gap-2 rounded-2xl border p-3 transition-all ${inputBg} focus-within:ring-2 focus-within:ring-indigo-500/40`}>
+        <textarea ref={textareaRef} rows={1} value={input}
+          onChange={e => handleInputChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={isListening ? '🎙 Listening...' : 'Ask EduGuide AI about courses, fees, or requirements...'}
+          className={`flex-1 bg-transparent resize-none focus:outline-none text-xs sm:text-sm font-medium leading-6 max-h-[180px] ${textMain} ${
+            isDark ? 'placeholder-slate-400' : 'placeholder-slate-500'
+          } ${isListening ? 'italic text-red-400' : ''}`}
+          style={{ minHeight: '24px' }}
+        />
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Voice button */}
+          <button onClick={toggleVoice}
+            className={`p-2 rounded-xl transition-all ${
+              isListening ? 'bg-red-500 text-white animate-pulse' : `${textMuted} hover:text-indigo-500 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`
+            }`}
+            title={isListening ? 'Stop listening' : 'Voice input'}>
+            {isListening ? <MicOff size={16} /> : <Mic size={16} />}
+          </button>
+          {/* Send button */}
+          <button onClick={() => sendMessage()} disabled={!input.trim() || isTyping}
+            className={`p-2 rounded-xl transition-all ${
+              input.trim() && !isTyping
+                ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-xs shadow-indigo-500/20'
+                : isDark ? 'bg-slate-800 text-slate-500' : 'bg-slate-200 text-slate-400'
+            }`}>
+            <Send size={15} />
+          </button>
+        </div>
+      </div>
+
+      <p className={`text-center text-[11px] font-medium mt-2.5 ${textMuted}`}>
+        EduGuide AI provides academic guidance. Please verify fee structures and entry requirements with your target institution.
+      </p>
+    </div>
+  );
 
   return (
     <div className={`flex-1 flex flex-col h-full ${bg} transition-colors duration-300 relative`}>
@@ -366,9 +425,9 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
       {/* Top Bar */}
       <div className={`sticky top-0 z-10 ${headerBg} backdrop-blur-md border-b px-4 py-3 flex items-center gap-3`}>
         {!sidebarOpen && (
-          <button onClick={toggleSidebar} className={`p-2 rounded-xl border border-slate-200 dark:border-slate-800 ${
-            isDark ? 'hover:bg-slate-800 text-slate-400' : 'hover:bg-slate-100 text-slate-600'
-          } transition-colors`}>
+          <button onClick={toggleSidebar} className={`p-2 rounded-xl border ${
+            isDark ? 'border-slate-800 hover:bg-slate-800 text-slate-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700'
+          } transition-colors`} title="Toggle sidebar">
             <PanelLeft size={16} />
           </button>
         )}
@@ -381,13 +440,13 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
         <div className="ml-auto flex items-center gap-2.5">
           {user?.preferences?.field && (
             <span className={`text-[11px] px-2.5 py-0.5 rounded-full ${
-              isDark ? 'bg-slate-800 text-slate-300 border border-slate-700' : 'bg-slate-100 text-slate-600 border border-slate-200'
-            } font-medium hidden sm:inline-block`}>
+              isDark ? 'bg-slate-800 text-slate-200 border border-slate-700' : 'bg-slate-200 text-slate-800 border border-slate-300'
+            } font-semibold hidden sm:inline-block`}>
               Field: {user.preferences.field}
             </span>
           )}
-          <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${
-            isDark ? 'bg-indigo-950/60 text-indigo-300 border border-indigo-800/50' : 'bg-indigo-50 text-indigo-700 border border-indigo-200/60'
+          <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+            isDark ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-700/60' : 'bg-indigo-100 text-indigo-800 border border-indigo-300'
           }`}>
             Education Advisor
           </span>
@@ -402,33 +461,43 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
       {/* Chat Area */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {isNew ? (
-          /* Welcome screen */
-          <div className="h-full flex flex-col items-center justify-center p-6 text-center max-w-2xl mx-auto">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center mb-5 text-indigo-500">
+          /* Welcome screen - ChatGPT & Gemini style centered layout */
+          <div className="min-h-full flex flex-col items-center justify-center p-6 text-center max-w-2xl mx-auto py-12">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-md shadow-indigo-600/20 text-white">
               <Sparkles size={24} />
             </div>
             <h1 className={`text-2xl sm:text-3xl font-extrabold mb-2 tracking-tight ${textMain}`}>
               Welcome, {user?.name?.split(' ')[0] || 'Student'}
             </h1>
-            <p className={`text-sm mb-8 ${textMuted} max-w-md`}>
+            <p className={`text-xs sm:text-sm mb-6 font-medium ${textMuted} max-w-md`}>
               Explore higher education courses, compare tuition fees, and receive personalised career guidance.
             </p>
+
             {user?.preferences?.field && (
-              <p className={`text-xs mb-6 px-3 py-1.5 rounded-full ${isDark ? 'bg-indigo-950/50 text-indigo-300 border border-indigo-800/40' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'}`}>
+              <p className={`text-xs mb-6 px-3 py-1.5 rounded-full font-semibold ${
+                isDark ? 'bg-indigo-950/60 text-indigo-300 border border-indigo-800/60' : 'bg-indigo-100 text-indigo-800 border border-indigo-300'
+              }`}>
                 Personalised target: <strong>{user.preferences.field}</strong>
                 {user.preferences.budget ? ` · Budget: ${user.preferences.budget}` : ''}
               </p>
             )}
+
+            {/* Centered Text Input Box (ChatGPT / Gemini style) */}
+            <div className="w-full mb-8">
+              {renderInputBox(true)}
+            </div>
+
+            {/* Prompt Starter Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
               {STARTERS.map((s, i) => (
                 <button key={i} onClick={() => sendMessage(s.prompt)}
-                  className={`flex items-start gap-3 p-4 rounded-xl border text-left transition-all group ${starterCard}`}>
-                  <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                  className={`flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all group ${starterCard}`}>
+                  <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-500 dark:text-indigo-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                     {s.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-semibold mb-0.5 ${textMain}`}>{s.label}</p>
-                    <p className={`text-[11px] truncate ${textMuted}`}>{s.prompt}</p>
+                    <p className={`text-xs font-bold mb-0.5 ${textMain}`}>{s.label}</p>
+                    <p className={`text-[11px] font-medium truncate ${textMuted}`}>{s.prompt}</p>
                   </div>
                 </button>
               ))}
@@ -450,7 +519,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
                   <Sparkles size={13} className="text-white" />
                 </div>
                 <div className={`px-4 py-3 rounded-2xl rounded-tl-xs ${
-                  isDark ? 'bg-slate-900/90 border border-slate-800/80' : 'bg-white border border-slate-200 shadow-xs'
+                  isDark ? 'bg-slate-900 border border-slate-700' : 'bg-white border border-slate-300 shadow-xs'
                 }`}>
                   <div className="flex gap-1.5 items-center h-4">
                     {[0, 0.18, 0.36].map((delay, i) => (
@@ -467,65 +536,16 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
         )}
       </div>
 
-      {/* Input Area */}
-      <div className={`absolute bottom-0 left-0 right-0 ${
-        isDark
-          ? 'bg-gradient-to-t from-[#090d16] via-[#090d16]/95 to-transparent'
-          : 'bg-gradient-to-t from-[#f8fafc] via-[#f8fafc]/95 to-transparent'
-      } pt-8 pb-5 px-4`}>
-        <div className="max-w-3xl mx-auto">
-          {/* Input suggestions dropdown */}
-          <AnimatePresence>
-            {inputSuggestions.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }}
-                className={`mb-2 rounded-xl border overflow-hidden ${suggestBg}`}>
-                {inputSuggestions.map((s, i) => (
-                  <button key={i} onClick={() => { setInput(s); setInputSuggestions([]); textareaRef.current?.focus(); }}
-                    className={`w-full text-left px-4 py-2.5 text-xs ${textMain} ${
-                      isDark ? 'hover:bg-slate-800/60 border-slate-800' : 'hover:bg-slate-50 border-slate-100'
-                    } transition-colors flex items-center gap-2 border-b last:border-0`}>
-                    <ChevronRight size={12} className="text-indigo-500 flex-shrink-0" />{s}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Input box */}
-          <div className={`flex items-end gap-2 rounded-2xl border p-3 transition-all ${inputBg} focus-within:ring-2 focus-within:ring-indigo-500/30`}>
-            <textarea ref={textareaRef} rows={1} value={input}
-              onChange={e => handleInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={isListening ? '🎙 Listening...' : 'Ask EduGuide AI about courses, fees, or requirements...'}
-              className={`flex-1 bg-transparent resize-none focus:outline-none text-sm leading-6 max-h-[180px] ${textMain} ${isListening ? 'italic text-red-400' : ''}`}
-              style={{ minHeight: '24px' }}
-            />
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              {/* Voice button */}
-              <button onClick={toggleVoice}
-                className={`p-2 rounded-xl transition-all ${
-                  isListening ? 'bg-red-500 text-white animate-pulse' : `${textMuted} hover:text-indigo-500 hover:bg-slate-800/40`
-                }`}
-                title={isListening ? 'Stop listening' : 'Voice input'}>
-                {isListening ? <MicOff size={16} /> : <Mic size={16} />}
-              </button>
-              {/* Send button */}
-              <button onClick={() => sendMessage()} disabled={!input.trim() || isTyping}
-                className={`p-2 rounded-xl transition-all ${
-                  input.trim() && !isTyping
-                    ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-xs shadow-indigo-500/20'
-                    : isDark ? 'bg-slate-800 text-slate-600' : 'bg-slate-100 text-slate-400'
-                }`}>
-                <Send size={15} />
-              </button>
-            </div>
-          </div>
-
-          <p className={`text-center text-[10px] mt-2 ${textMuted}`}>
-            EduGuide AI provides academic guidance. Please verify fee structures and entry requirements with your target institution.
-          </p>
+      {/* Floating Bottom Input Area (Only when messages exist) */}
+      {!isNew && (
+        <div className={`absolute bottom-0 left-0 right-0 ${
+          isDark
+            ? 'bg-gradient-to-t from-[#080c16] via-[#080c16]/95 to-transparent'
+            : 'bg-gradient-to-t from-slate-50 via-slate-50/95 to-transparent'
+        } pt-8 pb-5 px-4 z-10`}>
+          {renderInputBox(false)}
         </div>
-      </div>
+      )}
     </div>
   );
 };

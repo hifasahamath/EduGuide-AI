@@ -96,24 +96,25 @@ const UserProfile = ({ isDark }) => {
     reader.readAsDataURL(file);
   };
 
-  const bg = isDark ? 'bg-[#090d16]' : 'bg-[#f8fafc]';
-  const cardBg = isDark ? 'bg-slate-900/90 border-slate-800/90' : 'bg-white border-slate-200/90 shadow-xs';
-  const inputBg = isDark ? 'bg-slate-950/80 border-slate-800 text-slate-100 placeholder-slate-500' : 'bg-slate-50/80 border-slate-200 text-slate-800 placeholder-slate-400';
-  const labelColor = isDark ? 'text-slate-400' : 'text-slate-500';
+  const bg = isDark ? 'bg-[#080c16]' : 'bg-slate-50';
+  const cardBg = isDark ? 'bg-slate-900/90 border-slate-700' : 'bg-white border-slate-300 shadow-sm';
+  const inputBg = isDark ? 'bg-slate-950/90 border-slate-700 text-slate-100 placeholder-slate-400 font-medium' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500 font-medium';
+  const labelColor = isDark ? 'text-slate-300' : 'text-slate-700';
   const textMain = isDark ? 'text-slate-100' : 'text-slate-900';
+  const textMuted = isDark ? 'text-slate-300' : 'text-slate-700';
 
   const Field = ({ icon, label, type = 'text', value, onChange, placeholder, readonly }) => (
     <div>
       <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${labelColor}`}>{label}</label>
       <div className="relative">
-        <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>{icon}</div>
+        <div className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{icon}</div>
         <input
           type={type}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
           readOnly={readonly}
-          className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${inputBg} ${readonly ? 'opacity-60 cursor-not-allowed' : ''}`}
+          className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${inputBg} ${readonly ? 'opacity-70 cursor-not-allowed' : ''}`}
         />
       </div>
     </div>
@@ -123,16 +124,16 @@ const UserProfile = ({ isDark }) => {
     <div>
       <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${labelColor}`}>{label}</label>
       <div className="relative">
-        <Lock size={15} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+        <Lock size={15} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
         <input
           type={showPass[key_] ? 'text' : 'password'}
           value={passwords[key_]}
           onChange={e => setPasswords(p => ({ ...p, [key_]: e.target.value }))}
           placeholder={placeholder}
-          className={`w-full rounded-xl border py-2.5 pl-10 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${inputBg}`}
+          className={`w-full rounded-xl border py-2.5 pl-10 pr-10 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${inputBg}`}
         />
         <button type="button" onClick={() => setShowPass(s => ({ ...s, [key_]: !s[key_] }))}
-          className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500 hover:text-slate-300' : 'text-slate-400 hover:text-slate-600'} transition-colors`}>
+          className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-400 hover:text-slate-200' : 'text-slate-500 hover:text-slate-800'} transition-colors`}>
           {showPass[key_] ? <EyeOff size={15} /> : <Eye size={15} />}
         </button>
       </div>
@@ -145,7 +146,7 @@ const UserProfile = ({ isDark }) => {
       {toast && (
         <motion.div
           initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-          className={`fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-medium ${
+          className={`fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-semibold ${
             toast.type === 'error' ? 'bg-red-500 text-white' : 'bg-emerald-600 text-white'
           }`}
         >
@@ -156,8 +157,8 @@ const UserProfile = ({ isDark }) => {
 
       {/* Page Header */}
       <div>
-        <h1 className={`text-2xl font-bold tracking-tight ${textMain}`}>Account Profile</h1>
-        <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Manage your personal information, institution context, and security credentials</p>
+        <h1 className={`text-2xl font-extrabold tracking-tight ${textMain}`}>Account Profile</h1>
+        <p className={`text-xs sm:text-sm mt-1 font-medium ${textMuted}`}>Manage your personal information, institution context, and security credentials</p>
       </div>
 
       {/* Avatar Card */}
@@ -179,40 +180,39 @@ const UserProfile = ({ isDark }) => {
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePicChange} />
         </div>
         <div>
-          <p className={`text-lg font-bold ${textMain}`}>{form.name || 'Student Account'}</p>
-          <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{form.email}</p>
-          <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200/50 dark:border-indigo-800/40 text-xs font-semibold">
+          <p className={`text-lg font-extrabold ${textMain}`}>{form.name || 'Student Account'}</p>
+          <p className={`text-xs mt-0.5 font-medium ${textMuted}`}>{form.email}</p>
+          <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800/60 text-xs font-bold">
             Student Profile
           </span>
         </div>
         <div className="ml-auto hidden md:block">
-          <p className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Click photo to change avatar</p>
+          <p className={`text-xs font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Click photo to change avatar</p>
         </div>
       </div>
 
       {/* Info Card */}
       <div className={`rounded-2xl border p-6 ${cardBg}`}>
-        <h2 className={`font-bold mb-5 text-sm uppercase tracking-wider ${textMain}`}>Personal Information</h2>
+        <h2 className={`font-bold mb-5 text-xs uppercase tracking-wider ${textMain}`}>Personal Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field icon={<User size={15} />} label="Full Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your full name" />
           <Field icon={<Mail size={15} />} label="Email Address" value={form.email} readonly placeholder="Email" />
           <Field icon={<School size={15} />} label="School / Institution" value={form.schoolName} onChange={e => setForm(f => ({ ...f, schoolName: e.target.value }))} placeholder="e.g. ESOFT Metro Campus" />
           <Field icon={<Calendar size={15} />} label="Age" type="number" value={form.age} onChange={e => setForm(f => ({ ...f, age: e.target.value }))} placeholder="Your age" />
-          <div className="md:col-span-2">
-            <Field icon={<MapPin size={15} />} label="Address" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Your city / address" />
-          </div>
+
+          {/* Language dropdown */}
           <div>
-            <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${labelColor}`}>Language</label>
+            <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${labelColor}`}>Preferred Language</label>
             <div className="relative">
-              <Globe size={15} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+              <Globe size={15} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-400' : 'text-slate-500'}`} />
               <select
                 value={form.language}
                 onChange={e => setForm(f => ({ ...f, language: e.target.value }))}
-                className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all appearance-none ${inputBg}`}
+                className={`w-full rounded-xl border py-2.5 pl-10 pr-4 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${inputBg}`}
               >
-                {['English', 'Sinhala', 'Tamil', 'French', 'German', 'Japanese'].map(l => (
-                  <option key={l} value={l}>{l}</option>
-                ))}
+                <option value="English">English</option>
+                <option value="Sinhala">Sinhala</option>
+                <option value="Tamil">Tamil</option>
               </select>
             </div>
           </div>
@@ -222,30 +222,31 @@ const UserProfile = ({ isDark }) => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold text-sm transition-all shadow-xs disabled:opacity-60"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-xs shadow-indigo-500/20 disabled:opacity-60"
           >
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
-            {saving ? 'Saving...' : 'Save Changes'}
+            <span>Save Profile</span>
           </button>
         </div>
       </div>
 
-      {/* Password Card */}
+      {/* Security Card */}
       <div className={`rounded-2xl border p-6 ${cardBg}`}>
-        <h2 className={`font-bold mb-5 text-sm uppercase tracking-wider ${textMain}`}>Security & Password</h2>
-        <div className="space-y-4 max-w-md">
-          <PassField label="Current Password" key_="current" placeholder="Enter current password" />
-          <PassField label="New Password" key_="newPass" placeholder="Enter new password" />
-          <PassField label="Confirm New Password" key_="confirm" placeholder="Confirm new password" />
+        <h2 className={`font-bold mb-5 text-xs uppercase tracking-wider ${textMain}`}>Security Credentials</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <PassField label="Current Password" key_="current" placeholder="••••••••" />
+          <PassField label="New Password" key_="newPass" placeholder="Min 6 characters" />
+          <PassField label="Confirm Password" key_="confirm" placeholder="Repeat new password" />
         </div>
+
         <div className="mt-6 flex justify-end">
           <button
             onClick={handlePasswordChange}
             disabled={savingPass}
-            className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold text-sm transition-all shadow-xs disabled:opacity-60"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all shadow-xs disabled:opacity-60"
           >
             {savingPass ? <Loader2 size={15} className="animate-spin" /> : <Lock size={15} />}
-            {savingPass ? 'Updating...' : 'Update Password'}
+            <span>Update Password</span>
           </button>
         </div>
       </div>
@@ -254,5 +255,3 @@ const UserProfile = ({ isDark }) => {
 };
 
 export default UserProfile;
-
-

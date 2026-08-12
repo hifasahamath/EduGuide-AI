@@ -118,12 +118,14 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
   };
 
   // Theme helpers
-  const bg = isDark ? 'bg-[#090d16]' : 'bg-[#f8fafc]';
-  const sidebarBg = isDark ? 'bg-[#0b101d]' : 'bg-[#f1f5f9]';
+  const bg = isDark ? 'bg-[#080c16]' : 'bg-slate-50';
+  const sidebarBg = isDark ? 'bg-[#070b14]' : 'bg-slate-200/90';
   const textMain = isDark ? 'text-slate-100' : 'text-slate-900';
-  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
-  const borderC = isDark ? 'border-slate-800/80' : 'border-slate-200/90';
-  const inputCls = `w-full rounded-xl border px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${isDark ? 'bg-slate-950/80 border-slate-800 text-slate-100 placeholder-slate-500' : 'bg-slate-50 border-slate-200 text-slate-900'}`;
+  const textMuted = isDark ? 'text-slate-300' : 'text-slate-700';
+  const borderC = isDark ? 'border-slate-800' : 'border-slate-300';
+  const inputCls = `w-full rounded-xl border px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/40 transition-all ${
+    isDark ? 'bg-slate-950 border-slate-700 text-slate-100 placeholder-slate-400' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500'
+  }`;
 
   const TABS = [
     { id: 'account',       label: 'My Account',     icon: <User size={15}/> },
@@ -142,7 +144,7 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
       {/* Sidebar */}
       <div className={`w-52 flex-shrink-0 border-r ${borderC} ${sidebarBg} flex flex-col`}>
         <div className="p-4 border-b border-inherit flex items-center justify-between">
-          <p className={`text-[11px] font-bold uppercase tracking-wider ${textMuted}`}>Settings</p>
+          <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Settings</p>
           {!sidebarOpen && (
             <button onClick={toggleSidebar} className={`p-1 rounded-lg ${textMuted} hover:text-indigo-400`} title="Toggle sidebar">
               <PanelLeft size={15} />
@@ -152,17 +154,17 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
         <nav className="flex-1 p-2 space-y-0.5">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left
                 ${tab === t.id
-                  ? isDark ? 'bg-indigo-500/15 text-indigo-300 border-l-2 border-indigo-500' : 'bg-indigo-50 text-indigo-700 border-l-2 border-indigo-600'
-                  : isDark ? 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200' : 'text-slate-600 hover:bg-slate-200/60'}`}>
+                  ? isDark ? 'bg-indigo-500/25 text-white border-l-2 border-indigo-400' : 'bg-indigo-100 text-indigo-950 border-l-2 border-indigo-600'
+                  : isDark ? 'text-slate-300 hover:bg-slate-800 hover:text-white' : 'text-slate-800 hover:bg-slate-300/80 hover:text-slate-950'}`}>
               {t.icon}{t.label}
             </button>
           ))}
         </nav>
         <div className={`p-3 border-t ${borderC}`}>
-          <button onClick={toggleTheme} className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-colors
-            ${isDark ? 'text-slate-400 hover:bg-slate-800/60' : 'text-slate-600 hover:bg-slate-200/60'}`}>
+          <button onClick={toggleTheme} className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-colors
+            ${isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-800 hover:bg-slate-300/80'}`}>
             {isDark ? <><Sun size={14} className="text-amber-400"/> Light Mode</> : <><Moon size={14} className="text-indigo-600"/> Dark Mode</>}
           </button>
         </div>
