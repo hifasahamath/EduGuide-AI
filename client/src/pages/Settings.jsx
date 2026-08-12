@@ -5,7 +5,8 @@ import api from '../services/api';
 import {
   User, Brain, MessageSquare, Bell, Shield, Lock, CreditCard,
   Sun, Moon, Save, Trash2, Download, Eye, EyeOff, CheckCircle,
-  AlertTriangle, ChevronRight, Sparkles, Star, Crown, Zap, PanelLeft
+  AlertTriangle, ChevronRight, Sparkles, Star, Crown, Zap, PanelLeft,
+  RefreshCw, AlertCircle
 } from 'lucide-react';
 
 // ── Toggle Switch ──────────────────────────────────────────────────────────────
@@ -429,7 +430,7 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
 
               <Section title="Recent Security Audit Log" isDark={isDark}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`text-xs font-bold ${textMuted}`}>{activityLog.length} Recorded Activity Logs</span>
+                  <span className={`text-xs font-bold ${textMuted}`}>{(Array.isArray(activityLog) ? activityLog.length : 0)} Recorded Activity Logs</span>
                   <button onClick={fetchActivityLog} className={`text-xs font-bold flex items-center gap-1 ${textMuted} hover:text-indigo-400`}>
                     <RefreshCw size={12} className={loadingActivity ? 'animate-spin' : ''} /> Refresh
                   </button>
@@ -437,7 +438,7 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
 
                 {loadingActivity ? (
                   <div className="py-6 text-center text-xs text-indigo-400">Loading audit history...</div>
-                ) : activityLog.length === 0 ? (
+                ) : (!Array.isArray(activityLog) || activityLog.length === 0) ? (
                   <div className={`text-xs ${textMuted} text-center py-6 font-medium`}>
                     No recent login or security activity recorded.
                   </div>
