@@ -46,7 +46,6 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
   const handleSelectChat = (chatId) => {
     setCurrentChatId(chatId);
     navigate('/chat');
-    closeSidebar?.();
   };
 
   const handleDelete = async (e, chatId) => {
@@ -197,19 +196,25 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
                       <span className={`text-[10px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{formatDate(chat.updated_at)}</span>
                     </div>
                     {/* Action buttons — show on hover */}
-                    <div className="hidden group-hover:flex items-center gap-0.5 flex-shrink-0">
+                    <div className="hidden group-hover:flex items-center gap-1 flex-shrink-0">
                       <button onClick={(e) => handlePin(e, chat)}
-                        className={`p-1 rounded hover:bg-slate-700/50 ${textMuted} hover:text-indigo-400`}
+                        className={`p-1.5 rounded-md transition-all ${
+                          isDark ? 'text-slate-300 hover:bg-slate-700 hover:text-indigo-400' : 'text-slate-700 hover:bg-slate-300 hover:text-indigo-600'
+                        }`}
                         title={chat.pinned ? 'Unpin' : 'Pin'}>
-                        {chat.pinned ? <PinOff size={11} /> : <Pin size={11} />}
+                        {chat.pinned ? <PinOff size={15} /> : <Pin size={15} />}
                       </button>
                       <button onClick={(e) => startRename(e, chat)}
-                        className={`p-1 rounded hover:bg-slate-700/50 ${textMuted} hover:text-indigo-400`} title="Rename">
-                        <Edit3 size={11} />
+                        className={`p-1.5 rounded-md transition-all ${
+                          isDark ? 'text-slate-300 hover:bg-slate-700 hover:text-indigo-400' : 'text-slate-700 hover:bg-slate-300 hover:text-indigo-600'
+                        }`} title="Rename">
+                        <Edit3 size={15} />
                       </button>
                       <button onClick={(e) => handleDelete(e, chat.id)}
-                        className="p-1 rounded hover:bg-slate-700/50 text-slate-400 hover:text-red-400" title="Delete">
-                        <Trash2 size={11} />
+                        className={`p-1.5 rounded-md transition-all ${
+                          isDark ? 'text-slate-400 hover:bg-slate-700 hover:text-rose-400' : 'text-slate-600 hover:bg-slate-300 hover:text-rose-600'
+                        }`} title="Delete">
+                        <Trash2 size={15} />
                       </button>
                     </div>
                   </button>

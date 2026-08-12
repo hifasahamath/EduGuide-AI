@@ -95,9 +95,8 @@ const CourseCard = ({ course, isDark, onQuickAction }) => {
 const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
   const [copied, setCopied] = useState(false);
   const isBot = msg.sender === 'bot';
-  const textMuted = isDark ? 'text-slate-400' : 'text-slate-500';
-  const userBubble = isDark ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-white shadow-xs';
-  const botBubble = isDark ? 'bg-slate-900/90 text-slate-100 border border-slate-800/80' : 'bg-white text-slate-900 border border-slate-200/90 shadow-xs';
+  const userBubble = 'bg-indigo-600 text-white font-medium';
+  const botBubble = isDark ? 'bg-slate-900/90 text-slate-100 border border-slate-700 font-normal' : 'bg-white text-slate-900 border border-slate-300 shadow-xs font-normal';
 
   const copy = () => {
     navigator.clipboard.writeText(msg.text);
@@ -115,8 +114,8 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}
       className={`flex gap-3 ${isBot ? 'justify-start' : 'justify-end'} group`}>
       {isBot && (
-        <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shadow-xs mt-0.5">
-          <Sparkles size={13} className="text-white" />
+        <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-xs mt-0.5 border border-indigo-400/20">
+          <Sparkles size={14} className="text-white" />
         </div>
       )}
       <div className={`max-w-[80%] ${isBot ? '' : 'flex flex-col items-end'}`}>
@@ -129,11 +128,11 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
 
         {/* Text bubble */}
         {msg.text && (
-          <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+          <div className={`px-4.5 py-3.5 rounded-2xl text-sm leading-relaxed ${
             isBot ? `${botBubble} rounded-tl-xs` : `${userBubble} rounded-tr-xs`
-          } ${msg.isError ? 'border-red-500/40 text-red-400' : ''}`}>
+          } ${msg.isError ? 'border-red-500/50 text-red-400' : ''}`}>
             {isBot ? (
-              <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-0.5 prose-headings:my-1 prose-chat">
+              <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-1.5 prose-chat font-sans">
                 <ReactMarkdown>{msg.text}</ReactMarkdown>
               </div>
             ) : msg.text}
@@ -141,16 +140,16 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
         )}
 
         {/* Timestamp + bot actions */}
-        <div className={`flex items-center gap-2 mt-1.5 ${isBot ? 'justify-start' : 'justify-end'}`}>
-          <p className={`text-[10px] font-medium ${textMuted}`}>{formatTime(msg.timestamp)}</p>
+        <div className={`flex items-center gap-2.5 mt-1.5 ${isBot ? 'justify-start' : 'justify-end'}`}>
+          <p className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{formatTime(msg.timestamp)}</p>
           {isBot && !msg.isError && (
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={copy} className={`p-1 rounded-md ${textMuted} hover:text-indigo-500 transition-colors`} title="Copy response">
-                <Copy size={11} />
+              <button onClick={copy} className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-indigo-400' : 'text-slate-500 hover:bg-slate-200 hover:text-indigo-600'} transition-all`} title="Copy response">
+                <Copy size={13} />
               </button>
-              {copied && <span className="text-[10px] text-emerald-500 font-medium">Copied!</span>}
-              <button className={`p-1 rounded-md ${textMuted} hover:text-emerald-500 transition-colors`} title="Helpful"><ThumbsUp size={11} /></button>
-              <button className={`p-1 rounded-md ${textMuted} hover:text-red-400 transition-colors`} title="Not helpful"><ThumbsDown size={11} /></button>
+              {copied && <span className="text-[10px] text-emerald-500 font-bold">Copied!</span>}
+              <button className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-emerald-400' : 'text-slate-500 hover:bg-slate-200 hover:text-emerald-600'} transition-all`} title="Helpful"><ThumbsUp size={13} /></button>
+              <button className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-rose-400' : 'text-slate-500 hover:bg-slate-200 hover:text-rose-600'} transition-all`} title="Not helpful"><ThumbsDown size={13} /></button>
             </div>
           )}
         </div>
