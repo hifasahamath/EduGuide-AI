@@ -28,10 +28,15 @@ const fmtDate = (ts) => {
 };
 
 const ROLE_CFG = {
-  admin:   { cls: 'bg-red-100 text-red-700',    icon: <Shield size={10} />,      label: 'ADMIN' },
-  student: { cls: 'bg-violet-100 text-violet-700', icon: <GraduationCap size={10} />, label: 'STUDENT' },
-  client:  { cls: 'bg-violet-100 text-violet-700', icon: <GraduationCap size={10} />, label: 'STUDENT' },
+  admin:   { cls: 'bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300 border border-rose-200 dark:border-rose-800', icon: <Shield size={10} />, label: 'ADMIN' },
+  student: { cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800', icon: <GraduationCap size={10} />, label: 'STUDENT' },
+  client:  { cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800', icon: <GraduationCap size={10} />, label: 'STUDENT' },
+  user:    { cls: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800', icon: <GraduationCap size={10} />, label: 'STUDENT' },
 };
+
+const isStudent = (u) => !u.role || u.role === 'student' || u.role === 'client' || u.role === 'user' || u.role !== 'admin';
+const isAdmin = (u) => u.role === 'admin';
+const isUserActive = (u) => u.blocked ? false : (u.isActive ?? true);
 
 const RoleBadge = ({ role }) => {
   const cfg = ROLE_CFG[role] || { cls: 'bg-gray-100 text-gray-600', icon: null, label: (role || 'USER').toUpperCase() };
@@ -265,8 +270,14 @@ const UserCard = ({ user, onClick }) => (
     <div className="px-5 pb-4 space-y-2.5">
       <div className="flex items-center justify-between">
         <RoleBadge role={user.role} />
-        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${user.isActive ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-300' : 'bg-gray-100 dark:bg-white/10 text-gray-400'}`}>
-          {user.isActive ? 'Active' : 'Inactive'}
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+          user.blocked 
+            ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-300 border border-rose-200' 
+            : isUserActive(user)
+            ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200'
+            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+        }`}>
+          {user.blocked ? 'Blocked' : isUserActive(user) ? 'Active' : 'Inactive'}
         </span>
       </div>
       <div className="flex items-center gap-3 text-[11px] text-gray-500 dark:text-gray-400">
@@ -304,8 +315,13 @@ const Users = () => {
     const q = search.toLowerCase();
     const matchSearch = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
       || u.mostSearchedTopic?.toLowerCase().includes(q) || u.phone?.includes(q);
-    const matchRole = roleFilter === 'all' || u.role === roleFilter || (roleFilter === 'student' && u.role === 'client');
-    const matchAct = actFilter === 'all' || (actFilter === 'active' && u.isActive) || (actFilter === 'inactive' && !u.isActive);
+    const matchRole = roleFilter === 'all' 
+      || (roleFilter === 'student' && isStudent(u)) 
+      || (roleFilter === 'admin' && isAdmin(u));
+    const activeStatus = isUserActive(u);
+    const matchAct = actFilter === 'all' 
+      || (actFilter === 'active' && activeStatus) 
+      || (actFilter === 'inactive' && !activeStatus);
     return matchSearch && matchRole && matchAct;
   });
 
@@ -337,8 +353,8 @@ const Users = () => {
 
   const stats = {
     total: users.length,
-    active: users.filter(u => u.isActive).length,
-    students: users.filter(u => u.role === 'student' || u.role === 'client').length,
+    active: users.filter(u => isUserActive(u)).length,
+    students: users.filter(u => isStudent(u)).length,
     blocked: users.filter(u => u.blocked).length,
   };
 
