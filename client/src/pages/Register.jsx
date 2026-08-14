@@ -40,7 +40,7 @@ const AuthInput = ({ label, icon, error, ...props }) => (
 );
 
 const Register = () => {
-  const { profile, register, continueAsGuest } = useAuth();
+  const { profile, isGuest, register, continueAsGuest } = useAuth();
   const navigate = useNavigate();
 
   const handleGuestClick = () => {
@@ -59,13 +59,13 @@ const Register = () => {
   const [apiError, setApiError] = useState('');
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile || isGuest || profile.isGuest) return;
     if (profile.role === 'admin') {
       navigate('/admin', { replace: true });
     } else {
       navigate('/chat', { replace: true });
     }
-  }, [profile, navigate]);
+  }, [profile, isGuest, navigate]);
 
   const set = (field) => (e) => setForm(f => ({ ...f, [field]: e.target.value }));
 

@@ -75,14 +75,14 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
-    if (!user || !profileLoaded) return;
+    if (!user || !profileLoaded || isGuest || user.isGuest) return;
     const role = profile?.role || 'user';
     if (role === 'admin') {
       navigate('/admin', { replace: true });
     } else {
       navigate('/chat', { replace: true });
     }
-  }, [user, profile, profileLoaded, navigate]);
+  }, [user, profile, profileLoaded, isGuest, navigate]);
 
   useEffect(() => {
     const saved = localStorage.getItem('_eg_remember_email');
