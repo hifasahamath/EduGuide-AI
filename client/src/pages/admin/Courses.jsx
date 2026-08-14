@@ -243,18 +243,18 @@ const CourseModal = ({ editingId, formData, setFormData, onSave, onClose }) => {
             {/* 1. Basic Details */}
             <div>
               <SectionHeader icon={<BookOpen size={16} />} title="Basic Details" />
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2"><Field label="Course Name *"><input required placeholder="e.g. BSc Software Engineering" value={formData.name} onChange={e => set('name', e.target.value)} className={inputCls} /></Field></div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2"><Field label="Course Name *"><input required placeholder="e.g. BSc Software Engineering" value={formData.name} onChange={e => set('name', e.target.value)} className={inputCls} /></Field></div>
                 <Field label="Field *"><input required placeholder="e.g. IT, Business, Engineering" value={formData.field} onChange={e => set('field', e.target.value)} className={inputCls} /></Field>
                 <Field label="Course Type"><select value={formData.courseType} onChange={e => set('courseType', e.target.value)} className={selectCls}>{['Degree','Diploma','Certificate','HND','Masters','PhD'].map(o => <option key={o}>{o}</option>)}</select></Field>
-                <div className="col-span-2"><Field label="University / Institute *"><input required placeholder="e.g. ESOFT Metro Campus, Colombo" value={formData.university} onChange={e => set('university', e.target.value)} className={inputCls} /></Field></div>
+                <div className="sm:col-span-2"><Field label="University / Institute *"><input required placeholder="e.g. ESOFT Metro Campus, Colombo" value={formData.university} onChange={e => set('university', e.target.value)} className={inputCls} /></Field></div>
               </div>
             </div>
 
             {/* 2. Duration & Level */}
             <div>
               <SectionHeader icon={<Clock size={16} />} title="Duration & Level" color="text-blue-600" />
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Field label="Duration"><input placeholder="e.g. 3 Years" value={formData.duration} onChange={e => set('duration', e.target.value)} className={inputCls} /></Field>
                 <Field label="Study Mode"><select value={formData.studyMode} onChange={e => set('studyMode', e.target.value)} className={selectCls}>{['Full-time','Part-time','Online','Blended'].map(o => <option key={o}>{o}</option>)}</select></Field>
                 <Field label="Level"><select value={formData.level} onChange={e => set('level', e.target.value)} className={selectCls}>{['Undergraduate','Postgraduate','Foundation','Professional'].map(o => <option key={o}>{o}</option>)}</select></Field>
@@ -264,7 +264,7 @@ const CourseModal = ({ editingId, formData, setFormData, onSave, onClose }) => {
             {/* 3. Fees */}
             <div>
               <SectionHeader icon={<DollarSign size={16} />} title="Fees Details" color="text-emerald-600" />
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field label="Total Fee (LKR) *"><input required type="number" placeholder="e.g. 250000" value={formData.totalFee} onChange={e => set('totalFee', e.target.value)} className={inputCls} /></Field>
                 <Field label="Registration Fee (LKR)"><input type="number" placeholder="e.g. 5000" value={formData.registrationFee} onChange={e => set('registrationFee', e.target.value)} className={inputCls} /></Field>
                 <Field label="Installment Available"><select value={formData.installmentAvailable} onChange={e => set('installmentAvailable', e.target.value)} className={selectCls}><option>No</option><option>Yes</option></select></Field>
@@ -292,8 +292,8 @@ const CourseModal = ({ editingId, formData, setFormData, onSave, onClose }) => {
             {/* 6. Location */}
             <div>
               <SectionHeader icon={<MapPin size={16} />} title="Location" color="text-rose-600" />
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2"><Field label="Campus Location"><input placeholder="e.g. No. 123, Galle Road" value={formData.campusLocation} onChange={e => set('campusLocation', e.target.value)} className={inputCls} /></Field></div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2"><Field label="Campus Location"><input placeholder="e.g. No. 123, Galle Road" value={formData.campusLocation} onChange={e => set('campusLocation', e.target.value)} className={inputCls} /></Field></div>
                 <Field label="City"><input placeholder="e.g. Colombo" value={formData.city} onChange={e => set('city', e.target.value)} className={inputCls} /></Field>
                 <Field label="Online Available"><select value={formData.onlineAvailable} onChange={e => set('onlineAvailable', e.target.value)} className={selectCls}><option>No</option><option>Yes</option></select></Field>
               </div>
@@ -311,7 +311,7 @@ const CourseModal = ({ editingId, formData, setFormData, onSave, onClose }) => {
             {/* 8. Additional Features */}
             <div>
               <SectionHeader icon={<GraduationCap size={16} />} title="Additional Features" color="text-sky-600" />
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Field label="Internship Available"><select value={formData.internshipAvailable} onChange={e => set('internshipAvailable', e.target.value)} className={selectCls}><option>No</option><option>Yes</option></select></Field>
                 <Field label="Industry Certification"><select value={formData.industryCertification} onChange={e => set('industryCertification', e.target.value)} className={selectCls}><option>No</option><option>Yes</option></select></Field>
                 <Field label="Practical Training"><select value={formData.practicalTraining} onChange={e => set('practicalTraining', e.target.value)} className={selectCls}><option>No</option><option>Yes</option></select></Field>
@@ -415,22 +415,22 @@ const Courses = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Manage Courses</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{courses.length} courses · AI uses this data to answer students</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={fetchCourses} className="flex items-center gap-2 text-sm px-4 py-2 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-white/20 font-medium transition-colors"><RefreshCw size={14} /></button>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <button onClick={fetchCourses} className="flex items-center gap-2 text-sm px-3.5 py-2.5 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-white/20 font-medium transition-colors"><RefreshCw size={14} /></button>
           <button
             onClick={() => setIsBulkOpen(true)}
-            className="flex items-center gap-2 text-sm px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-md shadow-emerald-200 dark:shadow-none transition-all"
+            className="flex items-center gap-2 text-xs sm:text-sm px-3.5 sm:px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-xs transition-all"
           >
-            <Upload size={16} /> Bulk Import CSV
+            <Upload size={15} /> <span className="hidden xs:inline">Bulk Import</span> CSV
           </button>
           <button
             onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 text-sm px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-md shadow-indigo-200 dark:shadow-none transition-all"
+            className="flex items-center gap-2 text-xs sm:text-sm px-4 sm:px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold shadow-xs transition-all"
           >
             <Plus size={16} /> Add Course
           </button>
@@ -438,16 +438,16 @@ const Courses = () => {
       </div>
 
       {/* Analytics Strip */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: 'Total Courses', value: courses.length, color: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300', icon: <BookOpen size={16}/> },
           { label: 'With Keywords', value: withKeywords, color: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300', icon: <Tag size={16}/> },
           { label: 'Incomplete Data', value: missingData, color: missingData > 0 ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300' : 'bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-500', icon: <AlertTriangle size={16}/> },
           { label: 'Fields Covered', value: uniqueFields, color: 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300', icon: <TrendingUp size={16}/> },
         ].map((s, i) => (
-          <div key={i} className={`rounded-xl p-4 flex items-center gap-3 ${s.color}`}>
+          <div key={i} className={`rounded-xl p-3.5 sm:p-4 flex items-center gap-3 ${s.color}`}>
             <div className="opacity-70">{s.icon}</div>
-            <div><p className="text-xl font-bold leading-none">{s.value}</p><p className="text-xs font-medium opacity-70 mt-0.5">{s.label}</p></div>
+            <div><p className="text-lg sm:text-xl font-bold leading-none">{s.value}</p><p className="text-[11px] sm:text-xs font-medium opacity-70 mt-0.5">{s.label}</p></div>
           </div>
         ))}
       </div>

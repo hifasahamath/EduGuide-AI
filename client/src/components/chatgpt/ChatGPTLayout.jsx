@@ -11,12 +11,18 @@ import SettingsPage from '../../pages/Settings';
 
 const ChatGPTLayout = ({ page = 'chat' }) => {
   const { theme } = useTheme();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
   const [currentChatId, setCurrentChatId] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const isDark = theme === 'dark';
+
+  const closeSidebarOnMobile = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setSidebarOpen(false);
+    }
+  };
 
   // Called when MainChat creates a new session — refreshes sidebar list
   const handleChatCreated = (chatId) => {
@@ -27,30 +33,31 @@ const ChatGPTLayout = ({ page = 'chat' }) => {
   // Called when sidebar "New chat" is clicked — clear chat window
   const handleNewChat = () => {
     setCurrentChatId(null);
+    closeSidebarOnMobile();
   };
 
   return (
     <div className={`flex h-screen w-full font-sans overflow-hidden transition-colors duration-300 ${
       isDark ? 'bg-[#090d16] text-slate-100' : 'bg-[#f8fafc] text-slate-900'
     }`}>
-      {/* Sidebar */}
+      {/* Sidebar Drawer */}
       <div className={`
-        ${sidebarOpen ? 'translate-x-0 w-[260px]' : '-translate-x-full w-0 overflow-hidden'}
-        md:relative fixed z-30 inset-y-0 left-0 transition-all duration-300 ease-in-out flex-shrink-0
+        ${sidebarOpen ? 'translate-x-0 w-[280px] max-w-[85vw]' : '-translate-x-full w-0 overflow-hidden'}
+        md:relative fixed z-50 inset-y-0 left-0 transition-all duration-300 ease-in-out flex-shrink-0
       `}>
         <ChatSidebar
           currentChatId={currentChatId}
-          setCurrentChatId={setCurrentChatId}
+          setCurrentChatId={(id) => { setCurrentChatId(id); closeSidebarOnMobile(); }}
           onNewChat={handleNewChat}
           refreshTrigger={refreshTrigger}
           closeSidebar={() => setSidebarOpen(false)}
-          onOpenSettings={() => setShowSettings(true)}
+          onOpenSettings={() => { setShowSettings(true); closeSidebarOnMobile(); }}
           isDark={isDark}
         />
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col h-full relative overflow-hidden">
+      <div className="flex-1 flex flex-col h-full relative overflow-hidden min-w-0">
         {page === 'chat' && (
           <MainChat
             currentChatId={currentChatId}
@@ -109,7 +116,7 @@ const ChatGPTLayout = ({ page = 'chat' }) => {
 
       {/* Mobile Overlay */}
       {sidebarOpen && (
-        <div className="md:hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-20" onClick={() => setSidebarOpen(false)} />
+        <div className="md:hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Settings Modal */}

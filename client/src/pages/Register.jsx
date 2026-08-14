@@ -298,7 +298,19 @@ const Register = () => {
               </button>
             </form>
 
-            <div className="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between text-xs">
+            {/* Mobile Guest Mode Button */}
+            <div className="mt-4 pt-4 border-t border-slate-100 lg:hidden">
+              <button
+                type="button"
+                onClick={handleGuestClick}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 font-bold text-xs shadow-xs transition-all"
+              >
+                <Sparkles size={14} className="text-amber-600" />
+                <span>Explore as Guest — no account needed</span>
+              </button>
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-slate-200 flex items-center justify-between text-xs">
               <span className="text-slate-600 font-medium">Already have an account?</span>
               <Link to="/login" className="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1 transition-colors">
                 Sign In <ArrowRight size={12} />

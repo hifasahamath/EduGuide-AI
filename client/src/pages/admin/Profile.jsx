@@ -11,11 +11,11 @@ import {
 // ── Reusable components ────────────────────────────────────────────────────────
 const Section = ({ title, icon, children }) => (
   <div className="bg-white dark:bg-[#1a1a2c] rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
-    <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5">
+    <div className="flex items-center gap-3 px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5">
       <span className="text-indigo-500 dark:text-indigo-400">{icon}</span>
       <h3 className="font-bold text-gray-800 dark:text-white">{title}</h3>
     </div>
-    <div className="p-6">{children}</div>
+    <div className="p-4 sm:p-6">{children}</div>
   </div>
 );
 

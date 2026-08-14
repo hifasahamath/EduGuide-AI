@@ -222,9 +222,9 @@ const Login = () => {
             <span className="text-slate-900 font-extrabold text-lg">EduGuide AI</span>
           </div>
 
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-md">
-            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Welcome back</h2>
-            <p className="text-slate-600 text-xs font-medium mt-1 mb-6">Sign in to your EduGuide student account</p>
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-8 shadow-md">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Welcome back</h2>
+            <p className="text-slate-600 text-xs font-medium mt-1 mb-5 sm:mb-6">Sign in to your EduGuide student account</p>
 
             {/* Google OAuth Button */}
             <button
@@ -319,8 +319,20 @@ const Login = () => {
               </button>
             </form>
 
+            {/* Mobile Guest Mode Button */}
+            <div className="mt-4 pt-4 border-t border-slate-100 lg:hidden">
+              <button
+                type="button"
+                onClick={handleGuestClick}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 font-bold text-xs shadow-xs transition-all"
+              >
+                <Sparkles size={14} className="text-amber-600" />
+                <span>Explore as Guest — no login required</span>
+              </button>
+            </div>
+
             {/* Register link */}
-            <div className="mt-6 pt-5 border-t border-slate-200 flex items-center justify-between text-xs">
+            <div className="mt-5 pt-4 border-t border-slate-200 flex items-center justify-between text-xs">
               <span className="text-slate-600 font-medium">New to EduGuide AI?</span>
               <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-bold flex items-center gap-1 transition-colors">
                 Create account <ArrowRight size={12} />

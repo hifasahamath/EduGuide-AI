@@ -188,14 +188,14 @@ const BulkImportModal = ({ onClose, onSuccess }) => {
             {step === 'upload' && (
               <motion.div key="upload" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-5">
                 {/* Download template */}
-                <div className="flex items-start gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+                <div className="flex flex-col sm:flex-row items-start gap-4 p-4 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl border border-indigo-100 dark:border-indigo-800/60">
                   <FileText size={20} className="text-indigo-500 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-indigo-800">Start with the template</p>
-                    <p className="text-xs text-indigo-600 mt-0.5">Download the CSV template with all required columns and 2 sample rows. Fill in your data and upload below.</p>
-                    <p className="text-xs text-indigo-400 mt-1">💡 Tip: Use <code className="bg-white px-1 rounded">|</code> (pipe) as separator for multi-value fields like subjects, keywords, careers.</p>
+                    <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-200">Start with the template</p>
+                    <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">Download the CSV template with all required columns and 2 sample rows. Fill in your data and upload below.</p>
+                    <p className="text-xs text-indigo-400 dark:text-indigo-500 mt-1">💡 Tip: Use <code className="bg-white dark:bg-slate-800 px-1 rounded">|</code> (pipe) as separator for multi-value fields like subjects, keywords, careers.</p>
                   </div>
-                  <button onClick={downloadTemplate} className="flex-shrink-0 flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm">
+                  <button onClick={downloadTemplate} className="w-full sm:w-auto flex-shrink-0 flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-xs">
                     <Download size={14} /> Download Template
                   </button>
                 </div>
@@ -206,14 +206,14 @@ const BulkImportModal = ({ onClose, onSuccess }) => {
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
                   onClick={() => fileRef.current?.click()}
-                  className={`border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all ${dragOver ? 'border-indigo-400 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'}`}
+                  className={`border-2 border-dashed rounded-2xl p-6 sm:p-12 text-center cursor-pointer transition-all ${dragOver ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-950/50' : 'border-gray-200 dark:border-slate-700 hover:border-indigo-300 hover:bg-gray-50 dark:hover:bg-slate-800/50'}`}
                 >
-                  <Upload size={36} className={`mx-auto mb-3 ${dragOver ? 'text-indigo-500' : 'text-gray-300'}`} />
-                  <p className={`font-semibold ${dragOver ? 'text-indigo-600' : 'text-gray-500'}`}>
+                  <Upload size={32} className={`mx-auto mb-3 ${dragOver ? 'text-indigo-500' : 'text-gray-400'}`} />
+                  <p className={`font-semibold text-xs sm:text-sm ${dragOver ? 'text-indigo-600' : 'text-gray-500 dark:text-gray-300'}`}>
                     {dragOver ? 'Drop your CSV file here!' : 'Drag & drop your CSV file here'}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">or click to browse</p>
-                  <p className="text-xs text-gray-300 mt-3">Supported format: .csv</p>
+                  <p className="text-xs text-gray-400 mt-3">Supported format: .csv</p>
                 </div>
                 <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => handleFile(e.target.files[0])} />
 

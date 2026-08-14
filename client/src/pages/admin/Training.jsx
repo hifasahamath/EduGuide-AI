@@ -312,14 +312,14 @@ const Training = () => {
   return (
     <div className="space-y-6 select-none font-sans">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Training Data & Knowledge Base</h1>
           <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm font-medium mt-0.5">
             Teach the chatbot directly or upload documents (PDF, DOCX, CSV) for RAG.
           </p>
         </div>
-        <button onClick={fetchData} className="flex items-center gap-2 text-xs font-bold px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900 font-medium transition-all shadow-xs">
+        <button onClick={fetchData} className="flex items-center gap-2 text-xs font-bold px-3.5 sm:px-4 py-2 bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900 font-medium transition-all shadow-xs w-fit">
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
@@ -331,17 +331,17 @@ const Training = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1.5 bg-slate-200/80 dark:bg-slate-800/80 rounded-2xl w-fit border border-slate-300/60 dark:border-slate-700">
+      <div className="flex flex-wrap gap-1 p-1.5 bg-slate-200/80 dark:bg-slate-800/80 rounded-2xl w-full sm:w-fit border border-slate-300/60 dark:border-slate-700">
         {[
           { key: 'pending', label: `Pending Q&A (${pending.length})`, icon: <MessageSquare size={14} /> },
           { key: 'trained', label: `Trained Q&A (${trained.length})`, icon: <BookOpen size={14} /> },
           { key: 'documents', label: `Documents (${groupedDocs.length})`, icon: <FileText size={14} /> },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex-1 sm:flex-initial whitespace-nowrap ${
               tab === t.key ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}>
-            {t.icon} {t.label}
+            {t.icon} <span>{t.label}</span>
           </button>
         ))}
       </div>

@@ -318,7 +318,7 @@ const ChatHistory = () => {
       </div>
 
       {/* Stats Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard label="Total Sessions" value={stats?.total} icon={<MessageSquare size={16} className="text-indigo-600 dark:text-indigo-400" />} color="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300" />
         <StatCard label="Chats Today" value={stats?.chatsToday} icon={<Flame size={16} className="text-orange-500 dark:text-orange-400" />} color="bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300" />
         <StatCard label="Avg Msgs / Chat" value={stats?.avgMsgsPerChat} icon={<Activity size={16} className="text-emerald-600 dark:text-emerald-400" />} color="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" />
@@ -336,15 +336,15 @@ const ChatHistory = () => {
               placeholder="Search by user, message, course, keyword..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full border border-gray-200 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white"
+              className="w-full border border-gray-200 dark:border-slate-700 rounded-xl py-2 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
             />
           </div>
 
           {/* Date Filter */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+          <div className="flex items-center gap-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-1 overflow-x-auto">
             {[['all', 'All Time'], ['today', 'Today'], ['week', 'Week'], ['month', 'Month']].map(([val, label]) => (
               <button key={val} onClick={() => setDateFilter(val)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${dateFilter === val ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${dateFilter === val ? 'bg-white dark:bg-slate-900 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-slate-400'}`}>
                 {label}
               </button>
             ))}
@@ -352,7 +352,7 @@ const ChatHistory = () => {
 
           {/* Status Filter */}
           <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="border border-gray-200 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white">
+            className="border border-gray-200 dark:border-slate-700 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
             <option value="all">All Status</option>
             <option value="resolved">Resolved</option>
             <option value="pending">Pending</option>
@@ -361,7 +361,7 @@ const ChatHistory = () => {
 
           {/* Field Filter */}
           <select value={fieldFilter} onChange={e => setFieldFilter(e.target.value)}
-            className="border border-gray-200 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white">
+            className="border border-gray-200 dark:border-slate-700 rounded-xl py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
             {FIELDS.map(f => <option key={f} value={f}>{f}</option>)}
           </select>
         </div>
@@ -373,29 +373,31 @@ const ChatHistory = () => {
           <div className="w-7 h-7 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400 bg-white rounded-2xl border border-gray-100">
+        <div className="text-center py-16 text-gray-400 bg-white dark:bg-slate-900 rounded-2xl border border-gray-100 dark:border-slate-800">
           <MessageSquare size={40} className="mx-auto mb-3 opacity-30" />
           <p className="font-medium">No conversations found</p>
           <p className="text-sm mt-1">Try adjusting your filters or search query</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          {/* Table Head */}
-          <div className="grid grid-cols-12 text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 bg-gray-50 border-b border-gray-100">
-            <div className="col-span-4">Conversation</div>
-            <div className="col-span-2">User</div>
-            <div className="col-span-2">Field / Course</div>
-            <div className="col-span-1 text-center">Msgs</div>
-            <div className="col-span-1">Status</div>
-            <div className="col-span-1">Time</div>
-            <div className="col-span-1 text-right">Actions</div>
-          </div>
+        <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <div className="min-w-[750px]">
+              {/* Table Head */}
+              <div className="grid grid-cols-12 text-xs font-semibold text-gray-500 uppercase tracking-wider px-4 py-3 bg-gray-50 dark:bg-slate-800/60 border-b border-gray-100 dark:border-slate-800">
+                <div className="col-span-4">Conversation</div>
+                <div className="col-span-2">User</div>
+                <div className="col-span-2">Field / Course</div>
+                <div className="col-span-1 text-center">Msgs</div>
+                <div className="col-span-1">Status</div>
+                <div className="col-span-1">Time</div>
+                <div className="col-span-1 text-right">Actions</div>
+              </div>
 
-          {/* Rows */}
-          <div className="divide-y divide-gray-50">
-            {filtered.map(session => (
-              <div key={session.id}
-                className={`grid grid-cols-12 items-center px-4 py-3.5 hover:bg-gray-50 transition-colors ${session.isSpam ? 'bg-red-50/40' : ''}`}>
+              {/* Rows */}
+              <div className="divide-y divide-gray-50 dark:divide-slate-800">
+                {filtered.map(session => (
+                  <div key={session.id}
+                    className={`grid grid-cols-12 items-center px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-slate-800/40 transition-colors ${session.isSpam ? 'bg-red-50/40 dark:bg-red-950/20' : ''}`}>
                 {/* Title + last message */}
                 <div className="col-span-4 min-w-0">
                   <div className="flex items-center gap-2">
@@ -461,11 +463,13 @@ const ChatHistory = () => {
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 text-xs text-gray-400 flex items-center justify-between">
+          <div className="px-4 py-3 bg-gray-50 dark:bg-slate-800/60 border-t border-gray-100 dark:border-slate-800 text-xs text-gray-400 flex items-center justify-between">
             <span>Showing {filtered.length} of {sessions.length} sessions</span>
             <span>Auto-refreshes every 30s</span>
           </div>
         </div>
+      </div>
+    </div>
       )}
 
       {/* Chat Detail Modal */}

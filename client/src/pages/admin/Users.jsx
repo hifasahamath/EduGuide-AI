@@ -375,16 +375,16 @@ const Users = () => {
       </div>
 
       {/* Stat Strips */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label:'Total Users', value: stats.total, color:'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300' },
           { label:'Active', value: stats.active, color:'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' },
           { label:'Students', value: stats.students, color:'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300' },
           { label:'Blocked', value: stats.blocked, color:'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400' },
         ].map((s,i) => (
-          <div key={i} className={`rounded-xl p-4 text-center ${s.color}`}>
-            <p className="text-2xl font-bold">{s.value}</p>
-            <p className="text-xs font-medium mt-0.5 opacity-70">{s.label}</p>
+          <div key={i} className={`rounded-xl p-3.5 sm:p-4 text-center ${s.color}`}>
+            <p className="text-xl sm:text-2xl font-bold">{s.value}</p>
+            <p className="text-[11px] sm:text-xs font-medium mt-0.5 opacity-70">{s.label}</p>
           </div>
         ))}
       </div>

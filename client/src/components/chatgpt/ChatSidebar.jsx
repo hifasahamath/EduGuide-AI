@@ -43,11 +43,13 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
   const handleNewChat = () => {
     setCurrentChatId(null);
     onNewChat?.();
+    closeSidebar?.();
     navigate('/chat');
   };
 
   const handleSelectChat = (chatId) => {
     setCurrentChatId(chatId);
+    closeSidebar?.();
     navigate('/chat');
   };
 
@@ -68,7 +70,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
   };
 
   const submitRename = async (chatId) => {
-    if (!renameVal.trim()) return;
+    if (!renameVal.trim()) { setRenamingId(null); return; }
     try {
       await api.patch(`/chat/sessions/${chatId}/rename`, { title: renameVal.trim() });
       setChats(prev => prev.map(c => c.id === chatId ? { ...c, title: renameVal.trim() } : c));
@@ -92,37 +94,51 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
     } catch { /* silent */ }
   };
 
-  const handleLogout = () => { logout(); navigate('/login'); };
+  const handleLogout = () => {
+    closeSidebar?.();
+    logout();
+    navigate('/login');
+  };
 
-  const bg = isDark ? 'bg-[#070b14]' : 'bg-slate-200/90';
+  const navTo = (path) => {
+    closeSidebar?.();
+    navigate(path);
+  };
+
+  const sortedChats = [...chats].sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    const ta = new Date(a.updated_at || 0).getTime();
+    const tb = new Date(b.updated_at || 0).getTime();
+    return tb - ta;
+  });
+
+  const displayChats = search
+    ? sortedChats.filter(c => c.title?.toLowerCase().includes(search.toLowerCase()))
+    : sortedChats;
+
+  // Theme styles
+  const bg = isDark ? 'bg-[#070b14] text-slate-100' : 'bg-slate-200/90 text-slate-900';
   const borderColor = isDark ? 'border-slate-800' : 'border-slate-300';
-  const textMuted = isDark ? 'text-slate-300' : 'text-slate-700';
-  const textMain = isDark ? 'text-slate-50' : 'text-slate-900';
   const hoverBg = isDark ? 'hover:bg-slate-800/80' : 'hover:bg-slate-300/80';
-  const activeBg = isDark ? 'bg-indigo-500/25 border-l-2 border-indigo-400 text-white' : 'bg-indigo-100 border-l-2 border-indigo-600 text-indigo-950';
-  const inputBg = isDark
-    ? 'bg-slate-900 border-slate-700 placeholder-slate-400 text-slate-100'
-    : 'bg-white border-slate-300 placeholder-slate-500 text-slate-900 shadow-xs';
-
-  const filtered = chats.filter(c => c.title?.toLowerCase().includes(search.toLowerCase()));
-  // Pinned first, then 5 recent
-  const pinnedChats = filtered.filter(c => c.pinned);
-  const recentChats = filtered.filter(c => !c.pinned).slice(0, 5);
-  const displayChats = [...pinnedChats, ...recentChats];
+  const activeBg = isDark ? 'bg-indigo-500/25 text-white border-l-2 border-indigo-400 font-bold' : 'bg-indigo-100 text-indigo-950 border-l-2 border-indigo-600 font-bold';
+  const inputBg = isDark ? 'bg-slate-950 border-slate-700 text-slate-100 placeholder-slate-400 font-medium' : 'bg-white border-slate-300 text-slate-900 placeholder-slate-500 font-medium';
+  const textMuted = isDark ? 'text-slate-300' : 'text-slate-700';
+  const textMain = isDark ? 'text-slate-100' : 'text-slate-900';
 
   const formatDate = (ts) => {
     if (!ts) return '';
     const d = new Date(ts);
     const now = new Date();
     const diff = now - d;
-    if (diff < 60000) return 'Just now';
+    if (diff < 60000) return 'just now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
     return d.toLocaleDateString();
   };
 
   return (
-    <div className={`w-[260px] h-full ${bg} flex flex-col border-r ${borderColor} transition-colors duration-300 select-none`}>
+    <div className={`w-[280px] max-w-[85vw] h-full ${bg} flex flex-col border-r ${borderColor} transition-colors duration-300 select-none shadow-2xl md:shadow-none`}>
       {/* Logo + Close */}
       <div className={`px-4 py-3.5 flex items-center justify-between border-b ${borderColor}`}>
         <div className="flex items-center gap-2.5">
@@ -134,8 +150,8 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
             <span className="text-[10px] text-indigo-500 font-bold tracking-wide uppercase">Workspace</span>
           </div>
         </div>
-        <button onClick={closeSidebar} className={`p-1.5 rounded-lg ${hoverBg} ${textMuted} transition-colors`} title="Close sidebar">
-          <PanelLeftClose size={16} />
+        <button onClick={closeSidebar} className={`p-2 rounded-lg ${hoverBg} ${textMuted} transition-colors`} title="Close sidebar">
+          <PanelLeftClose size={18} />
         </button>
       </div>
 
@@ -175,8 +191,8 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
               Chat history is temporary and not stored in database.
             </p>
             <button
-              onClick={() => navigate('/register')}
-              className="mt-3 w-full py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold text-center transition-colors shadow-xs"
+              onClick={() => navTo('/register')}
+              className="mt-3 w-full py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold text-center transition-colors shadow-xs"
             >
               Create Account
             </button>
@@ -196,8 +212,8 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
                       onKeyDown={e => { if (e.key === 'Enter') submitRename(chat.id); if (e.key === 'Escape') setRenamingId(null); }}
                       className={`flex-1 text-xs font-semibold rounded-lg px-2 py-1 border focus:outline-none focus:ring-1 focus:ring-indigo-500 ${inputBg}`}
                     />
-                    <button onClick={() => submitRename(chat.id)} className="text-emerald-500 hover:text-emerald-400 p-0.5"><Check size={13} /></button>
-                    <button onClick={() => setRenamingId(null)} className="text-slate-400 hover:text-slate-300 p-0.5"><X size={13} /></button>
+                    <button onClick={() => submitRename(chat.id)} className="text-emerald-500 hover:text-emerald-400 p-1"><Check size={14} /></button>
+                    <button onClick={() => setRenamingId(null)} className="text-slate-400 hover:text-slate-300 p-1"><X size={14} /></button>
                   </div>
                 ) : (
                   <button onClick={() => handleSelectChat(chat.id)}
@@ -214,26 +230,26 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
                       </div>
                       <span className={`text-[10px] font-medium ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{formatDate(chat.updated_at)}</span>
                     </div>
-                    {/* Action buttons — show on hover */}
-                    <div className="hidden group-hover:flex items-center gap-1 flex-shrink-0">
+                    {/* Action buttons — accessible on touch + hover */}
+                    <div className="flex sm:opacity-0 sm:group-hover:opacity-100 items-center gap-0.5 flex-shrink-0 transition-opacity">
                       <button onClick={(e) => handlePin(e, chat)}
                         className={`p-1.5 rounded-md transition-all ${
                           isDark ? 'text-slate-300 hover:bg-slate-700 hover:text-indigo-400' : 'text-slate-700 hover:bg-slate-300 hover:text-indigo-600'
                         }`}
                         title={chat.pinned ? 'Unpin' : 'Pin'}>
-                        {chat.pinned ? <PinOff size={15} /> : <Pin size={15} />}
+                        {chat.pinned ? <PinOff size={14} /> : <Pin size={14} />}
                       </button>
                       <button onClick={(e) => startRename(e, chat)}
                         className={`p-1.5 rounded-md transition-all ${
                           isDark ? 'text-slate-300 hover:bg-slate-700 hover:text-indigo-400' : 'text-slate-700 hover:bg-slate-300 hover:text-indigo-600'
                         }`} title="Rename">
-                        <Edit3 size={15} />
+                        <Edit3 size={14} />
                       </button>
                       <button onClick={(e) => handleDelete(e, chat.id)}
                         className={`p-1.5 rounded-md transition-all ${
                           isDark ? 'text-slate-400 hover:bg-slate-700 hover:text-rose-400' : 'text-slate-600 hover:bg-slate-300 hover:text-rose-600'
                         }`} title="Delete">
-                        <Trash2 size={15} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </button>
@@ -264,14 +280,14 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
           </div>
         </button>
 
-        <button onClick={() => navigate('/history')}
+        <button onClick={() => navTo('/history')}
           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} text-xs font-bold transition-colors ${
             location.pathname === '/history' ? activeBg : isDark ? 'text-slate-200' : 'text-slate-800'
           }`}>
           <Clock size={14} /><span>Chat History</span>
         </button>
 
-        <button onClick={() => navigate('/settings')}
+        <button onClick={() => navTo('/settings')}
           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} text-xs font-bold transition-colors ${
             location.pathname === '/settings' ? activeBg : isDark ? 'text-slate-200' : 'text-slate-800'
           }`}>
@@ -279,7 +295,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
         </button>
 
         {/* User */}
-        <button onClick={() => isGuest ? navigate('/login') : navigate('/profile')}
+        <button onClick={() => navTo(isGuest ? '/login' : '/profile')}
           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} transition-colors mt-1 ${
             location.pathname === '/profile' ? activeBg : ''
           }`}>
@@ -307,5 +323,3 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
 };
 
 export default ChatSidebar;
-
-

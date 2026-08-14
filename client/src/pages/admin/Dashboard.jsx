@@ -134,7 +134,7 @@ const Dashboard = () => {
 
       {/* Primary Stat Cards */}
       {data && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5">
           <StatCard title="Total Students" value={data.totalUsers} icon={<Users size={20} />}
             gradient="bg-blue-600" sub="Registered accounts" />
           <StatCard title="Total Courses" value={data.totalCourses} icon={<BookOpen size={20} />}
@@ -148,14 +148,14 @@ const Dashboard = () => {
 
       {/* Secondary Stats Row */}
       {data && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {[
             { label: 'AI Accuracy', value: `${data.aiAccuracy}%`, icon: <Target size={15} />, good: data.aiAccuracy >= 70, tip: `${data.fallbackRate}% fallback rate` },
             { label: 'Training Done', value: `${data.trainingCompletion}%`, icon: <CheckCircle2 size={15} />, good: data.trainingCompletion >= 70, tip: `${data.trainedCount || 0} answers trained` },
             { label: 'Chats Today', value: data.chatsToday, icon: <Flame size={15} />, good: true, tip: 'active student sessions' },
             { label: 'Needs Training', value: data.pendingTraining, icon: <AlertTriangle size={15} />, good: data.pendingTraining === 0, tip: 'unanswered queries' },
           ].map((m, i) => (
-            <div key={i} className={`rounded-2xl p-4 border flex items-center gap-3 shadow-xs ${
+            <div key={i} className={`rounded-2xl p-3.5 sm:p-4 border flex items-center gap-3 shadow-xs ${
               m.good 
                 ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/80' 
                 : 'bg-amber-50/70 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/80'
@@ -178,9 +178,9 @@ const Dashboard = () => {
       )}
 
       {/* Content Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
         {/* Recent Sessions */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs p-4 sm:p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-extrabold text-slate-900 dark:text-white flex items-center gap-2 text-base">
               <Clock size={18} className="text-indigo-600" /> Recent Student Conversations

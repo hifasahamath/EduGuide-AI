@@ -138,7 +138,7 @@ const Analytics = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">
@@ -147,23 +147,23 @@ const Analytics = () => {
           </p>
         </div>
         <button onClick={fetchData}
-          className="flex items-center gap-2 text-sm px-4 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-medium transition-colors">
+          className="flex items-center gap-2 text-xs sm:text-sm px-3.5 sm:px-4 py-2 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-medium transition-colors w-fit">
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
 
       {/* Smart Insights Banner */}
       {smartInsights?.length > 0 && (
-        <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-5 text-white shadow-lg">
+        <div className="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-2xl p-4 sm:p-5 text-white shadow-lg">
           <div className="flex items-center gap-2 mb-3">
             <Lightbulb size={16} />
             <span className="font-bold text-sm uppercase tracking-wider">Smart Insights</span>
           </div>
           <div className="space-y-2">
             {smartInsights.map((ins, i) => (
-              <p key={i} className="text-sm text-white/90 flex items-start gap-2">
+              <p key={i} className="text-xs sm:text-sm text-white/90 flex items-start gap-2">
                 <Info size={13} className="mt-0.5 flex-shrink-0 opacity-70" />
-                {ins}
+                <span>{ins}</span>
               </p>
             ))}
           </div>
@@ -171,7 +171,7 @@ const Analytics = () => {
       )}
 
       {/* Top KPI Row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <MetricPill label="Total Sessions" value={totalSessions}
           color="bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300" icon={<MessageSquare size={15} className="text-indigo-600 dark:text-indigo-400" />} />
         <MetricPill label="Total Messages" value={totalMessages}
@@ -183,13 +183,13 @@ const Analytics = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-fit">
+      <div className="flex flex-wrap gap-1 p-1 bg-gray-100 dark:bg-white/5 rounded-xl w-full sm:w-fit">
         {tabs.map(t => (
           <button key={t.key} onClick={() => setActiveTab(t.key)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex-1 sm:flex-initial whitespace-nowrap ${
               activeTab === t.key ? 'bg-white dark:bg-[#1a1a2c] text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
             }`}>
-            {t.icon} {t.label}
+            {t.icon} <span>{t.label}</span>
           </button>
         ))}
       </div>

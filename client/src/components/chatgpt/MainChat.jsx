@@ -112,13 +112,13 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}
-      className={`flex gap-3 ${isBot ? 'justify-start' : 'justify-end'} group`}>
+      className={`flex gap-2 sm:gap-3 ${isBot ? 'justify-start' : 'justify-end'} group`}>
       {isBot && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-xs mt-0.5 border border-indigo-400/20">
-          <Sparkles size={14} className="text-white" />
+        <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-xs mt-0.5 border border-indigo-400/20">
+          <Sparkles size={13} className="text-white" />
         </div>
       )}
-      <div className={`max-w-[78%] min-w-0 ${isBot ? '' : 'flex flex-col items-end'}`}>
+      <div className={`max-w-[92%] sm:max-w-[82%] min-w-0 ${isBot ? '' : 'flex flex-col items-end'}`}>
         {/* Course cards if present */}
         {isBot && msg.courses?.length > 0 && (
           <div className="mb-2.5 w-full">
@@ -128,11 +128,11 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
 
         {/* Text bubble */}
         {msg.text && (
-          <div className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-2xl text-sm leading-relaxed break-words max-w-full text-left inline-block ${
+          <div className={`px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-2xl text-xs sm:text-sm leading-relaxed break-words max-w-full text-left inline-block ${
             isBot ? `${botBubble} rounded-tl-xs` : `${userBubble} rounded-tr-xs shadow-xs`
           } ${msg.isError ? 'border-red-500/50 text-red-400' : ''}`}>
             {isBot ? (
-              <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-1.5 prose-chat font-sans break-words">
+              <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-headings:my-1.5 prose-chat font-sans break-words text-xs sm:text-sm">
                 <ReactMarkdown>{msg.text}</ReactMarkdown>
               </div>
             ) : (
@@ -432,44 +432,47 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
   );
 
   return (
-    <div className={`flex-1 flex flex-col h-full ${bg} transition-colors duration-300 relative`}>
+    <div className={`flex-1 flex flex-col h-full ${bg} transition-colors duration-300 relative min-w-0`}>
 
       {/* Top Bar */}
-      <div className={`sticky top-0 z-10 ${headerBg} backdrop-blur-md border-b px-4 py-3 flex items-center gap-3`}>
-        {!sidebarOpen && (
-          <button onClick={toggleSidebar} className={`p-2 rounded-xl border ${
-            isDark ? 'border-slate-800 hover:bg-slate-800 text-slate-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700'
-          } transition-colors`} title="Toggle sidebar">
-            <PanelLeft size={16} />
-          </button>
-        )}
-        <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center shadow-xs">
-            <Sparkles size={13} className="text-white" />
+      <div className={`sticky top-0 z-10 ${headerBg} backdrop-blur-md border-b px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2`}>
+        <div className="flex items-center gap-2 min-w-0">
+          {!sidebarOpen && (
+            <button onClick={toggleSidebar} className={`p-1.5 sm:p-2 rounded-xl border flex-shrink-0 ${
+              isDark ? 'border-slate-800 hover:bg-slate-800 text-slate-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700'
+            } transition-colors`} title="Toggle sidebar">
+              <PanelLeft size={16} />
+            </button>
+          )}
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center shadow-xs flex-shrink-0">
+              <Sparkles size={13} className="text-white" />
+            </div>
+            <span className={`font-bold text-xs sm:text-sm tracking-tight truncate ${textMain}`}>EduGuide AI</span>
           </div>
-          <span className={`font-bold text-sm tracking-tight ${textMain}`}>EduGuide AI</span>
         </div>
-        <div className="ml-auto flex items-center gap-2.5">
+
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           {isGuest ? (
-            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-700/60">
-              Guest Mode · Temporary
+            <span className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-700/60 truncate max-w-[120px] sm:max-w-none">
+              Guest Mode
             </span>
           ) : user?.preferences?.field ? (
             <span className={`text-[11px] px-2.5 py-0.5 rounded-full ${
               isDark ? 'bg-slate-800 text-slate-200 border border-slate-700' : 'bg-slate-200 text-slate-800 border border-slate-300'
-            } font-semibold hidden sm:inline-block`}>
+            } font-semibold hidden md:inline-block`}>
               Field: {user.preferences.field}
             </span>
           ) : null}
-          <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
+          <span className={`text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full font-bold hidden sm:inline-block ${
             isDark ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-700/60' : 'bg-indigo-100 text-indigo-800 border border-indigo-300'
           }`}>
             Education Advisor
           </span>
           <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hello, I need help with course guidance.`}
             target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-xs transition-colors">
-            <MessageCircle size={13} /> Advisor
+            className="flex items-center gap-1 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-xs transition-colors">
+            <MessageCircle size={13} /><span className="hidden xs:inline">Advisor</span>
           </a>
         </div>
       </div>
@@ -478,11 +481,11 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {isNew ? (
           /* Welcome screen - ChatGPT & Gemini style centered layout */
-          <div className="min-h-full flex flex-col items-center justify-center p-6 text-center max-w-2xl mx-auto py-12">
-            <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center mb-4 shadow-md shadow-indigo-600/20 text-white">
-              <Sparkles size={24} />
+          <div className="min-h-full flex flex-col items-center justify-center p-4 sm:p-6 text-center max-w-2xl mx-auto py-8 sm:py-12">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-indigo-600 flex items-center justify-center mb-3 sm:mb-4 shadow-md shadow-indigo-600/20 text-white">
+              <Sparkles size={22} />
             </div>
-            <h1 className={`text-2xl sm:text-3xl font-extrabold mb-2 tracking-tight ${textMain}`}>
+            <h1 className={`text-xl sm:text-3xl font-extrabold mb-2 tracking-tight ${textMain}`}>
               Welcome, {isGuest ? 'Guest Explorer' : (user?.name?.split(' ')[0] || 'Student')}
             </h1>
             <p className={`text-xs sm:text-sm mb-4 font-medium ${textMuted} max-w-md`}>
@@ -490,13 +493,13 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
             </p>
 
             {isGuest && (
-              <div className="mb-6 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-xs font-semibold max-w-md">
+              <div className="mb-5 sm:mb-6 px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-xs font-semibold max-w-md">
                 ⚡ <strong>Guest Session:</strong> Chat history is temporary and not stored in database. You can ask anything!
               </div>
             )}
 
             {!isGuest && user?.preferences?.field && (
-              <p className={`text-xs mb-6 px-3 py-1.5 rounded-full font-semibold ${
+              <p className={`text-xs mb-5 sm:mb-6 px-3 py-1.5 rounded-full font-semibold ${
                 isDark ? 'bg-indigo-950/60 text-indigo-300 border border-indigo-800/60' : 'bg-indigo-100 text-indigo-800 border border-indigo-300'
               }`}>
                 Personalised target: <strong>{user.preferences.field}</strong>
@@ -505,20 +508,20 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
             )}
 
             {/* Centered Text Input Box (ChatGPT / Gemini style) */}
-            <div className="w-full mb-8">
+            <div className="w-full mb-6 sm:mb-8">
               {renderInputBox(true)}
             </div>
 
             {/* Prompt Starter Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full">
               {STARTERS.map((s, i) => (
                 <button key={i} onClick={() => sendMessage(s.prompt)}
-                  className={`flex items-start gap-3 p-3.5 rounded-xl border text-left transition-all group ${starterCard}`}>
+                  className={`flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl border text-left transition-all group ${starterCard}`}>
                   <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-500 dark:text-indigo-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                     {s.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-bold mb-0.5 ${textMain}`}>{s.label}</p>
+                    <p className={`text-xs font-bold mb-0.5 truncate ${textMain}`}>{s.label}</p>
                     <p className={`text-[11px] font-medium truncate ${textMuted}`}>{s.prompt}</p>
                   </div>
                 </button>
@@ -527,7 +530,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
           </div>
         ) : (
           /* Messages */
-          <div className="max-w-3xl mx-auto py-6 px-4 space-y-5 pb-48">
+          <div className="max-w-3xl mx-auto py-4 sm:py-6 px-3 sm:px-4 space-y-4 sm:space-y-5 pb-44 sm:pb-48">
             <AnimatePresence initial={false}>
               {messages.map(msg => (
                 <MessageBubble key={msg.id} msg={msg} isDark={isDark} user={user} onQuickAction={sendMessage} />
@@ -536,7 +539,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
 
             {/* Typing indicator */}
             {isTyping && (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-3 justify-start">
+              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2 sm:gap-3 justify-start">
                 <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shadow-xs flex-shrink-0 mt-0.5">
                   <Sparkles size={13} className="text-white" />
                 </div>
@@ -564,7 +567,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
           isDark
             ? 'bg-gradient-to-t from-[#080c16] via-[#080c16]/95 to-transparent'
             : 'bg-gradient-to-t from-slate-50 via-slate-50/95 to-transparent'
-        } pt-8 pb-5 px-4 z-10`}>
+        } pt-6 sm:pt-8 pb-3 sm:pb-5 px-3 sm:px-4 z-10`}>
           {renderInputBox(false)}
         </div>
       )}

@@ -5,10 +5,10 @@ import { useTheme } from '../../contexts/ThemeContext';
 import {
   LayoutDashboard, BookOpen, HelpCircle, BrainCircuit,
   Users, MessageSquare, BarChart3, UserCircle, LogOut, Sparkles, Shield,
-  Sun, Moon, CreditCard
+  Sun, Moon, CreditCard, X
 } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -28,8 +28,13 @@ const Sidebar = () => {
   ];
 
   const handleLogout = () => {
+    onClose?.();
     logout();
     navigate('/login');
+  };
+
+  const handleNavClick = () => {
+    onClose?.();
   };
 
   const isActive = (link) => link.exact
@@ -41,9 +46,12 @@ const Sidebar = () => {
   const textMuted = isDark ? 'text-slate-300' : 'text-slate-700';
 
   return (
-    <div className={`w-64 min-h-screen ${bg} flex flex-col border-r flex-shrink-0 transition-colors duration-300 select-none font-sans`}>
+    <div className={`
+      ${isOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 w-64 md:w-64'}
+      fixed md:relative inset-y-0 left-0 z-50 min-h-screen ${bg} flex flex-col border-r flex-shrink-0 transition-transform duration-300 ease-in-out select-none font-sans shadow-2xl md:shadow-none
+    `}>
       {/* Logo */}
-      <div className={`p-5 border-b ${borderColor}`}>
+      <div className={`p-4 sm:p-5 border-b ${borderColor} flex items-center justify-between`}>
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
             <Sparkles size={18} className="text-white" />
@@ -55,6 +63,9 @@ const Sidebar = () => {
             </p>
           </div>
         </div>
+        <button onClick={onClose} className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-200" title="Close sidebar">
+          <X size={18} />
+        </button>
       </div>
 
       {/* Nav */}
@@ -66,6 +77,7 @@ const Sidebar = () => {
             <Link
               key={link.name}
               to={link.path}
+              onClick={handleNavClick}
               className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all text-xs font-bold ${
                 active
                   ? 'bg-indigo-600 text-white shadow-xs'

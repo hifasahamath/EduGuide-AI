@@ -156,26 +156,26 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
 
         {/* Meta + actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
-          <span className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'} mr-1`}>{relTime(chat.updated_at)}</span>
-          {/* Actions — visible on hover */}
-          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'} hidden sm:inline mr-1`}>{relTime(chat.updated_at)}</span>
+          {/* Actions — accessible on mobile + hover on desktop */}
+          <div className="flex items-center gap-0.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
             <button onClick={e => { e.stopPropagation(); onPin(chat); }}
               className={`p-1.5 rounded-lg ${textMuted} hover:text-indigo-400 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-indigo-50'} transition-colors`}
               title={chat.pinned ? 'Unpin' : 'Pin'}>
-              {chat.pinned ? <PinOff size={12} /> : <Pin size={12} />}
+              {chat.pinned ? <PinOff size={13} /> : <Pin size={13} />}
             </button>
             <button onClick={e => { e.stopPropagation(); setRenamingMode(true); }}
               className={`p-1.5 rounded-lg ${textMuted} hover:text-indigo-400 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-indigo-50'} transition-colors`}
               title="Rename">
-              <Edit3 size={12} />
+              <Edit3 size={13} />
             </button>
             <button onClick={e => { e.stopPropagation(); onDelete(chat.id); }}
               className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
               title="Delete">
-              <Trash2 size={12} />
+              <Trash2 size={13} />
             </button>
           </div>
-          <ChevronRight size={14} className={`${textMuted} opacity-50 group-hover:opacity-100 transition-opacity`} />
+          <ChevronRight size={14} className={`${textMuted} opacity-50 group-hover:opacity-100 transition-opacity hidden sm:inline`} />
         </div>
       </div>
     </div>

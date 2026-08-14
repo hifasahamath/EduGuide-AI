@@ -192,29 +192,29 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
   const currentPlan = settings.plan || 'free';
 
   return (
-    <div className={`flex h-full ${bg}`}>
-      {/* Sidebar */}
-      <div className={`w-52 flex-shrink-0 border-r ${borderC} ${sidebarBg} flex flex-col`}>
-        <div className="p-4 border-b border-inherit flex items-center justify-between">
+    <div className={`flex flex-col md:flex-row h-full ${bg} min-w-0 overflow-hidden`}>
+      {/* Settings Navigation Bar / Sidebar */}
+      <div className={`w-full md:w-56 flex-shrink-0 border-b md:border-b-0 md:border-r ${borderC} ${sidebarBg} flex flex-col`}>
+        <div className="p-3 sm:p-4 border-b border-inherit flex items-center justify-between">
           <p className={`text-[11px] font-bold uppercase tracking-wider ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>Settings</p>
           {!sidebarOpen && (
-            <button onClick={toggleSidebar} className={`p-1 rounded-lg ${textMuted} hover:text-indigo-400`} title="Toggle sidebar">
-              <PanelLeft size={15} />
+            <button onClick={toggleSidebar} className={`p-1.5 rounded-lg ${textMuted} hover:text-indigo-400`} title="Toggle sidebar">
+              <PanelLeft size={16} />
             </button>
           )}
         </div>
-        <nav className="flex-1 p-2 space-y-0.5">
+        <nav className="flex md:flex-col overflow-x-auto custom-scrollbar p-1.5 sm:p-2 gap-1 flex-nowrap md:flex-wrap">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all text-left whitespace-nowrap flex-shrink-0 md:w-full
                 ${tab === t.id
-                  ? isDark ? 'bg-indigo-500/25 text-white border-l-2 border-indigo-400' : 'bg-indigo-100 text-indigo-950 border-l-2 border-indigo-600'
+                  ? isDark ? 'bg-indigo-500/25 text-white border-b-2 md:border-b-0 md:border-l-2 border-indigo-400' : 'bg-indigo-100 text-indigo-950 border-b-2 md:border-b-0 md:border-l-2 border-indigo-600'
                   : isDark ? 'text-slate-300 hover:bg-slate-800 hover:text-white' : 'text-slate-800 hover:bg-slate-300/80 hover:text-slate-950'}`}>
-              {t.icon}{t.label}
+              {t.icon}<span>{t.label}</span>
             </button>
           ))}
         </nav>
-        <div className={`p-3 border-t ${borderC}`}>
+        <div className={`hidden md:block p-3 border-t ${borderC} mt-auto`}>
           <button onClick={toggleTheme} className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-colors
             ${isDark ? 'text-slate-300 hover:bg-slate-800' : 'text-slate-800 hover:bg-slate-300/80'}`}>
             {isDark ? <><Sun size={14} className="text-amber-400"/> Light Mode</> : <><Moon size={14} className="text-indigo-600"/> Dark Mode</>}
@@ -223,8 +223,8 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="max-w-2xl mx-auto p-6 md:p-8 space-y-4">
+      <div className="flex-1 overflow-y-auto custom-scrollbar min-w-0">
+        <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 space-y-4">
           {/* Toast */}
           {toast && (
             <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold ${

@@ -192,7 +192,7 @@ const UserProfile = ({ isDark }) => {
       )}
 
       {/* Avatar Card */}
-      <div className={`rounded-2xl border p-6 flex items-center gap-6 ${cardBg}`}>
+      <div className={`rounded-2xl border p-4 sm:p-6 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4 sm:gap-6 ${cardBg}`}>
         <div className="relative group flex-shrink-0">
           {form.profilePic ? (
             <img src={form.profilePic} alt="profile" className="w-20 h-20 rounded-2xl object-cover shadow-sm border border-slate-700/50" />
@@ -222,8 +222,8 @@ const UserProfile = ({ isDark }) => {
       </div>
 
       {/* Info Card */}
-      <div className={`rounded-2xl border p-6 ${cardBg}`}>
-        <h2 className={`font-bold mb-5 text-xs uppercase tracking-wider ${textMain}`}>Personal Information</h2>
+      <div className={`rounded-2xl border p-4 sm:p-6 ${cardBg}`}>
+        <h2 className={`font-bold mb-4 sm:mb-5 text-xs uppercase tracking-wider ${textMain}`}>Personal Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field icon={<User size={15} />} label="Full Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your full name" />
           <Field icon={<Mail size={15} />} label="Email Address" value={form.email} readonly placeholder="Email" />
@@ -252,7 +252,7 @@ const UserProfile = ({ isDark }) => {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-xs shadow-indigo-500/20 disabled:opacity-60"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all shadow-xs shadow-indigo-500/20 disabled:opacity-60"
           >
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             <span>Save Profile</span>
@@ -261,8 +261,8 @@ const UserProfile = ({ isDark }) => {
       </div>
 
       {/* Security Card */}
-      <div className={`rounded-2xl border p-6 ${cardBg}`}>
-        <h2 className={`font-bold mb-5 text-xs uppercase tracking-wider ${textMain}`}>Security Credentials</h2>
+      <div className={`rounded-2xl border p-4 sm:p-6 ${cardBg}`}>
+        <h2 className={`font-bold mb-4 sm:mb-5 text-xs uppercase tracking-wider ${textMain}`}>Security Credentials</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <PassField label="Current Password" key_="current" placeholder="••••••••" />
           <PassField label="New Password" key_="newPass" placeholder="Min 6 characters" />
@@ -273,7 +273,7 @@ const UserProfile = ({ isDark }) => {
           <button
             onClick={handlePasswordChange}
             disabled={savingPass}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all shadow-xs disabled:opacity-60"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all shadow-xs disabled:opacity-60"
           >
             {savingPass ? <Loader2 size={15} className="animate-spin" /> : <Lock size={15} />}
             <span>Update Password</span>
