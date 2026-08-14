@@ -43,13 +43,11 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
     navigate('/chat');
     setCurrentChatId(null);
     onNewChat?.();
-    closeSidebar?.();
   };
 
   const handleSelectChat = (chatId) => {
     navigate('/chat');
     setCurrentChatId(chatId);
-    closeSidebar?.();
   };
 
   const handleDelete = async (e, chatId) => {
@@ -96,12 +94,10 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
   const handleLogout = () => {
     navigate('/login');
     logout();
-    closeSidebar?.();
   };
 
   const navTo = (path) => {
     navigate(path);
-    closeSidebar?.();
   };
 
   const sortedChats = [...chats].sort((a, b) => {

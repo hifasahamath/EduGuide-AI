@@ -11,18 +11,12 @@ import SettingsPage from '../../pages/Settings';
 
 const ChatGPTLayout = ({ page = 'chat' }) => {
   const { theme } = useTheme();
-  const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentChatId, setCurrentChatId] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const isDark = theme === 'dark';
-
-  const closeSidebarOnMobile = () => {
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      setSidebarOpen(false);
-    }
-  };
 
   // Called when MainChat creates a new session — refreshes sidebar list
   const handleChatCreated = (chatId) => {
@@ -33,7 +27,6 @@ const ChatGPTLayout = ({ page = 'chat' }) => {
   // Called when sidebar "New chat" is clicked — clear chat window
   const handleNewChat = () => {
     setCurrentChatId(null);
-    closeSidebarOnMobile();
   };
 
   return (
@@ -47,11 +40,11 @@ const ChatGPTLayout = ({ page = 'chat' }) => {
       `}>
         <ChatSidebar
           currentChatId={currentChatId}
-          setCurrentChatId={(id) => { setCurrentChatId(id); closeSidebarOnMobile(); }}
+          setCurrentChatId={setCurrentChatId}
           onNewChat={handleNewChat}
           refreshTrigger={refreshTrigger}
           closeSidebar={() => setSidebarOpen(false)}
-          onOpenSettings={() => { setShowSettings(true); closeSidebarOnMobile(); }}
+          onOpenSettings={() => setShowSettings(true)}
           isDark={isDark}
         />
       </div>
