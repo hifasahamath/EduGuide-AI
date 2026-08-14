@@ -27,7 +27,7 @@ const GoogleIcon = () => (
 );
 
 const Login = () => {
-  const { user, profile, profileLoaded, login, continueAsGuest } = useAuth();
+  const { user, profile, profileLoaded, isGuest, login, continueAsGuest } = useAuth();
   const navigate = useNavigate();
 
   const handleGuestClick = () => {

@@ -186,10 +186,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
               Chat history is temporary and not stored in database.
             </p>
             <button
-              onClick={() => {
-                logout();
-                navigate('/register');
-              }}
+              onClick={() => navigate('/register')}
               className="mt-3 w-full py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold text-center transition-colors shadow-xs cursor-pointer touch-manipulation"
             >
               Create Account
