@@ -159,25 +159,46 @@ const Register = () => {
               Discover accredited degree programs, compare course fees, and receive personalized career guidance.
             </p>
 
-            {/* Clean feature badges */}
-            <div className="space-y-2.5">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0">
+            {/* Clean 4-item feature cards filling vertical space naturally */}
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
                   <BookOpen size={16} />
                 </div>
-                <p className="text-slate-800 text-xs font-bold">Compare Degrees & Fee Structures</p>
+                <div>
+                  <p className="text-slate-900 text-xs font-bold">Accredited Degree Explorer</p>
+                  <p className="text-slate-500 text-[11px] font-medium leading-snug mt-0.5">Compare top IT, Business, Engineering & Health programs</p>
+                </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0">
+
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
+                  <TrendingUp size={16} />
+                </div>
+                <div>
+                  <p className="text-slate-900 text-xs font-bold">Tuition & Payment Comparisons</p>
+                  <p className="text-slate-500 text-[11px] font-medium leading-snug mt-0.5">Check course fees, installment options & scholarships</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
                   <Sparkles size={16} />
                 </div>
-                <p className="text-slate-800 text-xs font-bold">Personalised AI Academic Guidance</p>
+                <div>
+                  <p className="text-slate-900 text-xs font-bold">Personalised AI Academic Guidance</p>
+                  <p className="text-slate-500 text-[11px] font-medium leading-snug mt-0.5">Instant recommendations tailored to your stream & budget</p>
+                </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0">
+
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
                   <GraduationCap size={16} />
                 </div>
-                <p className="text-slate-800 text-xs font-bold">Direct Pathways from A/Ls & Diplomas</p>
+                <div>
+                  <p className="text-slate-900 text-xs font-bold">Direct Pathways from A/Ls & Diplomas</p>
+                  <p className="text-slate-500 text-[11px] font-medium leading-snug mt-0.5">Clear university admission routes and career transitions</p>
+                </div>
               </div>
             </div>
           </div>
