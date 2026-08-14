@@ -170,50 +170,76 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center">
+      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
 
-        {/* ── Left panel — Light Theme Promo ──────────────────────────── */}
-        <div className="hidden lg:block bg-white border border-slate-200/90 rounded-2xl p-8 shadow-sm space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
-              <Sparkles size={20} className="text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight leading-none">EduGuide AI</h1>
-              <p className="text-indigo-600 text-xs font-bold mt-0.5">Higher Education & Career Advisor</p>
-            </div>
-          </div>
-
-          <h2 className="text-2xl font-extrabold text-slate-900 leading-tight tracking-tight">
-            Discover accredited pathways<br />
-            <span className="text-indigo-600">with intelligent guidance</span>
-          </h2>
-          
-          <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-medium">
-            Search accredited degree programs, compare institutional course fees, and receive personalized academic advice.
-          </p>
-
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            {FEATURES.map((f, i) => (
-              <div key={i} className="bg-slate-50 border border-slate-200/90 rounded-xl p-3.5 hover:border-slate-300 transition-all">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 mb-2 font-bold">{f.icon}</div>
-                <p className="text-slate-900 text-xs font-bold">{f.label}</p>
-                <p className="text-slate-500 text-[11px] font-medium mt-0.5">{f.desc}</p>
+        {/* ── Left panel — Clean Highlight Card ──────────────────────────── */}
+        <div className="hidden lg:flex flex-col justify-between bg-white border border-slate-200/90 rounded-2xl p-7 sm:p-8 shadow-sm">
+          <div>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+                <Sparkles size={20} className="text-white" />
               </div>
-            ))}
+              <div>
+                <h1 className="text-xl font-extrabold text-slate-900 tracking-tight leading-none">EduGuide AI</h1>
+                <p className="text-indigo-600 text-xs font-bold mt-0.5">Higher Education & Career Advisor</p>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-extrabold text-slate-900 leading-snug tracking-tight mb-3">
+              Find Your Ideal<br />
+              <span className="text-indigo-600">Academic & Career Path</span>
+            </h2>
+            
+            <p className="text-slate-600 text-xs leading-relaxed font-medium mb-6">
+              Discover accredited degree programs, compare course fees, and receive personalized career guidance.
+            </p>
+
+            {/* Clean feature badges */}
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0">
+                  <BookOpen size={16} />
+                </div>
+                <p className="text-slate-800 text-xs font-bold">Compare Degrees & Fee Structures</p>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0">
+                  <Sparkles size={16} />
+                </div>
+                <p className="text-slate-800 text-xs font-bold">Personalised AI Academic Guidance</p>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0">
+                  <GraduationCap size={16} />
+                </div>
+                <p className="text-slate-800 text-xs font-bold">Direct Pathways from A/Ls & Diplomas</p>
+              </div>
+            </div>
           </div>
 
-          <button onClick={handleGuestClick}
-            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2 cursor-pointer">
-            <span className="w-6 h-6 rounded-md bg-slate-100 border border-slate-300 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-              <ArrowRight size={12} />
-            </span>
-            Explore as Guest — no login required
-          </button>
+          {/* Prominently Highlighted Explore as Guest Button */}
+          <div className="pt-6 border-t border-slate-100 mt-6">
+            <button
+              type="button"
+              onClick={handleGuestClick}
+              className="w-full flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-indigo-500/15 hover:from-amber-500/25 hover:to-indigo-500/25 border-2 border-amber-400/70 text-slate-900 font-extrabold text-xs shadow-xs hover:shadow-md transition-all group cursor-pointer touch-manipulation"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-xs flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <Sparkles size={14} />
+                </div>
+                <div className="text-left truncate">
+                  <p className="font-extrabold text-slate-900 text-xs">Explore as Guest</p>
+                  <p className="text-[10px] text-amber-900/80 font-bold truncate">Try AI chat instantly — no login required</p>
+                </div>
+              </div>
+              <ArrowRight size={15} className="text-amber-700 group-hover:translate-x-1 transition-transform flex-shrink-0 ml-1" />
+            </button>
+          </div>
         </div>
 
         {/* ── Right panel — Light Theme Login Form ───────────────────── */}
-        <div className="w-full">
+        <div className="w-full flex flex-col justify-between">
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-2 justify-center mb-6">
             <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
@@ -324,10 +350,18 @@ const Login = () => {
               <button
                 type="button"
                 onClick={handleGuestClick}
-                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 font-bold text-xs shadow-xs transition-all"
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-indigo-500/15 hover:from-amber-500/25 hover:to-indigo-500/25 border-2 border-amber-400/70 text-slate-900 font-extrabold text-xs shadow-xs transition-all cursor-pointer touch-manipulation"
               >
-                <Sparkles size={14} className="text-amber-600" />
-                <span>Explore as Guest — no login required</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-xs flex-shrink-0">
+                    <Sparkles size={13} />
+                  </div>
+                  <div className="text-left truncate">
+                    <p className="font-extrabold text-slate-900 text-xs">Explore as Guest</p>
+                    <p className="text-[10px] text-amber-900/80 font-bold truncate">Try AI chat instantly — no login required</p>
+                  </div>
+                </div>
+                <ArrowRight size={14} className="text-amber-700 flex-shrink-0 ml-1" />
               </button>
             </div>
 
