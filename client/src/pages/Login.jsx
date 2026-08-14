@@ -170,80 +170,70 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-4 sm:p-6 font-sans">
-      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
 
         {/* ── Left panel — Clean Highlight Card ──────────────────────────── */}
-        <div className="hidden lg:flex flex-col justify-between bg-white border border-slate-200/90 rounded-2xl p-7 sm:p-8 shadow-sm">
+        <div className="hidden lg:flex flex-col justify-between bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm">
           <div>
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
-                <Sparkles size={20} className="text-white" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
+                <Sparkles size={18} className="text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-extrabold text-slate-900 tracking-tight leading-none">EduGuide AI</h1>
+                <h1 className="text-lg font-extrabold text-slate-900 tracking-tight leading-none">EduGuide AI</h1>
                 <p className="text-indigo-600 text-xs font-bold mt-0.5">Higher Education & Career Advisor</p>
               </div>
             </div>
 
-            <h2 className="text-2xl font-extrabold text-slate-900 leading-snug tracking-tight mb-3">
+            <h2 className="text-xl font-extrabold text-slate-900 leading-snug tracking-tight mb-2">
               Find Your Ideal<br />
               <span className="text-indigo-600">Academic & Career Path</span>
             </h2>
             
-            <p className="text-slate-600 text-xs leading-relaxed font-medium mb-6">
+            <p className="text-slate-600 text-xs leading-relaxed font-medium mb-4">
               Discover accredited degree programs, compare course fees, and receive personalized career guidance.
             </p>
 
-            {/* Clean 4-item feature cards filling vertical space naturally */}
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
-                  <BookOpen size={16} />
+            {/* Clean 3-item feature cards */}
+            <div className="space-y-2.5">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
+                  <BookOpen size={14} />
                 </div>
                 <div>
                   <p className="text-slate-900 text-xs font-bold">Accredited Degree Explorer</p>
-                  <p className="text-slate-500 text-[11px] font-medium leading-snug mt-0.5">Compare top IT, Business, Engineering & Health programs</p>
+                  <p className="text-slate-500 text-[11px] font-medium leading-snug">Compare top IT, Business, Engineering & Health programs</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
-                  <TrendingUp size={16} />
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
+                  <TrendingUp size={14} />
                 </div>
                 <div>
                   <p className="text-slate-900 text-xs font-bold">Tuition & Payment Comparisons</p>
-                  <p className="text-slate-500 text-[11px] font-medium leading-snug mt-0.5">Check course fees, installment options & scholarships</p>
+                  <p className="text-slate-500 text-[11px] font-medium leading-snug">Check course fees, installment options & scholarships</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
-                  <Sparkles size={16} />
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
+                  <Sparkles size={14} />
                 </div>
                 <div>
                   <p className="text-slate-900 text-xs font-bold">Personalised AI Academic Guidance</p>
-                  <p className="text-slate-500 text-[11px] font-medium leading-snug mt-0.5">Instant recommendations tailored to your stream & budget</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold flex-shrink-0 mt-0.5">
-                  <GraduationCap size={16} />
-                </div>
-                <div>
-                  <p className="text-slate-900 text-xs font-bold">Direct Pathways from A/Ls & Diplomas</p>
-                  <p className="text-slate-500 text-[11px] font-medium leading-snug mt-0.5">Clear university admission routes and career transitions</p>
+                  <p className="text-slate-500 text-[11px] font-medium leading-snug">Instant recommendations tailored to your stream & budget</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Prominently Highlighted Explore as Guest Button */}
-          <div className="pt-6 border-t border-slate-100 mt-6">
+          <div className="pt-4 border-t border-slate-100 mt-4">
             <button
               type="button"
               onClick={handleGuestClick}
-              className="w-full flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-indigo-500/15 hover:from-amber-500/25 hover:to-indigo-500/25 border-2 border-amber-400/70 text-slate-900 font-extrabold text-xs shadow-xs hover:shadow-md transition-all group cursor-pointer touch-manipulation"
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-indigo-500/15 hover:from-amber-500/25 hover:to-indigo-500/25 border-2 border-amber-400/70 text-slate-900 font-extrabold text-xs shadow-xs hover:shadow-md transition-all group cursor-pointer touch-manipulation"
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-xs flex-shrink-0 group-hover:scale-110 transition-transform">
@@ -260,7 +250,7 @@ const Login = () => {
         </div>
 
         {/* ── Right panel — Light Theme Login Form ───────────────────── */}
-        <div className="w-full flex flex-col justify-between">
+        <div className="w-full">
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center gap-2 justify-center mb-6">
             <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-xs">
