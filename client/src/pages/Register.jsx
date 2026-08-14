@@ -48,10 +48,11 @@ const Register = () => {
     navigate('/chat');
   };
 
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', phone: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
   const [errors, setErrors] = useState({});
   const [agreed, setAgreed] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -121,7 +122,7 @@ const Register = () => {
   };
 
   if (success) return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-6 select-none font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-6 font-sans">
       <div className="text-center bg-white border border-slate-200 rounded-2xl p-8 shadow-lg max-w-md w-full">
         <div className="w-16 h-16 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 size={32} className="text-emerald-600" />
@@ -133,7 +134,7 @@ const Register = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-4 sm:p-6 select-none font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-4 sm:p-6 font-sans">
       <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center">
         
         {/* ── Left panel — Light Theme Promo ─────────────────────────── */}
@@ -172,7 +173,7 @@ const Register = () => {
           </div>
 
           <button onClick={handleGuestClick}
-            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2 cursor-pointer">
+            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2 cursor-pointer touch-manipulation">
             <span className="w-6 h-6 rounded-md bg-slate-100 border border-slate-300 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
               <ChevronRight size={13} />
             </span>
@@ -198,7 +199,7 @@ const Register = () => {
               type="button"
               onClick={handleGoogleSignIn}
               disabled={googleLoading}
-              className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-xs transition-all disabled:opacity-60 mb-5"
+              className="w-full flex items-center justify-center py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs shadow-xs transition-all disabled:opacity-60 mb-5 cursor-pointer touch-manipulation"
             >
               {googleLoading ? <Loader2 size={16} className="animate-spin mr-2" /> : <GoogleIcon />}
               <span>Sign up with Google</span>
@@ -225,55 +226,56 @@ const Register = () => {
                 value={form.email} onChange={set('email')} placeholder="you@example.com"
                 error={errors.email} autoComplete="email" />
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Lock size={15} /></div>
-                    <input
-                      type={showPass ? 'text' : 'password'}
-                      value={form.password}
-                      onChange={set('password')}
-                      placeholder="Min 6 chars"
-                      autoComplete="new-password"
-                      className={`w-full bg-white border rounded-xl py-2.5 pl-10 pr-8 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 transition-all ${
-                        errors.password ? 'border-rose-500 focus:ring-rose-500/30' : 'border-slate-300 focus:ring-indigo-500/40'
-                      }`}
-                    />
-                    <button type="button" onClick={() => setShowPass(!showPass)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700">
-                      {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
-                    </button>
-                  </div>
-                  {errors.password && <p className="text-xs text-rose-600 font-bold mt-1">{errors.password}</p>}
+              {/* Password - Full Width */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
+                <div className="relative">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Lock size={15} /></div>
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={set('password')}
+                    placeholder="Min 6 characters"
+                    autoComplete="new-password"
+                    className={`w-full bg-white border rounded-xl py-2.5 pl-10 pr-10 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 transition-all ${
+                      errors.password ? 'border-rose-500 focus:ring-rose-500/30' : 'border-slate-300 focus:ring-indigo-500/40 focus:border-indigo-500/40'
+                    }`}
+                  />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 cursor-pointer touch-manipulation">
+                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Confirm</label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Lock size={15} /></div>
-                    <input
-                      type={showPass ? 'text' : 'password'}
-                      value={form.confirm}
-                      onChange={set('confirm')}
-                      placeholder="Repeat"
-                      autoComplete="new-password"
-                      className={`w-full bg-white border rounded-xl py-2.5 pl-10 pr-4 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 transition-all ${
-                        errors.confirm ? 'border-rose-500 focus:ring-rose-500/30' : 'border-slate-300 focus:ring-indigo-500/40'
-                      }`}
-                    />
-                  </div>
-                  {errors.confirm && <p className="text-xs text-rose-600 font-bold mt-1">{errors.confirm}</p>}
-                </div>
+                {errors.password && <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1"><AlertCircle size={11} />{errors.password}</p>}
               </div>
 
-              <AuthInput label="Phone (Optional)" icon={<Phone size={15} />} type="tel"
-                value={form.phone} onChange={set('phone')} placeholder="+94 77 000 0000" />
+              {/* Confirm Password - Full Width (Replaced Phone) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Confirm Password</label>
+                <div className="relative">
+                  <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><Lock size={15} /></div>
+                  <input
+                    type={showConfirmPass ? 'text' : 'password'}
+                    value={form.confirm}
+                    onChange={set('confirm')}
+                    placeholder="Re-enter your password"
+                    autoComplete="new-password"
+                    className={`w-full bg-white border rounded-xl py-2.5 pl-10 pr-10 text-slate-900 placeholder-slate-400 text-xs font-semibold focus:outline-none focus:ring-2 transition-all ${
+                      errors.confirm ? 'border-rose-500 focus:ring-rose-500/30' : 'border-slate-300 focus:ring-indigo-500/40 focus:border-indigo-500/40'
+                    }`}
+                  />
+                  <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-1 cursor-pointer touch-manipulation">
+                    {showConfirmPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
+                </div>
+                {errors.confirm && <p className="text-xs text-rose-600 font-bold mt-1 flex items-center gap-1"><AlertCircle size={11} />{errors.confirm}</p>}
+              </div>
 
               {/* Terms checkbox */}
               <div>
                 <div
-                  className={`flex items-start gap-2.5 cursor-pointer select-none ${errors.agreed ? 'text-rose-600 font-bold' : 'text-slate-700 font-semibold'}`}
+                  className={`flex items-start gap-2.5 cursor-pointer touch-manipulation select-none ${errors.agreed ? 'text-rose-600 font-bold' : 'text-slate-700 font-semibold'}`}
                   onClick={() => setAgreed(a => !a)}
                 >
                   <input
@@ -289,11 +291,11 @@ const Register = () => {
                     <span className="text-indigo-600 underline font-bold" onClick={e => e.stopPropagation()}>Privacy Policy</span>
                   </span>
                 </div>
-                {errors.agreed && <p className="text-xs text-rose-600 font-bold mt-1 ml-6">{errors.agreed}</p>}
+                {errors.agreed && <p className="text-xs text-rose-600 font-bold mt-1 ml-6 flex items-center gap-1"><AlertCircle size={11} />{errors.agreed}</p>}
               </div>
 
               <button type="submit" disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-xs shadow-indigo-600/20 disabled:opacity-60 disabled:cursor-not-allowed mt-1 text-xs">
+                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all shadow-xs shadow-indigo-600/20 disabled:opacity-60 disabled:cursor-not-allowed mt-1 text-xs cursor-pointer touch-manipulation">
                 {loading ? <><Loader2 size={16} className="animate-spin" /> Creating account...</> : <>Create Account <ArrowRight size={15} /></>}
               </button>
             </form>

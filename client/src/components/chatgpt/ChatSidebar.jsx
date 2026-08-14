@@ -10,7 +10,6 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 
-
 const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted, refreshTrigger, closeSidebar, onOpenSettings, isDark }) => {
   const { user, isGuest, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
@@ -41,16 +40,16 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
   useEffect(() => { loadSessions(); }, [loadSessions, refreshTrigger]);
 
   const handleNewChat = () => {
+    navigate('/chat');
     setCurrentChatId(null);
     onNewChat?.();
     closeSidebar?.();
-    navigate('/chat');
   };
 
   const handleSelectChat = (chatId) => {
+    navigate('/chat');
     setCurrentChatId(chatId);
     closeSidebar?.();
-    navigate('/chat');
   };
 
   const handleDelete = async (e, chatId) => {
@@ -95,14 +94,14 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
   };
 
   const handleLogout = () => {
-    closeSidebar?.();
-    logout();
     navigate('/login');
+    logout();
+    closeSidebar?.();
   };
 
   const navTo = (path) => {
-    closeSidebar?.();
     navigate(path);
+    closeSidebar?.();
   };
 
   const sortedChats = [...chats].sort((a, b) => {
@@ -138,7 +137,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
   };
 
   return (
-    <div className={`w-[280px] max-w-[85vw] h-full ${bg} flex flex-col border-r ${borderColor} transition-colors duration-300 select-none shadow-2xl md:shadow-none`}>
+    <div className={`w-[280px] max-w-[85vw] h-full ${bg} flex flex-col border-r ${borderColor} transition-colors duration-300 shadow-2xl md:shadow-none`}>
       {/* Logo + Close */}
       <div className={`px-4 py-3.5 flex items-center justify-between border-b ${borderColor}`}>
         <div className="flex items-center gap-2.5">
@@ -150,7 +149,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
             <span className="text-[10px] text-indigo-500 font-bold tracking-wide uppercase">Workspace</span>
           </div>
         </div>
-        <button onClick={closeSidebar} className={`p-2 rounded-lg ${hoverBg} ${textMuted} transition-colors`} title="Close sidebar">
+        <button onClick={closeSidebar} className={`p-2 rounded-lg ${hoverBg} ${textMuted} transition-colors cursor-pointer touch-manipulation`} title="Close sidebar">
           <PanelLeftClose size={18} />
         </button>
       </div>
@@ -158,7 +157,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
       {/* New Chat Button */}
       <div className="p-3">
         <button onClick={handleNewChat}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all font-bold text-sm shadow-xs shadow-indigo-500/20 group">
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all font-bold text-sm shadow-xs shadow-indigo-500/20 group cursor-pointer touch-manipulation">
           <Plus size={16} className="group-hover:rotate-90 transition-transform duration-200" />
           <span>New Chat</span>
         </button>
@@ -192,7 +191,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
             </p>
             <button
               onClick={() => navTo('/register')}
-              className="mt-3 w-full py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold text-center transition-colors shadow-xs"
+              className="mt-3 w-full py-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold text-center transition-colors shadow-xs cursor-pointer touch-manipulation"
             >
               Create Account
             </button>
@@ -212,12 +211,12 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
                       onKeyDown={e => { if (e.key === 'Enter') submitRename(chat.id); if (e.key === 'Escape') setRenamingId(null); }}
                       className={`flex-1 text-xs font-semibold rounded-lg px-2 py-1 border focus:outline-none focus:ring-1 focus:ring-indigo-500 ${inputBg}`}
                     />
-                    <button onClick={() => submitRename(chat.id)} className="text-emerald-500 hover:text-emerald-400 p-1"><Check size={14} /></button>
-                    <button onClick={() => setRenamingId(null)} className="text-slate-400 hover:text-slate-300 p-1"><X size={14} /></button>
+                    <button onClick={() => submitRename(chat.id)} className="text-emerald-500 hover:text-emerald-400 p-1 cursor-pointer touch-manipulation"><Check size={14} /></button>
+                    <button onClick={() => setRenamingId(null)} className="text-slate-400 hover:text-slate-300 p-1 cursor-pointer touch-manipulation"><X size={14} /></button>
                   </div>
                 ) : (
                   <button onClick={() => handleSelectChat(chat.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2.5 transition-all text-xs group relative ${
+                    className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2.5 transition-all text-xs group relative cursor-pointer touch-manipulation ${
                       currentChatId === chat.id
                         ? activeBg
                         : `${isDark ? 'text-slate-200' : 'text-slate-800'} ${hoverBg}`
@@ -233,20 +232,20 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
                     {/* Action buttons — accessible on touch + hover */}
                     <div className="flex sm:opacity-0 sm:group-hover:opacity-100 items-center gap-0.5 flex-shrink-0 transition-opacity">
                       <button onClick={(e) => handlePin(e, chat)}
-                        className={`p-1.5 rounded-md transition-all ${
+                        className={`p-1.5 rounded-md transition-all cursor-pointer touch-manipulation ${
                           isDark ? 'text-slate-300 hover:bg-slate-700 hover:text-indigo-400' : 'text-slate-700 hover:bg-slate-300 hover:text-indigo-600'
                         }`}
                         title={chat.pinned ? 'Unpin' : 'Pin'}>
                         {chat.pinned ? <PinOff size={14} /> : <Pin size={14} />}
                       </button>
                       <button onClick={(e) => startRename(e, chat)}
-                        className={`p-1.5 rounded-md transition-all ${
+                        className={`p-1.5 rounded-md transition-all cursor-pointer touch-manipulation ${
                           isDark ? 'text-slate-300 hover:bg-slate-700 hover:text-indigo-400' : 'text-slate-700 hover:bg-slate-300 hover:text-indigo-600'
                         }`} title="Rename">
                         <Edit3 size={14} />
                       </button>
                       <button onClick={(e) => handleDelete(e, chat.id)}
-                        className={`p-1.5 rounded-md transition-all ${
+                        className={`p-1.5 rounded-md transition-all cursor-pointer touch-manipulation ${
                           isDark ? 'text-slate-400 hover:bg-slate-700 hover:text-rose-400' : 'text-slate-600 hover:bg-slate-300 hover:text-rose-600'
                         }`} title="Delete">
                         <Trash2 size={14} />
@@ -268,7 +267,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
       <div className={`border-t ${borderColor} p-2 space-y-0.5`}>
         {/* Theme Toggle */}
         <button onClick={toggleTheme}
-          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl ${hoverBg} transition-colors text-xs font-bold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl ${hoverBg} transition-colors text-xs font-bold cursor-pointer touch-manipulation ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
           <div className="flex items-center gap-2.5">
             {theme === 'dark' ? <Moon size={14} className="text-indigo-400" /> : <Sun size={14} className="text-amber-500" />}
             <span>{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
@@ -281,14 +280,14 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
         </button>
 
         <button onClick={() => navTo('/history')}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} text-xs font-bold transition-colors ${
+          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} text-xs font-bold transition-colors cursor-pointer touch-manipulation ${
             location.pathname === '/history' ? activeBg : isDark ? 'text-slate-200' : 'text-slate-800'
           }`}>
           <Clock size={14} /><span>Chat History</span>
         </button>
 
         <button onClick={() => navTo('/settings')}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} text-xs font-bold transition-colors ${
+          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} text-xs font-bold transition-colors cursor-pointer touch-manipulation ${
             location.pathname === '/settings' ? activeBg : isDark ? 'text-slate-200' : 'text-slate-800'
           }`}>
           <Settings size={14} /><span>Settings</span>
@@ -296,7 +295,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
 
         {/* User */}
         <button onClick={() => navTo(isGuest ? '/login' : '/profile')}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} transition-colors mt-1 ${
+          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} transition-colors mt-1 cursor-pointer touch-manipulation ${
             location.pathname === '/profile' ? activeBg : ''
           }`}>
           {user?.profilePic
@@ -314,7 +313,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
         </button>
 
         <button onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-red-500/15 text-xs font-bold text-red-500 dark:text-red-400 transition-colors">
+          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-red-500/15 text-xs font-bold text-red-500 dark:text-red-400 transition-colors cursor-pointer touch-manipulation">
           <LogOut size={14} /><span>{isGuest ? 'Exit Guest Mode' : 'Log out'}</span>
         </button>
       </div>

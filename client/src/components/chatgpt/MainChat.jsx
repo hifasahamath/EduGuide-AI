@@ -438,10 +438,10 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
       <div className={`sticky top-0 z-10 ${headerBg} backdrop-blur-md border-b px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2`}>
         <div className="flex items-center gap-2 min-w-0">
           {!sidebarOpen && (
-            <button onClick={toggleSidebar} className={`p-1.5 sm:p-2 rounded-xl border flex-shrink-0 ${
-              isDark ? 'border-slate-800 hover:bg-slate-800 text-slate-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700'
+            <button onClick={toggleSidebar} className={`p-2 rounded-xl border flex-shrink-0 min-w-[36px] min-h-[36px] flex items-center justify-center cursor-pointer touch-manipulation ${
+              isDark ? 'border-slate-800 hover:bg-slate-800 text-slate-300' : 'border-slate-300 hover:bg-slate-100 text-slate-700 shadow-xs'
             } transition-colors`} title="Toggle sidebar">
-              <PanelLeft size={16} />
+              <PanelLeft size={17} />
             </button>
           )}
           <div className="flex items-center gap-2 min-w-0">
@@ -567,8 +567,10 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
           isDark
             ? 'bg-gradient-to-t from-[#080c16] via-[#080c16]/95 to-transparent'
             : 'bg-gradient-to-t from-slate-50 via-slate-50/95 to-transparent'
-        } pt-6 sm:pt-8 pb-3 sm:pb-5 px-3 sm:px-4 z-10`}>
-          {renderInputBox(false)}
+        } pt-6 sm:pt-8 pb-3 sm:pb-5 px-3 sm:px-4 z-10 pointer-events-none`}>
+          <div className="pointer-events-auto">
+            {renderInputBox(false)}
+          </div>
         </div>
       )}
     </div>

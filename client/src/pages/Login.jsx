@@ -169,7 +169,7 @@ const Login = () => {
   const isLocked = lockRemaining > 0;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-4 sm:p-6 select-none font-sans">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex items-center justify-center p-4 sm:p-6 font-sans">
       <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center">
 
         {/* ── Left panel — Light Theme Promo ──────────────────────────── */}
