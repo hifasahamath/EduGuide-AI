@@ -195,7 +195,7 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
 
 // ── Main Chat ──────────────────────────────────────────────────────────────────
 const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSidebar, sidebarOpen, isDark }) => {
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -207,8 +207,9 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
 
   const isNew = !currentChatId && messages.length === 0;
 
-  // Load existing chat
+  // Load existing chat (Registered users only)
   useEffect(() => {
+    if (isGuest) return;
     setMessages([]);
     if (currentChatId) {
       api.get(`/chat/sessions/${currentChatId}`)
@@ -224,7 +225,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
         })
         .catch(() => setMessages([]));
     }
-  }, [currentChatId]);
+  }, [currentChatId, isGuest]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -287,7 +288,9 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
     if (!trimmed || isTyping) return;
 
     let activeChatId = currentChatId;
-    if (!activeChatId) {
+
+    // For registered users without active session, create one in database
+    if (!isGuest && !activeChatId) {
       try {
         const r = await api.post(`/chat/sessions`, { userId: user?.id });
         activeChatId = r.data.id;
@@ -304,10 +307,18 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
     setIsTyping(true);
 
     try {
+      // In-memory conversation history for multi-turn context
+      const historyPayload = messages.map(m => ({
+        role: m.sender === 'bot' ? 'assistant' : 'user',
+        content: m.text
+      }));
+
       const res = await api.post('/chat', {
         message: trimmed,
-        userId: user?.id,
-        sessionId: activeChatId,
+        userId: isGuest ? 'guest' : user?.id,
+        sessionId: isGuest ? 'guest-session' : activeChatId,
+        isGuest: Boolean(isGuest),
+        history: historyPayload,
         preferences: user?.preferences || {},
       });
 
@@ -342,7 +353,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
     } finally {
       setIsTyping(false);
     }
-  }, [input, isTyping, currentChatId, user, setCurrentChatId, onChatCreated]);
+  }, [input, isTyping, currentChatId, user, isGuest, messages, setCurrentChatId, onChatCreated]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -439,13 +450,17 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
           <span className={`font-bold text-sm tracking-tight ${textMain}`}>EduGuide AI</span>
         </div>
         <div className="ml-auto flex items-center gap-2.5">
-          {user?.preferences?.field && (
+          {isGuest ? (
+            <span className="text-xs px-2.5 py-0.5 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-700/60">
+              Guest Mode · Temporary
+            </span>
+          ) : user?.preferences?.field ? (
             <span className={`text-[11px] px-2.5 py-0.5 rounded-full ${
               isDark ? 'bg-slate-800 text-slate-200 border border-slate-700' : 'bg-slate-200 text-slate-800 border border-slate-300'
             } font-semibold hidden sm:inline-block`}>
               Field: {user.preferences.field}
             </span>
-          )}
+          ) : null}
           <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
             isDark ? 'bg-indigo-950/80 text-indigo-300 border border-indigo-700/60' : 'bg-indigo-100 text-indigo-800 border border-indigo-300'
           }`}>
@@ -468,13 +483,19 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
               <Sparkles size={24} />
             </div>
             <h1 className={`text-2xl sm:text-3xl font-extrabold mb-2 tracking-tight ${textMain}`}>
-              Welcome, {user?.name?.split(' ')[0] || 'Student'}
+              Welcome, {isGuest ? 'Guest Explorer' : (user?.name?.split(' ')[0] || 'Student')}
             </h1>
-            <p className={`text-xs sm:text-sm mb-6 font-medium ${textMuted} max-w-md`}>
+            <p className={`text-xs sm:text-sm mb-4 font-medium ${textMuted} max-w-md`}>
               Explore higher education courses, compare tuition fees, and receive personalised career guidance.
             </p>
 
-            {user?.preferences?.field && (
+            {isGuest && (
+              <div className="mb-6 px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300 text-xs font-semibold max-w-md">
+                ⚡ <strong>Guest Session:</strong> Chat history is temporary and not stored in database. You can ask anything!
+              </div>
+            )}
+
+            {!isGuest && user?.preferences?.field && (
               <p className={`text-xs mb-6 px-3 py-1.5 rounded-full font-semibold ${
                 isDark ? 'bg-indigo-950/60 text-indigo-300 border border-indigo-800/60' : 'bg-indigo-100 text-indigo-800 border border-indigo-300'
               }`}>

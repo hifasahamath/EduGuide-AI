@@ -7,6 +7,9 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [isGuest, setIsGuest] = useState(() => {
+    return sessionStorage.getItem('eduguide_guest') === 'true';
+  });
 
   // true during the initial session check on page load
   const [loading, setLoading] = useState(true);
@@ -88,8 +91,26 @@ export const AuthProvider = ({ children }) => {
       if (!isMounted) return;
 
       if (session?.user) {
+        setIsGuest(false);
+        sessionStorage.removeItem('eduguide_guest');
         setUser(session.user);
         await fetchProfile(session.user.id, session.user);
+      } else if (sessionStorage.getItem('eduguide_guest') === 'true') {
+        setIsGuest(true);
+        setUser({
+          id: 'guest',
+          email: 'guest@eduguide.ai',
+          name: 'Guest Explorer',
+          user_metadata: { display_name: 'Guest Explorer', role: 'user' },
+          isGuest: true
+        });
+        setProfile({
+          id: 'guest',
+          role: 'user',
+          display_name: 'Guest Explorer',
+          isGuest: true
+        });
+        setProfileLoaded(true);
       } else {
         setProfileLoaded(true);
       }
@@ -102,13 +123,18 @@ export const AuthProvider = ({ children }) => {
       if (!isMounted) return;
 
       if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setProfile(null);
+        if (!sessionStorage.getItem('eduguide_guest')) {
+          setUser(null);
+          setProfile(null);
+          setIsGuest(false);
+        }
         setProfileLoaded(true);
         return;
       }
 
       if (session?.user) {
+        setIsGuest(false);
+        sessionStorage.removeItem('eduguide_guest');
         setUser(session.user);
         await fetchProfile(session.user.id, session.user);
       }
@@ -121,12 +147,41 @@ export const AuthProvider = ({ children }) => {
   }, [fetchProfile]);
 
   /**
+   * Enter Guest mode.
+   * Sets temporary virtual user/profile objects in state and sessionStorage.
+   * Absolutely NO rows are created in Supabase DB.
+   */
+  const continueAsGuest = () => {
+    setIsGuest(true);
+    sessionStorage.setItem('eduguide_guest', 'true');
+    const guestUser = {
+      id: 'guest',
+      email: 'guest@eduguide.ai',
+      name: 'Guest Explorer',
+      user_metadata: { display_name: 'Guest Explorer', role: 'user' },
+      isGuest: true
+    };
+    const guestProfile = {
+      id: 'guest',
+      role: 'user',
+      display_name: 'Guest Explorer',
+      isGuest: true
+    };
+    setUser(guestUser);
+    setProfile(guestProfile);
+    setProfileLoaded(true);
+    setLoading(false);
+  };
+
+  /**
    * Login with email + password.
    * Supabase handles JWT creation. We fetch profile directly from DB,
    * update state, and return role for instant redirection.
    */
   const login = async (email, password) => {
     try {
+      setIsGuest(false);
+      sessionStorage.removeItem('eduguide_guest');
       setProfileLoaded(false);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
@@ -155,6 +210,8 @@ export const AuthProvider = ({ children }) => {
    */
   const register = async (email, password, name) => {
     try {
+      setIsGuest(false);
+      sessionStorage.removeItem('eduguide_guest');
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -193,6 +250,8 @@ export const AuthProvider = ({ children }) => {
    * Sign out and clear all local state.
    */
   const logout = async () => {
+    sessionStorage.removeItem('eduguide_guest');
+    setIsGuest(false);
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
@@ -218,7 +277,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, profileLoaded, login, register, logout, updateSessionProfile }}>
+    <AuthContext.Provider value={{ user, profile, isGuest, loading, profileLoaded, continueAsGuest, login, register, logout, updateSessionProfile }}>
       {children}
     </AuthContext.Provider>
   );

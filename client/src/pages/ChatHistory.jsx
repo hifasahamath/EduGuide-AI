@@ -184,7 +184,7 @@ const ChatRow = ({ chat, isDark, onOpen, onDelete, onPin, onRename }) => {
 
 // ── Main ChatHistory Page ──────────────────────────────────────────────────────
 const ChatHistory = ({ isDark }) => {
-  const { user } = useAuth();
+  const { user, isGuest } = useAuth();
   const navigate = useNavigate();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -196,14 +196,18 @@ const ChatHistory = ({ isDark }) => {
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2000); };
 
   const fetchChats = useCallback(async () => {
-    if (!user?.id) return;
+    if (isGuest || !user?.id) {
+      setChats([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
       const r = await api.get(`/chat/sessions`, { params: { userId: user.id } });
       setChats(r.data || []);
     } catch { setChats([]); }
     setLoading(false);
-  }, [user?.id]);
+  }, [user?.id, isGuest]);
 
   useEffect(() => { fetchChats(); }, [fetchChats]);
 
@@ -288,6 +292,26 @@ const ChatHistory = ({ isDark }) => {
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="w-6 h-6 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+        </div>
+      ) : isGuest ? (
+        <div className={`text-center py-16 ${textMuted} max-w-md mx-auto`}>
+          <div className="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 flex items-center justify-center mx-auto mb-3 text-amber-600 dark:text-amber-400">
+            <Sparkles size={24} />
+          </div>
+          <p className="font-bold text-base text-slate-900 dark:text-slate-100">Guest Mode Active</p>
+          <p className="text-xs mt-1.5 leading-relaxed font-medium">
+            You are exploring EduGuide AI as a guest. Guest chats are kept temporarily in memory and are not stored in any database.
+          </p>
+          <div className="flex items-center justify-center gap-3 mt-5">
+            <button onClick={() => navigate('/chat')}
+              className="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors shadow-xs">
+              Go to Chat
+            </button>
+            <button onClick={() => navigate('/register')}
+              className="px-4 py-2 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-colors shadow-xs shadow-indigo-500/20">
+              Create Free Account
+            </button>
+          </div>
         </div>
       ) : filtered.length === 0 ? (
         <div className={`text-center py-16 ${textMuted}`}>

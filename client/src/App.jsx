@@ -35,7 +35,15 @@ import Register from './pages/Register';
  * - If user has no profile yet (e.g., profile fetch failed), they are treated as 'user'
  */
 const ProtectedRoute = ({ children, allowedRole }) => {
-  const { user, profile, loading, profileLoaded } = useAuth();
+  const { user, profile, loading, profileLoaded, isGuest } = useAuth();
+  
+  // Guest mode handling
+  if (isGuest) {
+    if (allowedRole === 'admin') {
+      return <Navigate to="/chat" replace />;
+    }
+    return children;
+  }
   
   // Not authenticated — redirect to login
   if (!user) return <Navigate to="/login" replace />;

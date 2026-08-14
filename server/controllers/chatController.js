@@ -8,15 +8,36 @@ exports.handleChat = async (req, res) => {
   try {
     const { message, sessionId, userId } = req.body;
 
-    if (!message || !userId) {
-      return res.status(400).json({ error: 'Missing message or userId' });
+    if (!message) {
+      return res.status(400).json({ error: 'Missing message' });
     }
+
+    const isGuest = req.user?.isGuest || req.body?.isGuest || req.body?.userId === 'guest' || userId === 'guest';
 
     // 1. NLP Pre-processing
     const intent = nlpService.detectIntent(message);
     const entities = nlpService.extractEntities(message);
 
-    // 2. Load or Create Session
+    // GUEST FLOW — In-memory RAG generation with ZERO Supabase DB persistence
+    if (isGuest) {
+      const clientHistory = Array.isArray(req.body.history) ? req.body.history : [];
+      const ragResponse = await RagService.generateResponse(message, clientHistory, req.user);
+
+      return res.json({
+        reply: ragResponse.text,
+        intent,
+        sessionId: 'guest-session',
+        sources: ragResponse.sources,
+        followUps: ragResponse.followUps || [],
+        isGuest: true
+      });
+    }
+
+    if (!userId) {
+      return res.status(400).json({ error: 'Missing userId' });
+    }
+
+    // 2. Load or Create Session (Registered Users Only)
     let activeSessionId = sessionId;
     if (!activeSessionId) {
       const session = await ChatModel.createSession(userId, message.substring(0, 30) + '...');
@@ -25,7 +46,7 @@ exports.handleChat = async (req, res) => {
 
     // 3. Load Chat History
     const sessionData = await ChatModel.getSessionWithMessages(activeSessionId);
-    const history = sessionData.messages.map(m => ({ role: m.role, content: m.content }));
+    const history = (sessionData?.messages || []).map(m => ({ role: m.role, content: m.content }));
 
     // 4. Update Context
     await ContextService.updateContext(activeSessionId, {
@@ -47,7 +68,6 @@ exports.handleChat = async (req, res) => {
     const ragResponse = await RagService.generateResponse(message, history, req.user);
     
     // Fallback detection (if strict mode fails or RAG finds nothing and returns a specific fallback string)
-    // We can also analyze the response text, or rely on intent = 'unknown'
     if (intent === 'unknown' || ragResponse.text.includes('I do not know')) {
       await TrainingModel.storeUnknown(message, intent);
     }

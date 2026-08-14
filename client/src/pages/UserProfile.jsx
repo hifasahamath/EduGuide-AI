@@ -5,13 +5,19 @@ import api from '../services/api';
 import { motion } from 'framer-motion';
 import {
   User, Mail, School, MapPin, Calendar, Globe, Lock,
-  Camera, Save, CheckCircle, AlertCircle, Loader2, Eye, EyeOff
+  Camera, Save, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Sparkles
 } from 'lucide-react';
 
 const UserProfile = ({ isDark }) => {
-  const { user, updateSessionProfile } = useAuth();
+  const { user, isGuest, updateSessionProfile } = useAuth();
   const [form, setForm] = useState({
-    name: '', email: '', schoolName: '', address: '', age: '', language: 'English', profilePic: ''
+    name: isGuest ? 'Guest Explorer' : '',
+    email: isGuest ? 'guest@eduguide.ai' : '',
+    schoolName: '',
+    address: '',
+    age: '',
+    language: 'English',
+    profilePic: ''
   });
   const [passwords, setPasswords] = useState({ current: '', newPass: '', confirm: '' });
   const [showPass, setShowPass] = useState({ current: false, newPass: false, confirm: false });
@@ -22,7 +28,7 @@ const UserProfile = ({ isDark }) => {
   const fileRef = useRef(null);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (isGuest || !user?.id) return;
     api.get(`/auth/profile/${user.id}`)
       .then(res => {
         const data = res.data;
@@ -37,7 +43,7 @@ const UserProfile = ({ isDark }) => {
         });
       })
       .catch(() => setForm(f => ({ ...f, name: user.name || '', email: user.email || '' })));
-  }, [user]);
+  }, [user, isGuest]);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -45,6 +51,10 @@ const UserProfile = ({ isDark }) => {
   };
 
   const handleSave = async () => {
+    if (isGuest) {
+      showToast('Please create an account to save profile settings.', 'error');
+      return;
+    }
     if (!user?.id) return;
     setSaving(true);
     try {
@@ -68,6 +78,10 @@ const UserProfile = ({ isDark }) => {
   };
 
   const handlePasswordChange = async () => {
+    if (isGuest) {
+      showToast('Password management is not available in Guest mode.', 'error');
+      return;
+    }
     if (!passwords.newPass || passwords.newPass !== passwords.confirm) {
       showToast('Passwords do not match.', 'error');
       return;
@@ -158,8 +172,24 @@ const UserProfile = ({ isDark }) => {
       {/* Page Header */}
       <div>
         <h1 className={`text-2xl font-extrabold tracking-tight ${textMain}`}>Account Profile</h1>
-        <p className={`text-xs sm:text-sm mt-1 font-medium ${textMuted}`}>Manage your personal information, institution context, and security credentials</p>
+        <p className={`text-xs sm:text-sm mt-1 font-medium ${textMuted}`}>
+          {isGuest ? 'Guest explorer profile (Session only)' : 'Manage your personal information, institution context, and security credentials'}
+        </p>
       </div>
+
+      {isGuest && (
+        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
+            <Sparkles size={16} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-amber-900 dark:text-amber-200">Guest Mode Profile</p>
+            <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">
+              You are using a temporary guest profile. Changes won't be saved to the database unless you create a registered account.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Avatar Card */}
       <div className={`rounded-2xl border p-6 flex items-center gap-6 ${cardBg}`}>
@@ -168,7 +198,7 @@ const UserProfile = ({ isDark }) => {
             <img src={form.profilePic} alt="profile" className="w-20 h-20 rounded-2xl object-cover shadow-sm border border-slate-700/50" />
           ) : (
             <div className="w-20 h-20 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-xs">
-              <span className="text-white text-2xl font-bold">{form.name?.[0]?.toUpperCase() || '?'}</span>
+              <span className="text-white text-2xl font-bold">{form.name?.[0]?.toUpperCase() || 'G'}</span>
             </div>
           )}
           <button
@@ -180,10 +210,10 @@ const UserProfile = ({ isDark }) => {
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePicChange} />
         </div>
         <div>
-          <p className={`text-lg font-extrabold ${textMain}`}>{form.name || 'Student Account'}</p>
+          <p className={`text-lg font-extrabold ${textMain}`}>{form.name || (isGuest ? 'Guest Explorer' : 'Student Account')}</p>
           <p className={`text-xs mt-0.5 font-medium ${textMuted}`}>{form.email}</p>
           <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800/60 text-xs font-bold">
-            Student Profile
+            {isGuest ? 'Guest Mode' : 'Student Profile'}
           </span>
         </div>
         <div className="ml-auto hidden md:block">

@@ -12,18 +12,21 @@ import api from '../../services/api';
 
 
 const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted, refreshTrigger, closeSidebar, onOpenSettings, isDark }) => {
-  const { user, logout } = useAuth();
+  const { user, isGuest, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [chats, setChats] = useState([]);
   const [search, setSearch] = useState('');
-  const [loadingChats, setLoadingChats] = useState(true);
+  const [loadingChats, setLoadingChats] = useState(false);
   const [renamingId, setRenamingId] = useState(null);
   const [renameVal, setRenameVal] = useState('');
 
   const loadSessions = useCallback(async () => {
-    if (!user?.id) return;
+    if (isGuest || !user?.id) {
+      setChats([]);
+      return;
+    }
     setLoadingChats(true);
     try {
       const r = await api.get(`/chat/sessions`, { params: { userId: user.id } });
@@ -33,7 +36,7 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
     } finally {
       setLoadingChats(false);
     }
-  }, [user?.id]);
+  }, [user?.id, isGuest]);
 
   useEffect(() => { loadSessions(); }, [loadSessions, refreshTrigger]);
 
@@ -159,10 +162,26 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
       {/* Chat List */}
       <div className="flex-1 overflow-y-auto px-2 py-1 custom-scrollbar space-y-0.5">
         <p className={`text-[10px] font-bold uppercase tracking-wider px-3 py-2 ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-          Recents {chats.length > 0 && `(${chats.length})`}
+          {isGuest ? 'Session' : `Recents ${chats.length > 0 ? `(${chats.length})` : ''}`}
         </p>
 
-        {loadingChats ? (
+        {isGuest ? (
+          <div className="p-3 mx-1 my-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-left">
+            <div className="flex items-center gap-1.5 mb-1.5 text-amber-500 dark:text-amber-400 font-bold text-xs">
+              <Sparkles size={13} />
+              <span>Guest Session</span>
+            </div>
+            <p className={`text-[11px] font-medium leading-relaxed ${textMuted}`}>
+              Chat history is temporary and not stored in database.
+            </p>
+            <button
+              onClick={() => navigate('/register')}
+              className="mt-3 w-full py-1.5 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold text-center transition-colors shadow-xs"
+            >
+              Create Account
+            </button>
+          </div>
+        ) : loadingChats ? (
           <div className="flex justify-center py-6">
             <div className="w-5 h-5 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
           </div>
@@ -260,25 +279,27 @@ const ChatSidebar = ({ currentChatId, setCurrentChatId, onNewChat, onChatDeleted
         </button>
 
         {/* User */}
-        <button onClick={() => navigate('/profile')}
+        <button onClick={() => isGuest ? navigate('/login') : navigate('/profile')}
           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl ${hoverBg} transition-colors mt-1 ${
             location.pathname === '/profile' ? activeBg : ''
           }`}>
           {user?.profilePic
             ? <img src={user.profilePic} alt="avatar" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
             : <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center flex-shrink-0">
-                <span className="text-indigo-400 text-xs font-bold">{user?.name?.[0]?.toUpperCase() || 'U'}</span>
+                <span className="text-indigo-400 text-xs font-bold">{isGuest ? 'G' : (user?.name?.[0]?.toUpperCase() || 'U')}</span>
               </div>}
           <div className="flex-1 text-left overflow-hidden">
-            <p className={`text-xs font-bold truncate ${textMain}`}>{user?.name || 'Student'}</p>
-            <p className={`text-[10px] font-medium truncate ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{user?.email}</p>
+            <p className={`text-xs font-bold truncate ${textMain}`}>{isGuest ? 'Guest Explorer' : (user?.name || 'Student')}</p>
+            <p className={`text-[10px] font-medium truncate ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+              {isGuest ? 'Temporary Session' : user?.email}
+            </p>
           </div>
           <ChevronRight size={13} className={isDark ? 'text-slate-400' : 'text-slate-600'} />
         </button>
 
         <button onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-red-500/15 text-xs font-bold text-red-500 dark:text-red-400 transition-colors">
-          <LogOut size={14} /><span>Log out</span>
+          <LogOut size={14} /><span>{isGuest ? 'Exit Guest Mode' : 'Log out'}</span>
         </button>
       </div>
     </div>

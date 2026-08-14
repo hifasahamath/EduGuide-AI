@@ -40,8 +40,13 @@ const AuthInput = ({ label, icon, error, ...props }) => (
 );
 
 const Register = () => {
-  const { profile, register } = useAuth();
+  const { profile, register, continueAsGuest } = useAuth();
   const navigate = useNavigate();
+
+  const handleGuestClick = () => {
+    continueAsGuest();
+    navigate('/chat');
+  };
 
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', phone: '' });
   const [errors, setErrors] = useState({});
@@ -166,8 +171,8 @@ const Register = () => {
             ))}
           </div>
 
-          <button onClick={() => navigate('/chat')}
-            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2">
+          <button onClick={handleGuestClick}
+            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2 cursor-pointer">
             <span className="w-6 h-6 rounded-md bg-slate-100 border border-slate-300 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
               <ChevronRight size={13} />
             </span>

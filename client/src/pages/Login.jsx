@@ -27,8 +27,13 @@ const GoogleIcon = () => (
 );
 
 const Login = () => {
-  const { user, profile, profileLoaded, login } = useAuth();
+  const { user, profile, profileLoaded, login, continueAsGuest } = useAuth();
   const navigate = useNavigate();
+
+  const handleGuestClick = () => {
+    continueAsGuest();
+    navigate('/chat');
+  };
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -198,8 +203,8 @@ const Login = () => {
             ))}
           </div>
 
-          <button onClick={() => navigate('/chat')}
-            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2">
+          <button onClick={handleGuestClick}
+            className="group flex items-center gap-2 text-xs text-slate-600 hover:text-indigo-600 transition-colors font-bold pt-2 cursor-pointer">
             <span className="w-6 h-6 rounded-md bg-slate-100 border border-slate-300 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
               <ArrowRight size={12} />
             </span>

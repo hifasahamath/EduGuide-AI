@@ -53,7 +53,7 @@ const STYLES = ['Concise', 'Detailed', 'Friendly', 'Formal'];
 
 // ── Main Settings Page ─────────────────────────────────────────────────────────
 const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
-  const { user, updateSessionProfile } = useAuth();
+  const { user, isGuest, updateSessionProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [tab, setTab] = useState('account');
   const [settings, setSettings] = useState({});
@@ -62,7 +62,7 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
   const [toast, setToast] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
-  const [nameEdit, setNameEdit] = useState(user?.name || '');
+  const [nameEdit, setNameEdit] = useState(user?.name || (isGuest ? 'Guest Explorer' : ''));
   const [activityLog, setActivityLog] = useState([]);
   const [loadingActivity, setLoadingActivity] = useState(false);
 
@@ -70,7 +70,13 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
 
   // Load settings & activity log
   const fetchSettingsAndPlans = useCallback(async () => {
-    if (!user?.id) return;
+    if (isGuest || !user?.id) {
+      try {
+        const rPlans = await api.get('/subscription-plans');
+        setSubscriptionPlans(rPlans.data || []);
+      } catch {}
+      return;
+    }
     try {
       const rSettings = await api.get(`/settings/${user.id}`);
       setSettings(rSettings.data || {});
@@ -80,10 +86,13 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
       const rPlans = await api.get('/subscription-plans');
       setSubscriptionPlans(rPlans.data || []);
     } catch {}
-  }, [user?.id]);
+  }, [user?.id, isGuest]);
 
   const fetchActivityLog = useCallback(async () => {
-    if (!user?.id) return;
+    if (isGuest || !user?.id) {
+      setActivityLog([]);
+      return;
+    }
     setLoadingActivity(true);
     try {
       const rActivity = await api.get(`/auth/profile/${user.id}/activity`);
@@ -93,7 +102,7 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
     } finally {
       setLoadingActivity(false);
     }
-  }, [user?.id]);
+  }, [user?.id, isGuest]);
 
   useEffect(() => {
     fetchSettingsAndPlans();
@@ -103,13 +112,17 @@ const SettingsPage = ({ isDark, sidebarOpen, toggleSidebar }) => {
   const save = useCallback(async (patch) => {
     const merged = { ...settings, ...patch };
     setSettings(merged);
+    if (isGuest) {
+      showToast('Preference updated for this session!');
+      return;
+    }
     setSaving(true);
     try {
       await api.put(`/settings/${user.id}`, merged);
       showToast('Settings saved successfully!');
     } catch { showToast('Save failed', true); }
     setSaving(false);
-  }, [settings, user?.id]);
+  }, [settings, user?.id, isGuest]);
 
   const set = (key, val) => save({ [key]: val });
 
