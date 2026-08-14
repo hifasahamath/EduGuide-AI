@@ -112,13 +112,8 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}
-      className={`flex gap-2 sm:gap-3 ${isBot ? 'justify-start' : 'justify-end'} group`}>
-      {isBot && (
-        <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center shadow-xs mt-0.5 border border-indigo-400/20">
-          <Sparkles size={13} className="text-white" />
-        </div>
-      )}
-      <div className={`max-w-[92%] sm:max-w-[82%] min-w-0 ${isBot ? '' : 'flex flex-col items-end'}`}>
+      className={`flex ${isBot ? 'justify-start' : 'justify-end'} group w-full`}>
+      <div className={`max-w-[95%] sm:max-w-[88%] md:max-w-[85%] min-w-0 ${isBot ? '' : 'flex flex-col items-end'}`}>
         {/* Course cards if present */}
         {isBot && msg.courses?.length > 0 && (
           <div className="mb-2.5 w-full">
@@ -146,12 +141,12 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
           <p className={`text-[10px] font-semibold ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{formatTime(msg.timestamp)}</p>
           {isBot && !msg.isError && (
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={copy} className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-indigo-400' : 'text-slate-500 hover:bg-slate-200 hover:text-indigo-600'} transition-all`} title="Copy response">
+              <button onClick={copy} className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-indigo-400' : 'text-slate-500 hover:bg-slate-200 hover:text-indigo-600'} transition-all cursor-pointer touch-manipulation`} title="Copy response">
                 <Copy size={13} />
               </button>
               {copied && <span className="text-[10px] text-emerald-500 font-bold">Copied!</span>}
-              <button className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-emerald-400' : 'text-slate-500 hover:bg-slate-200 hover:text-emerald-600'} transition-all`} title="Helpful"><ThumbsUp size={13} /></button>
-              <button className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-rose-400' : 'text-slate-500 hover:bg-slate-200 hover:text-rose-600'} transition-all`} title="Not helpful"><ThumbsDown size={13} /></button>
+              <button className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-emerald-400' : 'text-slate-500 hover:bg-slate-200 hover:text-emerald-600'} transition-all cursor-pointer touch-manipulation`} title="Helpful"><ThumbsUp size={13} /></button>
+              <button className={`p-1.5 rounded-md ${isDark ? 'text-slate-400 hover:bg-slate-800 hover:text-rose-400' : 'text-slate-500 hover:bg-slate-200 hover:text-rose-600'} transition-all cursor-pointer touch-manipulation`} title="Not helpful"><ThumbsDown size={13} /></button>
             </div>
           )}
         </div>
@@ -161,7 +156,7 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
           <div className="flex flex-wrap gap-1.5 mt-2">
             {msg.suggestions.map((s, i) => (
               <button key={i} onClick={() => onQuickAction(s)}
-                className={`flex items-center gap-1 text-[11px] px-3 py-1.5 rounded-lg border font-medium transition-all ${
+                className={`flex items-center gap-1 text-[11px] px-3 py-1.5 rounded-lg border font-medium transition-all cursor-pointer touch-manipulation ${
                   isDark
                     ? 'border-slate-800 text-slate-300 bg-slate-900/60 hover:bg-indigo-600 hover:border-indigo-600 hover:text-white'
                     : 'border-indigo-100 text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100 hover:border-indigo-200'
@@ -174,21 +169,13 @@ const MessageBubble = ({ msg, isDark, user, onQuickAction }) => {
 
         {/* WhatsApp advisor button on fallback */}
         {isBot && msg.showWhatsApp && (
-          <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hello, I need help with course guidance.`}
+          <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello, I need help..')}`}
             target="_blank" rel="noopener noreferrer"
-            className="mt-2.5 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-xs transition-colors">
-            <MessageCircle size={14} /> Talk to an Academic Advisor
+            className="mt-2.5 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer touch-manipulation">
+            <MessageCircle size={15} /> Talk to an Academic Advisor
           </a>
         )}
       </div>
-
-      {!isBot && (
-        <div className="flex-shrink-0 w-8 h-8 rounded-xl bg-slate-800 dark:bg-slate-800 border border-slate-700 flex items-center justify-center shadow-xs mt-0.5">
-          {user?.profilePic
-            ? <img src={user.profilePic} alt="u" className="w-8 h-8 rounded-xl object-cover" />
-            : <span className="text-indigo-300 text-xs font-extrabold">{user?.name?.[0]?.toUpperCase() || 'U'}</span>}
-        </div>
-      )}
     </motion.div>
   );
 };
@@ -375,7 +362,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
 
   // Render Input Box component to avoid duplication
   const renderInputBox = (isCentered = false) => (
-    <div className={`w-full ${isCentered ? 'max-w-2xl mx-auto' : 'max-w-3xl mx-auto'}`}>
+    <div className={`w-full ${isCentered ? 'max-w-3xl lg:max-w-4xl mx-auto' : 'max-w-4xl lg:max-w-5xl mx-auto'}`}>
       {/* Input suggestions dropdown */}
       <AnimatePresence>
         {inputSuggestions.length > 0 && (
@@ -385,7 +372,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
               <button key={i} onClick={() => { setInput(s); setInputSuggestions([]); textareaRef.current?.focus(); }}
                 className={`w-full text-left px-4 py-2.5 text-xs font-semibold ${textMain} ${
                   isDark ? 'hover:bg-slate-800 border-slate-800' : 'hover:bg-slate-100 border-slate-200'
-                } transition-colors flex items-center gap-2 border-b last:border-0`}>
+                } transition-colors flex items-center gap-2 border-b last:border-0 cursor-pointer touch-manipulation`}>
                 <ChevronRight size={12} className="text-indigo-500 flex-shrink-0" />{s}
               </button>
             ))}
@@ -407,7 +394,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
         <div className="flex items-center gap-1.5 flex-shrink-0">
           {/* Voice button */}
           <button onClick={toggleVoice}
-            className={`p-2 rounded-xl transition-all ${
+            className={`p-2 rounded-xl transition-all cursor-pointer touch-manipulation ${
               isListening ? 'bg-red-500 text-white animate-pulse' : `${textMuted} hover:text-indigo-500 ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`
             }`}
             title={isListening ? 'Stop listening' : 'Voice input'}>
@@ -415,7 +402,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
           </button>
           {/* Send button */}
           <button onClick={() => sendMessage()} disabled={!input.trim() || isTyping}
-            className={`p-2 rounded-xl transition-all ${
+            className={`p-2 rounded-xl transition-all cursor-pointer touch-manipulation ${
               input.trim() && !isTyping
                 ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-xs shadow-indigo-500/20'
                 : isDark ? 'bg-slate-800 text-slate-500' : 'bg-slate-200 text-slate-400'
@@ -425,8 +412,8 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
         </div>
       </div>
 
-      <p className={`text-center text-[11px] font-medium mt-2.5 ${textMuted}`}>
-        EduGuide AI provides academic guidance. Please verify fee structures and entry requirements with your target institution.
+      <p className={`text-center text-[11px] font-medium mt-2 ${textMuted}`}>
+        Check important info.
       </p>
     </div>
   );
@@ -469,10 +456,12 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
           }`}>
             Education Advisor
           </span>
-          <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hello, I need help with course guidance.`}
+          <a href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello, I need help..')}`}
             target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-1 text-[11px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-xs transition-colors">
-            <MessageCircle size={13} /><span className="hidden xs:inline">Advisor</span>
+            className="flex items-center gap-1.5 text-xs px-3 sm:px-3.5 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold shadow-xs transition-colors cursor-pointer touch-manipulation"
+            title="Chat on WhatsApp">
+            <MessageCircle size={15} />
+            <span>WhatsApp</span>
           </a>
         </div>
       </div>
@@ -481,7 +470,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         {isNew ? (
           /* Welcome screen - ChatGPT & Gemini style centered layout */
-          <div className="min-h-full flex flex-col items-center justify-center p-4 sm:p-6 text-center max-w-2xl mx-auto py-8 sm:py-12">
+          <div className="min-h-full flex flex-col items-center justify-center p-4 sm:p-6 text-center max-w-3xl lg:max-w-4xl mx-auto py-8 sm:py-12">
             <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-indigo-600 flex items-center justify-center mb-3 sm:mb-4 shadow-md shadow-indigo-600/20 text-white">
               <Sparkles size={22} />
             </div>
@@ -516,7 +505,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 w-full">
               {STARTERS.map((s, i) => (
                 <button key={i} onClick={() => sendMessage(s.prompt)}
-                  className={`flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl border text-left transition-all group ${starterCard}`}>
+                  className={`flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl border text-left transition-all group cursor-pointer touch-manipulation ${starterCard}`}>
                   <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-500 dark:text-indigo-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                     {s.icon}
                   </div>
@@ -530,7 +519,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
           </div>
         ) : (
           /* Messages */
-          <div className="max-w-3xl mx-auto py-4 sm:py-6 px-3 sm:px-4 space-y-4 sm:space-y-5 pb-44 sm:pb-48">
+          <div className="max-w-4xl lg:max-w-5xl mx-auto py-4 sm:py-6 px-3 sm:px-6 space-y-4 sm:space-y-5 pb-44 sm:pb-48">
             <AnimatePresence initial={false}>
               {messages.map(msg => (
                 <MessageBubble key={msg.id} msg={msg} isDark={isDark} user={user} onQuickAction={sendMessage} />
@@ -539,10 +528,7 @@ const MainChat = ({ currentChatId, setCurrentChatId, onChatCreated, toggleSideba
 
             {/* Typing indicator */}
             {isTyping && (
-              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex gap-2 sm:gap-3 justify-start">
-                <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center shadow-xs flex-shrink-0 mt-0.5">
-                  <Sparkles size={13} className="text-white" />
-                </div>
+              <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start w-full">
                 <div className={`px-4 py-3 rounded-2xl rounded-tl-xs ${
                   isDark ? 'bg-slate-900 border border-slate-700' : 'bg-white border border-slate-300 shadow-xs'
                 }`}>
