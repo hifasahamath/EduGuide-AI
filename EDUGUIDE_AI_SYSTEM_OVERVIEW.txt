@@ -1,0 +1,198 @@
+================================================================================
+EDUGUIDE-AI — SYSTEM OVERVIEW & ARCHITECTURE DOCUMENTATION
+================================================================================
+Project:        EduGuide-AI
+Developer:      Hifas Ahamath
+Type:           Full-Stack AI Educational Advisor & Career Consultant Platform
+Target Market:  Sri Lankan Students, Parents, Job Seekers & Global Learners
+Architecture:   Monorepo (React 19 + Vite Frontend, Node/Express Backend, Supabase + pgvector, Gemini RAG)
+================================================================================
+
+1. EXECUTIVE SUMMARY & PURPOSE
+--------------------------------------------------------------------------------
+EduGuide-AI is an intelligent, full-stack educational advisory and career 
+counseling web platform. It helps students, parents, and career seekers make 
+informed decisions regarding higher education pathways in Sri Lanka and abroad.
+
+The system provides accurate, verified guidance on:
+- University degrees, Higher Diplomas, and Certificate programs.
+- Government and private university pathways in Sri Lanka (UGC Z-Score rules,
+  A/L streams, State Universities, Non-State Campuses).
+- Financial planning (Tuition fee breakdowns, installments, Ministry Interest-Free
+  Student Loan Schemes, and Mahapola Bursaries).
+- Scholarships and special grants (e.g., Hifas-Gemini Innovation Grant).
+- Career trajectories, salary expectations, and required qualification criteria.
+
+
+================================================================================
+2. TECHNOLOGY STACK & LIBRARIES USED
+================================================================================
+
+A. FRONTEND CLIENT:
+- Core Framework:      React 19 (Single Page Application architecture)
+- Build Tool & Server: Vite 8 (Ultra-fast HMR and optimized production bundles)
+- Routing:             React Router v7 (Dynamic route guards for Students & Admins)
+- Styling:             Vanilla CSS & Tailwind CSS + @tailwindcss/typography
+- Animations & UI:     Framer Motion (Micro-interactions, smooth chat stream transitions)
+- Icons:               Lucide React (Modern iconography)
+- Data Visualization:  Recharts (Dynamic analytics charts in the Admin Dashboard)
+- HTTP Client:         Axios (Custom interceptors for Supabase JWTs & smart base URL resolution)
+- Markdown Renderer:   React-Markdown (Rich rendering for AI responses: tables, code, lists)
+- Voice Recognition:   Web Speech API (Real-time voice-to-text chat input)
+
+B. BACKEND SERVER:
+- Runtime:             Node.js (v18+ / v24+)
+- Web Framework:       Express 5 (Modular routes, controllers, services, and middlewares)
+- Security Middleware: Helmet (HTTP security headers, Cross-Origin Resource Policy)
+- CORS:                Configured for local dev, custom domains, and Vercel deployments
+- Rate Limiting:       Express-Rate-Limit (Brute-force and API abuse prevention)
+- Environment Config:  dotenv / dotenvx (Centralized environment management)
+
+C. DATABASE & AUTHENTICATION (Supabase / PostgreSQL):
+- Database:            Managed PostgreSQL hosted on Supabase
+- Vector Engine:       pgvector extension (High-performance cosine similarity vector search)
+- Authentication:      Supabase Auth (Email/Password & Social OAuth with JWT tokens)
+- Security:            Row Level Security (RLS) policies protecting database tables
+- Dual Access Model:   
+  * Supabase Anon Client: Validates user JWT tokens in authentication middleware.
+  * Supabase Admin Client: Uses secret service_role key to bypass RLS for server-side
+    RAG vector searches and background data management.
+
+D. ARTIFICIAL INTELLIGENCE & LLM INTEGRATION:
+- Primary Embedding:   Google Gemini (`gemini-embedding-2` generating 3072-dimensional vectors)
+- Chat LLM Providers:
+  * Google Gemini (`gemini-2.5-flash` — Default provider, high speed & accuracy)
+  * OpenAI (`gpt-4o-mini` — Optional selectable provider)
+  * Anthropic (`claude-3-5-haiku-latest` — Optional selectable provider)
+  * xAI Grok (`grok-beta` — Optional selectable provider)
+- Document Parsers:    
+  * PDF:    `pdf-parse` (Extracts text content from academic prospectuses)
+  * Word:   `mammoth` (Extracts clean text from .docx syllabus documents)
+  * Excel:  `xlsx` (Parses structured course data sheets)
+  * CSV:    `csv-parser` (Streams bulk course imports)
+
+
+================================================================================
+3. SYSTEM ARCHITECTURE & HOW IT WORKS
+================================================================================
+
+1. USER INTERACTION & INPUT:
+   - Students can use the system as a Guest (zero-friction exploratory chat) or
+     register/login to maintain persistent chat histories.
+   - Users can type queries or use voice dictation.
+
+2. NATURAL LANGUAGE PROCESSING (NLP) & INTENT DETECTION:
+   - When a user sends a message, `nlpService.js` analyzes the input.
+   - It identifies intent keywords (e.g., fee_query, duration_query, location_query,
+     eligibility_query, career_query, comparison).
+   - Extracts course aliases (e.g., "bsc it" -> "BSc Information Technology") and
+     subject fields (IT, Business, Engineering, Health, etc.).
+
+3. RETRIEVAL-AUGMENTED GENERATION (RAG) PIPELINE:
+   - Step 1: `ragService.js` creates a context-aware search string (combining recent
+     conversation history if the query is a follow-up like "fees" or "requirements").
+   - Step 2: `embeddingService.js` generates a 3072-dimensional vector embedding
+     using Google Gemini.
+   - Step 3: Performs parallel vector similarity search against 3 PostgreSQL tables:
+     * `faqs`: Pre-trained frequently asked questions.
+     * `courses`: Specific course catalog records (fees, eligibility, duration, university).
+     * `documents`: Uploaded institution handbooks, syllabus documents, and brochures.
+   - Step 4: Matches are formatted into a verified knowledge context block.
+
+4. LLM PROMPT SYNTHESIS & GENERATION:
+   - The verified knowledge context is combined with a calibrated system prompt.
+   - Strict / Smart mode controls how the AI answers:
+     * Strict Mode: Bases answers strictly on verified internal documents.
+     * Smart Mode: Prioritizes internal documents, but uses general Sri Lankan
+       higher education knowledge to give complete, empathetic advice.
+   - The prompt dynamically enforces natural conversation rules:
+     * Greets the user on the initial turn or explicit greeting.
+     * Skips greetings on follow-up questions to provide direct, clean answers.
+     * Returns 3 smart follow-up question suggestion chips formatted as `---FOLLOWUPS---`.
+
+5. ACTIVE LEARNING / HUMAN-IN-THE-LOOP (TRAINING QUEUE):
+   - If the AI encounters a question that has no verified matches or cannot be answered,
+     it automatically logs the query into the `training_data` table.
+   - Administrators can review unanswered questions in the Admin Portal, write the official
+     answer, and save it.
+   - Upon saving, the system automatically vector-embeds the new Q&A pair and stores it in
+     the database, allowing the AI to answer that question accurately in the future.
+
+
+================================================================================
+4. KEY PLATFORM MODULES & SCREENS
+================================================================================
+
+A. STUDENT / CLIENT PORTAL:
+- Main Chat Screen:
+  * Clean ChatGPT-style interface with Dark & Light theme options.
+  * Markdown response formatting (headings, bullet points, bold text).
+  * Interactive follow-up suggestion chips for quick one-click prompts.
+  * Dynamic course cards displaying fees (LKR), duration, and campus location.
+  * Voice dictation support and one-click copy response buttons.
+  * WhatsApp direct escalation button to connect with real human advisors.
+- Chat Session Management:
+  * Persistent sidebar with past sessions, search, renaming, and pinning.
+- User Profile & Settings:
+  * Manage display name, avatar, AI response mode preferences, and default stream.
+
+B. ADMIN MANAGEMENT SUITE:
+- Dashboard:
+  * Real-time metrics on total queries, active users, course counts, and system status.
+- Courses Management:
+  * Create, edit, and delete course listings.
+  * Bulk import courses via CSV or Excel (.xlsx).
+- FAQ Management:
+  * Manage categorized Q&A pairs with automated view/ask counters.
+- Multi-Modal Document Uploads:
+  * Upload PDFs, Word documents, or text files.
+  * Automatic text extraction, paragraph chunking, and vector embedding into pgvector.
+- AI Training Queue:
+  * Review unresolved student queries.
+  * Provide verified answers that automatically vectorize into the RAG knowledge base.
+- User Management:
+  * View all registered users, roles (User vs Admin), and activity status.
+- Subscription Plans:
+  * Manage tiered educational advising service packages.
+- Analytics & Reports:
+  * Visual distribution of query topics, popular fields, and user engagement over time.
+
+
+================================================================================
+5. DUAL-ENVIRONMENT DEPLOYMENT MODEL
+================================================================================
+
+The repository is organized as a unified monorepo supporting both local development
+and cloud deployment:
+
+- LOCAL DEVELOPMENT:
+  * Run `npm run dev` to start Express on `http://localhost:5000` and Vite on `http://localhost:5173`.
+  * Vite proxy automatically forwards `/api` requests to the Express backend.
+
+- PRODUCTION DEPLOYMENT (Vercel):
+  * Frontend: Static production build generated by Vite into `client/dist`.
+  * Backend: Express application executed as a Vercel Serverless Function via `/api/index.js`.
+  * Routing: `vercel.json` rewrites `/api/*` to the serverless function and all other
+    routes to `index.html` for client-side single page app routing.
+  * Client API: Intelligently resolves to relative `/api` on production domains,
+    preventing any localhost connection errors.
+
+
+================================================================================
+6. REQUIRED ENVIRONMENT VARIABLES
+================================================================================
+
+To run or deploy EduGuide-AI, the following environment variables are required:
+
+1. `GEMINI_API_KEY`             -> Google Gemini API key (Embeddings & Chat).
+2. `SUPABASE_URL`               -> Supabase project URL (e.g., https://xyz.supabase.co).
+3. `SUPABASE_ANON_KEY`          -> Supabase public anonymous API key.
+4. `SUPABASE_SERVICE_ROLE_KEY`  -> Supabase secret service role key (backend only).
+5. `VITE_SUPABASE_URL`          -> Supabase project URL for frontend client.
+6. `VITE_SUPABASE_ANON_KEY`     -> Supabase anonymous API key for frontend client.
+7. `NODE_ENV`                   -> Environment mode ('development' or 'production').
+8. `ALLOWED_ORIGINS`            -> Comma-separated list of allowed CORS domains.
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================
