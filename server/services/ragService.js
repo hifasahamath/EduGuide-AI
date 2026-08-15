@@ -42,15 +42,23 @@ class RagService {
       searchQuery = `${recentHistory} ${userMessage}`;
     }
 
-    // Embed the query for similarity search
-    const embedding = await EmbeddingService.generateEmbedding(searchQuery);
+    // Step 2: Search our knowledge base in parallel (with safe fallback)
+    let faqs = [];
+    let courses = [];
+    let documents = [];
 
-    // Step 2: Search our knowledge base in parallel
-    const [faqs, courses, documents] = await Promise.all([
-      FaqModel.searchSimilar(embedding, 2, 0.38),
-      CourseModel.searchSimilar(embedding, 3, 0.35),
-      DocumentModel.searchSimilar(embedding, 3, 0.35)
-    ]);
+    try {
+      // Embed the query for similarity search
+      const embedding = await EmbeddingService.generateEmbedding(searchQuery);
+
+      [faqs, courses, documents] = await Promise.all([
+        FaqModel.searchSimilar(embedding, 2, 0.38).catch(() => []),
+        CourseModel.searchSimilar(embedding, 3, 0.35).catch(() => []),
+        DocumentModel.searchSimilar(embedding, 3, 0.35).catch(() => [])
+      ]);
+    } catch (embErr) {
+      console.warn('[RagService] Vector search skipped or unavailable:', embErr.message);
+    }
 
     // Step 3: Build the context from search results
     let contextStr = '';
@@ -77,8 +85,10 @@ class RagService {
     }
 
     if (!contextStr) {
-      contextStr = 'No relevant information found in the knowledge base for this question.';
+      contextStr = 'No relevant specific documents found in the verified knowledge base for this question.';
     }
+
+    const isInitialMessage = history.length === 0 || /^(hi|hello|hey|good morning|good afternoon|good evening|greetings)\b/i.test(userMessage.trim());
 
     // Step 4: Build system prompt with follow-up questions directive
     const systemPrompt = `You are EduGuide-AI, a warm, highly knowledgeable, and empathetic Senior Educational Advisor & Career Consultant in Sri Lanka.
@@ -93,7 +103,9 @@ ${contextStr}
 =======================================
 
 Tone & Response Guidelines:
-1. GREETING RULE: ALWAYS greet the user with "Hello!" or "Hello!" followed by how you can help. NEVER use "Ayubowan", "Ayubovan", or any local dialect greetings unless the user explicitly speaks to you in Sinhala or Tamil. Always use friendly, professional English.
+1. GREETING RULE: ${isInitialMessage 
+      ? 'This is the start of the conversation or the user greeted you. Greet the user warmly and professionally (e.g. "Hello! How can I help you today?" or "Hi there!").' 
+      : 'This is an ongoing conversation / follow-up question. DO NOT start your response with "Hello!", "Hi!", or repetitive greetings. Jump directly into answering the user\'s question in a helpful, conversational manner.'} NEVER use "Ayubowan", "Ayubovan", or any local dialect greetings unless the user explicitly speaks to you in Sinhala or Tamil. Always use friendly, professional English.
 2. NATURAL SYNTHESIS: Never copy raw text chunks verbatim or sound robotic. Blend facts into smooth, engaging, and professional advice.
 3. CLEAR STRUCTURE: Use markdown headings (##, ###), bullet points, bold key terms, and callout boxes where appropriate.
 4. ACCURACY FIRST: Preserve exact figures, grant codes, deadlines, GPA cutoffs, fees, and contact details without distortion.
@@ -128,8 +140,8 @@ Tone & Response Guidelines:
         .slice(0, 3);
     }
 
-    // Step 7: Sanitize greetings — replace any "Ayubowan" with "Hello"
-    cleanText = cleanText.replace(/\bAyubowan\b[!,.\s]*/gi, 'Hello! ').trim();
+    // Step 7: Sanitize greetings — replace any rogue "Ayubowan"
+    cleanText = cleanText.replace(/\bAyubowan\b[!,.\s]*/gi, isInitialMessage ? 'Hello! ' : '').trim();
 
     return {
       text: cleanText,

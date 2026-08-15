@@ -1,8 +1,21 @@
 import axios from 'axios';
 import { supabase } from '../lib/supabase';
 
-// Base URL for our Express server API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Base URL for Express server API
+// Intelligently falls back to '/api' in production or when running on a deployed host
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) {
+    // If running on a deployed site (not localhost) but envUrl is pointing to localhost, fallback to relative '/api'
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && envUrl.includes('localhost')) {
+      return '/api';
+    }
+    return envUrl;
+  }
+  return import.meta.env.DEV ? 'http://localhost:5000/api' : '/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,

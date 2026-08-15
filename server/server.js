@@ -36,28 +36,43 @@ process.on('unhandledRejection', (err) => {
 });
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
-// CORS
+// CORS Configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
   : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:4173'];
 
 const corsOptions = {
   origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. mobile apps, curl, serverless same-origin)
     if (!origin) return callback(null, true);
-    if (NODE_ENV === 'development') return callback(null, true);
-    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    
+    // In development or if explicitly allowed via wildcard/list
+    if (NODE_ENV === 'development' || !process.env.ALLOWED_ORIGINS || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    return callback(new Error(`CORS: origin '${origin}' not allowed`));
+    
+    // Allow any Vercel preview or production deployment domain
+    try {
+      const url = new URL(origin);
+      if (url.hostname.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+    } catch {
+      // Invalid URL string
+    }
+
+    return callback(null, false);
   },
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));
-app.options('/{*path}', cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
 

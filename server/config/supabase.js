@@ -19,15 +19,17 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 }
 
 // Anon client — used to verify JWTs in auth middleware
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// Admin client — bypasses Row Level Security for server-side DB operations
-const supabaseAdmin = SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY)
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
+// Admin client — bypasses Row Level Security for server-side DB operations
+const supabaseAdmin = (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY)
+  ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+  : (supabase || null);
+
 if (!supabaseAdmin) {
-  console.warn('[Supabase] No SUPABASE_SERVICE_ROLE_KEY — admin operations will fail');
+  console.warn('[Supabase] Warning: Supabase client not fully initialized. Ensure SUPABASE_URL and keys are configured.');
 }
 
 module.exports = { supabase, supabaseAdmin };
